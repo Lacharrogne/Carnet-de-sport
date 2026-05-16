@@ -15,26 +15,9 @@ type WorkoutRow = {
   progress: Workout['trend']
   notes: string | null
   improvement: string | null
-  is_record: boolean
-  details: unknown | null
-}
-
-function getLocalWorkouts() {
-  const storedWorkouts = localStorage.getItem(WORKOUTS_STORAGE_KEY)
-
-  if (!storedWorkouts) {
-    return null
-  }
-
-  try {
-    return JSON.parse(storedWorkouts) as Workout[]
-  } catch {
-    return null
-  }
-}
-
-function saveLocalWorkouts(workouts: Workout[]) {
-  localStorage.setItem(WORKOUTS_STORAGE_KEY, JSON.stringify(workouts))
+  is_record?: boolean | null
+  details?: Workout['details'] | null
+  created_at?: string
 }
 
 function mapWorkoutRowToWorkout(row: WorkoutRow): Workout {
@@ -46,14 +29,14 @@ function mapWorkoutRowToWorkout(row: WorkoutRow): Workout {
     duration: row.duration,
     intensity: row.intensity,
     feeling: row.feeling,
-    trend: row.progress,
     notes: row.notes ?? '',
     improvementIdea: row.improvement ?? '',
+    trend: row.progress,
     details: row.details ?? undefined,
-  } as Workout
+  }
 }
 
-function mapWorkoutToInsert(workout: Workout, userId: string) {
+function mapWorkoutToInsert(workout: Workout, userId: string): WorkoutRow {
   return {
     id: workout.id,
     user_id: userId,
@@ -67,21 +50,29 @@ function mapWorkoutToInsert(workout: Workout, userId: string) {
     notes: workout.notes,
     improvement: workout.improvementIdea,
     is_record: workout.trend === 'record',
-    details: 'details' in workout ? workout.details ?? null : null,
+    details: workout.details ?? null,
   }
 }
 
-export function getStoredWorkouts(): Workout[] | null
-export function getStoredWorkouts(userId: string): Promise<Workout[] | null>
-export function getStoredWorkouts(userId?: string) {
-  if (!userId) {
-    return getLocalWorkouts()
+export function getStoredWorkouts() {
+  const storedWorkouts = localStorage.getItem(WORKOUTS_STORAGE_KEY)
+
+  if (!storedWorkouts) {
+    return null
   }
 
-  return getSupabaseWorkouts(userId)
+  try {
+    return JSON.parse(storedWorkouts) as Workout[]
+  } catch {
+    return null
+  }
 }
 
-async function getSupabaseWorkouts(userId: string) {
+export function saveWorkouts(workouts: Workout[]) {
+  localStorage.setItem(WORKOUTS_STORAGE_KEY, JSON.stringify(workouts))
+}
+
+export async function getRemoteWorkouts(userId: string) {
   const { data, error } = await supabase
     .from('workouts')
     .select('*')
@@ -89,51 +80,40 @@ async function getSupabaseWorkouts(userId: string) {
     .order('date', { ascending: false })
 
   if (error) {
-    console.error('Erreur chargement séances Supabase :', error)
-    return getLocalWorkouts()
+    throw error
   }
 
-  const workouts = (data as WorkoutRow[]).map(mapWorkoutRowToWorkout)
-
-  saveLocalWorkouts(workouts)
-
-  return workouts
+  return (data ?? []).map((row) =>
+    mapWorkoutRowToWorkout(row as WorkoutRow),
+  )
 }
 
-export function saveWorkouts(workouts: Workout[]): void
-export function saveWorkouts(workouts: Workout[], userId: string): Promise<void>
-export function saveWorkouts(workouts: Workout[], userId?: string) {
-  saveLocalWorkouts(workouts)
+export async function saveRemoteWorkouts(
+  workouts: Workout[],
+  userId: string,
+) {
+  const rows = workouts.map((workout) =>
+    mapWorkoutToInsert(workout, userId),
+  )
 
-  if (!userId) {
-    return
-  }
-
-  return saveSupabaseWorkouts(workouts, userId)
-}
-
-async function saveSupabaseWorkouts(workouts: Workout[], userId: string) {
   const { error: deleteError } = await supabase
     .from('workouts')
     .delete()
     .eq('user_id', userId)
 
   if (deleteError) {
-    console.error('Erreur suppression anciennes séances Supabase :', deleteError)
+    throw deleteError
+  }
+
+  if (rows.length === 0) {
     return
   }
 
-  if (workouts.length === 0) {
-    return
-  }
-
-  const rows = workouts.map((workout) => {
-    return mapWorkoutToInsert(workout, userId)
-  })
-
-  const { error: insertError } = await supabase.from('workouts').insert(rows)
+  const { error: insertError } = await supabase
+    .from('workouts')
+    .insert(rows)
 
   if (insertError) {
-    console.error('Erreur sauvegarde séances Supabase :', insertError)
+    throw insertError
   }
 }

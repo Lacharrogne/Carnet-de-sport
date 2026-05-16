@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   BrowserRouter,
   Navigate,
@@ -27,22 +27,36 @@ import {
   listenToAuthChanges,
   signOut,
 } from './services/authService'
+
 import {
   DEFAULT_HEALTH_PROFILE,
+  getRemoteHealthProfile,
   getStoredHealthProfile,
   saveHealthProfile,
+  saveRemoteHealthProfile,
 } from './services/healthProfileStorage'
+
 import {
   getRemotePlannedWorkouts,
   getStoredPlannedWorkouts,
   savePlannedWorkouts,
+  saveRemotePlannedWorkouts,
 } from './services/plannedWorkoutStorage'
+
 import {
   DEFAULT_WEEKLY_GOAL,
+  getRemoteWeeklyGoal,
   getStoredWeeklyGoal,
+  saveRemoteWeeklyGoal,
   saveWeeklyGoal,
 } from './services/weeklyGoalStorage'
-import { getStoredWorkouts, saveWorkouts } from './services/workoutStorage'
+
+import {
+  getRemoteWorkouts,
+  getStoredWorkouts,
+  saveRemoteWorkouts,
+  saveWorkouts,
+} from './services/workoutStorage'
 
 import type { HealthProfile } from './types/health'
 import type { PlannedWorkout } from './types/plannedWorkout'
@@ -62,6 +76,7 @@ function AppShell() {
 
   const [user, setUser] = useState<User | null>(null)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
+  const [hasLoadedRemoteData, setHasLoadedRemoteData] = useState(false)
 
   const [workouts, setWorkouts] = useState<Workout[]>(() => {
     return getStoredWorkouts() ?? WORKOUTS
@@ -79,9 +94,26 @@ function AppShell() {
     return getStoredWeeklyGoal() ?? DEFAULT_WEEKLY_GOAL
   })
 
+  const localDataRef = useRef({
+    workouts,
+    plannedWorkouts,
+    weeklyGoal,
+    healthProfile,
+  })
+
+  useEffect(() => {
+    localDataRef.current = {
+      workouts,
+      plannedWorkouts,
+      weeklyGoal,
+      healthProfile,
+    }
+  }, [workouts, plannedWorkouts, weeklyGoal, healthProfile])
+
   const handleSignOut = async () => {
     await signOut()
     setUser(null)
+    setHasLoadedRemoteData(false)
     navigate('/auth')
   }
 
@@ -90,33 +122,26 @@ function AppShell() {
 
     getCurrentSession()
       .then((session) => {
-        if (!isMounted) {
-          return
-        }
+        if (!isMounted) return
 
         setUser(session?.user ?? null)
       })
       .catch(() => {
-        if (!isMounted) {
-          return
-        }
+        if (!isMounted) return
 
         setUser(null)
       })
       .finally(() => {
-        if (!isMounted) {
-          return
-        }
+        if (!isMounted) return
 
         setIsAuthLoading(false)
       })
 
     const subscription = listenToAuthChanges(async (_event, session) => {
-      if (!isMounted) {
-        return
-      }
+      if (!isMounted) return
 
       setUser(session?.user ?? null)
+      setHasLoadedRemoteData(false)
       setIsAuthLoading(false)
     })
 
@@ -126,41 +151,115 @@ function AppShell() {
     }
   }, [])
 
-useEffect(() => {
-  if (!user) {
-    return
-  }
-
-  let isMounted = true
-
-  getRemotePlannedWorkouts(user.id).then((remotePlannedWorkouts) => {
-    if (!isMounted || remotePlannedWorkouts === null) {
+  useEffect(() => {
+    if (!user) {
       return
     }
 
-    setPlannedWorkouts(remotePlannedWorkouts)
-  })
+    const userId = user.id
+    let isMounted = true
 
-  return () => {
-    isMounted = false
-  }
-}, [user])
+    async function loadUserData() {
+      try {
+        const {
+          workouts: localWorkouts,
+          plannedWorkouts: localPlannedWorkouts,
+          weeklyGoal: localWeeklyGoal,
+          healthProfile: localHealthProfile,
+        } = localDataRef.current
 
-  useEffect(() => {
-    saveWeeklyGoal(weeklyGoal)
-  }, [weeklyGoal])
+        const [
+          remoteWorkouts,
+          remotePlannedWorkouts,
+          remoteWeeklyGoal,
+          remoteHealthProfile,
+        ] = await Promise.all([
+          getRemoteWorkouts(userId),
+          getRemotePlannedWorkouts(userId),
+          getRemoteWeeklyGoal(userId),
+          getRemoteHealthProfile(userId),
+        ])
 
-useEffect(() => {
-  void savePlannedWorkouts(plannedWorkouts)
-}, [plannedWorkouts])
+        if (!isMounted) return
+
+        if (remoteWorkouts.length > 0) {
+          setWorkouts(remoteWorkouts)
+        } else {
+          await saveRemoteWorkouts(localWorkouts, userId)
+        }
+
+        if (remotePlannedWorkouts.length > 0) {
+          setPlannedWorkouts(remotePlannedWorkouts)
+        } else {
+          await saveRemotePlannedWorkouts(localPlannedWorkouts, userId)
+        }
+
+        if (remoteWeeklyGoal) {
+          setWeeklyGoal(remoteWeeklyGoal)
+        } else {
+          await saveRemoteWeeklyGoal(localWeeklyGoal, userId)
+        }
+
+        if (remoteHealthProfile) {
+          setHealthProfile(remoteHealthProfile)
+        } else {
+          await saveRemoteHealthProfile(localHealthProfile, userId)
+        }
+
+        if (!isMounted) return
+
+        setHasLoadedRemoteData(true)
+      } catch (error) {
+        console.error('Erreur lors du chargement des données utilisateur :', error)
+      }
+    }
+
+    void loadUserData()
+
+    return () => {
+      isMounted = false
+    }
+  }, [user])
 
   useEffect(() => {
     saveWorkouts(workouts)
-  }, [workouts])
+
+    if (!user || !hasLoadedRemoteData) {
+      return
+    }
+
+    void saveRemoteWorkouts(workouts, user.id)
+  }, [workouts, user, hasLoadedRemoteData])
+
+  useEffect(() => {
+    savePlannedWorkouts(plannedWorkouts)
+
+    if (!user || !hasLoadedRemoteData) {
+      return
+    }
+
+    void saveRemotePlannedWorkouts(plannedWorkouts, user.id)
+  }, [plannedWorkouts, user, hasLoadedRemoteData])
+
+  useEffect(() => {
+    saveWeeklyGoal(weeklyGoal)
+
+    if (!user || !hasLoadedRemoteData) {
+      return
+    }
+
+    void saveRemoteWeeklyGoal(weeklyGoal, user.id)
+  }, [weeklyGoal, user, hasLoadedRemoteData])
 
   useEffect(() => {
     saveHealthProfile(healthProfile)
-  }, [healthProfile])
+
+    if (!user || !hasLoadedRemoteData) {
+      return
+    }
+
+    void saveRemoteHealthProfile(healthProfile, user.id)
+  }, [healthProfile, user, hasLoadedRemoteData])
 
   const handleAddWorkout = (values: WorkoutFormValues) => {
     const newWorkout: Workout = {
@@ -189,7 +288,7 @@ useEffect(() => {
     }
 
     const confirmed = window.confirm(
-      `Supprimer la séance prévue "${plannedWorkoutToDelete.title}" ?`
+      `Supprimer la séance prévue "${plannedWorkoutToDelete.title}" ?`,
     )
 
     if (!confirmed) {
@@ -205,7 +304,7 @@ useEffect(() => {
 
   const handleCompletePlannedWorkout = (plannedWorkout: PlannedWorkout) => {
     const confirmed = window.confirm(
-      `Transformer "${plannedWorkout.title}" en séance réalisée ?`
+      `Transformer "${plannedWorkout.title}" en séance réalisée ?`,
     )
 
     if (!confirmed) {
@@ -238,7 +337,7 @@ useEffect(() => {
 
   const handleEditWorkout = (
     workoutId: string,
-    values: WorkoutFormValues
+    values: WorkoutFormValues,
   ) => {
     setWorkouts((currentWorkouts) => {
       return currentWorkouts.map((workout) => {
@@ -266,7 +365,7 @@ useEffect(() => {
     }
 
     const confirmed = window.confirm(
-      `Supprimer la séance "${workoutToDelete.title}" ?`
+      `Supprimer la séance "${workoutToDelete.title}" ?`,
     )
 
     if (!confirmed) {
