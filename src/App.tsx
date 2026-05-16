@@ -7,36 +7,47 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom'
+import type { User } from '@supabase/supabase-js'
 
 import AppNavigation from './components/AppNavigation'
 import { WORKOUTS } from './data/workouts'
+
+import AuthPage from './pages/AuthPage'
 import BodyPage from './pages/BodyPage'
+import ChallengesPage from './pages/ChallengesPage'
 import DashboardPage from './pages/DashboardPage'
 import EditWorkoutPage from './pages/EditWorkoutPage'
 import NewWorkoutPage from './pages/NewWorkoutPage'
+import PlanningPage from './pages/PlanningPage'
 import ProgressPage from './pages/ProgressPage'
 import WorkoutsPage from './pages/WorkoutsPage'
+
+import {
+  getCurrentSession,
+  listenToAuthChanges,
+  signOut,
+} from './services/authService'
 import {
   DEFAULT_HEALTH_PROFILE,
   getStoredHealthProfile,
   saveHealthProfile,
 } from './services/healthProfileStorage'
-import { getStoredWorkouts, saveWorkouts } from './services/workoutStorage'
-import type { HealthProfile } from './types/health'
-import type { Workout, WorkoutFormValues } from './types/workout'
-import PlanningPage from './pages/PlanningPage'
 import {
+  getRemotePlannedWorkouts,
   getStoredPlannedWorkouts,
   savePlannedWorkouts,
 } from './services/plannedWorkoutStorage'
-import type { PlannedWorkout } from './types/plannedWorkout'
 import {
   DEFAULT_WEEKLY_GOAL,
   getStoredWeeklyGoal,
   saveWeeklyGoal,
 } from './services/weeklyGoalStorage'
+import { getStoredWorkouts, saveWorkouts } from './services/workoutStorage'
+
+import type { HealthProfile } from './types/health'
+import type { PlannedWorkout } from './types/plannedWorkout'
 import type { WeeklyGoal } from './types/weeklyGoal'
-import ChallengesPage from './pages/ChallengesPage'
+import type { Workout, WorkoutFormValues } from './types/workout'
 
 function App() {
   return (
@@ -49,6 +60,9 @@ function App() {
 function AppShell() {
   const navigate = useNavigate()
 
+  const [user, setUser] = useState<User | null>(null)
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
+
   const [workouts, setWorkouts] = useState<Workout[]>(() => {
     return getStoredWorkouts() ?? WORKOUTS
   })
@@ -58,19 +72,86 @@ function AppShell() {
   })
 
   const [plannedWorkouts, setPlannedWorkouts] = useState<PlannedWorkout[]>(() => {
-  return getStoredPlannedWorkouts() ?? []
-})
+    return getStoredPlannedWorkouts() ?? []
+  })
 
-const [weeklyGoal, setWeeklyGoal] = useState<WeeklyGoal>(() => {
-  return getStoredWeeklyGoal() ?? DEFAULT_WEEKLY_GOAL
-})
+  const [weeklyGoal, setWeeklyGoal] = useState<WeeklyGoal>(() => {
+    return getStoredWeeklyGoal() ?? DEFAULT_WEEKLY_GOAL
+  })
+
+  const handleSignOut = async () => {
+    await signOut()
+    setUser(null)
+    navigate('/auth')
+  }
+
+  useEffect(() => {
+    let isMounted = true
+
+    getCurrentSession()
+      .then((session) => {
+        if (!isMounted) {
+          return
+        }
+
+        setUser(session?.user ?? null)
+      })
+      .catch(() => {
+        if (!isMounted) {
+          return
+        }
+
+        setUser(null)
+      })
+      .finally(() => {
+        if (!isMounted) {
+          return
+        }
+
+        setIsAuthLoading(false)
+      })
+
+    const subscription = listenToAuthChanges(async (_event, session) => {
+      if (!isMounted) {
+        return
+      }
+
+      setUser(session?.user ?? null)
+      setIsAuthLoading(false)
+    })
+
+    return () => {
+      isMounted = false
+      subscription.unsubscribe()
+    }
+  }, [])
 
 useEffect(() => {
-  saveWeeklyGoal(weeklyGoal)
-}, [weeklyGoal])
+  if (!user) {
+    return
+  }
+
+  let isMounted = true
+
+  getRemotePlannedWorkouts(user.id).then((remotePlannedWorkouts) => {
+    if (!isMounted || remotePlannedWorkouts === null) {
+      return
+    }
+
+    setPlannedWorkouts(remotePlannedWorkouts)
+  })
+
+  return () => {
+    isMounted = false
+  }
+}, [user])
+
+  useEffect(() => {
+    saveWeeklyGoal(weeklyGoal)
+  }, [weeklyGoal])
 
 useEffect(() => {
-  savePlannedWorkouts(plannedWorkouts)
+  void savePlannedWorkouts(plannedWorkouts)
 }, [plannedWorkouts])
 
   useEffect(() => {
@@ -92,68 +173,68 @@ useEffect(() => {
   }
 
   const handleAddPlannedWorkout = (plannedWorkout: PlannedWorkout) => {
-  setPlannedWorkouts((currentPlannedWorkouts) => [
-    plannedWorkout,
-    ...currentPlannedWorkouts,
-  ])
-}
-
-const handleDeletePlannedWorkout = (plannedWorkoutId: string) => {
-  const plannedWorkoutToDelete = plannedWorkouts.find((plannedWorkout) => {
-    return plannedWorkout.id === plannedWorkoutId
-  })
-
-  if (!plannedWorkoutToDelete) {
-    return
+    setPlannedWorkouts((currentPlannedWorkouts) => [
+      plannedWorkout,
+      ...currentPlannedWorkouts,
+    ])
   }
 
-  const confirmed = window.confirm(
-    `Supprimer la séance prévue "${plannedWorkoutToDelete.title}" ?`
-  )
-
-  if (!confirmed) {
-    return
-  }
-
-  setPlannedWorkouts((currentPlannedWorkouts) => {
-    return currentPlannedWorkouts.filter((plannedWorkout) => {
-      return plannedWorkout.id !== plannedWorkoutId
+  const handleDeletePlannedWorkout = (plannedWorkoutId: string) => {
+    const plannedWorkoutToDelete = plannedWorkouts.find((plannedWorkout) => {
+      return plannedWorkout.id === plannedWorkoutId
     })
-  })
-}
 
-const handleCompletePlannedWorkout = (plannedWorkout: PlannedWorkout) => {
-  const confirmed = window.confirm(
-    `Transformer "${plannedWorkout.title}" en séance réalisée ?`
-  )
+    if (!plannedWorkoutToDelete) {
+      return
+    }
 
-  if (!confirmed) {
-    return
-  }
+    const confirmed = window.confirm(
+      `Supprimer la séance prévue "${plannedWorkoutToDelete.title}" ?`
+    )
 
-  const completedWorkout: Workout = {
-    id: crypto.randomUUID(),
-    title: plannedWorkout.title,
-    category: plannedWorkout.category,
-    date: plannedWorkout.date,
-    duration: plannedWorkout.duration,
-    intensity: 'Moyenne',
-    feeling: 'Bon',
-    notes: plannedWorkout.objective,
-    improvementIdea: '',
-    trend: 'stable',
-  }
+    if (!confirmed) {
+      return
+    }
 
-  setWorkouts((currentWorkouts) => [completedWorkout, ...currentWorkouts])
-
-  setPlannedWorkouts((currentPlannedWorkouts) => {
-    return currentPlannedWorkouts.filter((item) => {
-      return item.id !== plannedWorkout.id
+    setPlannedWorkouts((currentPlannedWorkouts) => {
+      return currentPlannedWorkouts.filter((plannedWorkout) => {
+        return plannedWorkout.id !== plannedWorkoutId
+      })
     })
-  })
+  }
 
-  navigate('/workouts')
-}
+  const handleCompletePlannedWorkout = (plannedWorkout: PlannedWorkout) => {
+    const confirmed = window.confirm(
+      `Transformer "${plannedWorkout.title}" en séance réalisée ?`
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    const completedWorkout: Workout = {
+      id: crypto.randomUUID(),
+      title: plannedWorkout.title,
+      category: plannedWorkout.category,
+      date: plannedWorkout.date,
+      duration: plannedWorkout.duration,
+      intensity: 'Moyenne',
+      feeling: 'Bon',
+      notes: plannedWorkout.objective,
+      improvementIdea: '',
+      trend: 'stable',
+    }
+
+    setWorkouts((currentWorkouts) => [completedWorkout, ...currentWorkouts])
+
+    setPlannedWorkouts((currentPlannedWorkouts) => {
+      return currentPlannedWorkouts.filter((item) => {
+        return item.id !== plannedWorkout.id
+      })
+    })
+
+    navigate('/workouts')
+  }
 
   const handleEditWorkout = (
     workoutId: string,
@@ -176,7 +257,9 @@ const handleCompletePlannedWorkout = (plannedWorkout: PlannedWorkout) => {
   }
 
   const handleDeleteWorkout = (workoutId: string) => {
-    const workoutToDelete = workouts.find((workout) => workout.id === workoutId)
+    const workoutToDelete = workouts.find((workout) => {
+      return workout.id === workoutId
+    })
 
     if (!workoutToDelete) {
       return
@@ -197,7 +280,11 @@ const handleCompletePlannedWorkout = (plannedWorkout: PlannedWorkout) => {
 
   return (
     <>
-      <AppNavigation />
+      <AppNavigation
+        user={user}
+        isAuthLoading={isAuthLoading}
+        onSignOut={handleSignOut}
+      />
 
       <Routes>
         <Route
@@ -212,6 +299,8 @@ const handleCompletePlannedWorkout = (plannedWorkout: PlannedWorkout) => {
             />
           }
         />
+
+        <Route path="/auth" element={<AuthPage />} />
 
         <Route
           path="/workouts"
@@ -270,27 +359,29 @@ const handleCompletePlannedWorkout = (plannedWorkout: PlannedWorkout) => {
             />
           }
         />
+
         <Route
-  path="/planning"
-  element={
-    <PlanningPage
-      plannedWorkouts={plannedWorkouts}
-      onAddPlannedWorkout={handleAddPlannedWorkout}
-      onDeletePlannedWorkout={handleDeletePlannedWorkout}
-      onCompletePlannedWorkout={handleCompletePlannedWorkout}
-    />
-  }
-/>
-<Route
-  path="/challenges"
-  element={
-    <ChallengesPage
-      workouts={workouts}
-      plannedWorkouts={plannedWorkouts}
-      weeklyGoal={weeklyGoal}
-    />
-  }
-/>
+          path="/planning"
+          element={
+            <PlanningPage
+              plannedWorkouts={plannedWorkouts}
+              onAddPlannedWorkout={handleAddPlannedWorkout}
+              onDeletePlannedWorkout={handleDeletePlannedWorkout}
+              onCompletePlannedWorkout={handleCompletePlannedWorkout}
+            />
+          }
+        />
+
+        <Route
+          path="/challenges"
+          element={
+            <ChallengesPage
+              workouts={workouts}
+              plannedWorkouts={plannedWorkouts}
+              weeklyGoal={weeklyGoal}
+            />
+          }
+        />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
