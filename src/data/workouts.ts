@@ -1,0 +1,40 @@
+import type { Workout } from '../types/workout'
+
+export const WORKOUTS: Workout[] = [
+  {
+    id: '1',
+    title: 'Séance haut du corps',
+    category: 'musculation',
+    date: '2026-05-15',
+    duration: 62,
+    intensity: 'Difficile',
+    feeling: 'Bon',
+    notes: 'Bonne séance. Les épaules étaient un peu fatiguées en fin d’entraînement.',
+    improvementIdea: 'Réduire légèrement le volume épaules ou mieux gérer les temps de repos.',
+    trend: 'progress',
+  },
+  {
+    id: '2',
+    title: 'Foot entre amis',
+    category: 'football',
+    date: '2026-05-13',
+    duration: 90,
+    intensity: 'Moyenne',
+    feeling: 'Excellent',
+    notes: 'Très bonne énergie, beaucoup de courses et de changements de rythme.',
+    improvementIdea: 'Travailler l’endurance pour garder le même niveau jusqu’à la fin.',
+    trend: 'record',
+  },
+  {
+    id: '3',
+    title: 'Marche active',
+    category: 'marche',
+    date: '2026-05-12',
+    duration: 35,
+    intensity: 'Facile',
+    feeling: 'Correct',
+    notes: 'Petite sortie tranquille pour rester actif.',
+    improvementIdea: 'Essayer d’ajouter 10 minutes la prochaine fois.',
+    trend: 'stable',
+  },
+]
