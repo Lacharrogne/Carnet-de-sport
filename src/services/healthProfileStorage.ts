@@ -5,8 +5,6 @@ import type {
 } from '../types/health'
 import { supabase } from './supabaseClient'
 
-const HEALTH_PROFILE_STORAGE_KEY = 'carnet-de-sport-health-profile'
-
 export const DEFAULT_HEALTH_PROFILE: HealthProfile = {
   height: 175,
   weight: 70,
@@ -48,24 +46,6 @@ function mapHealthProfileToUpsert(profile: HealthProfile, userId: string) {
   }
 }
 
-export function getStoredHealthProfile() {
-  const storedProfile = localStorage.getItem(HEALTH_PROFILE_STORAGE_KEY)
-
-  if (!storedProfile) {
-    return null
-  }
-
-  try {
-    return JSON.parse(storedProfile) as HealthProfile
-  } catch {
-    return null
-  }
-}
-
-export function saveHealthProfile(profile: HealthProfile) {
-  localStorage.setItem(HEALTH_PROFILE_STORAGE_KEY, JSON.stringify(profile))
-}
-
 export async function getRemoteHealthProfile(userId: string) {
   const { data, error } = await supabase
     .from('health_profiles')
@@ -74,8 +54,7 @@ export async function getRemoteHealthProfile(userId: string) {
     .maybeSingle()
 
   if (error) {
-    console.error('Erreur chargement profil santé Supabase :', error)
-    return null
+    throw error
   }
 
   if (!data) {
@@ -96,6 +75,6 @@ export async function saveRemoteHealthProfile(
     })
 
   if (error) {
-    console.error('Erreur sauvegarde profil santé Supabase :', error)
+    throw error
   }
 }
