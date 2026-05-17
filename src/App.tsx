@@ -93,6 +93,7 @@ function AppShell() {
 
   const handleSignOut = async () => {
     await signOut()
+
     setUser(null)
     resetDemoData()
     navigate('/auth')
@@ -114,7 +115,9 @@ function AppShell() {
           resetDemoData()
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Erreur récupération session Supabase :', error)
+
         if (!isMounted) {
           return
         }
@@ -163,8 +166,6 @@ function AppShell() {
 
     async function loadUserData() {
       try {
-        setSyncError('')
-
         const [
           remoteWorkouts,
           remotePlannedWorkouts,
@@ -211,23 +212,9 @@ function AppShell() {
       return
     }
 
-    void saveRemoteWorkouts(workouts, user.id)
-  }, [workouts, user, hasLoadedRemoteData])
-
-  useEffect(() => {
-    if (!user || !hasLoadedRemoteData) {
-      return
-    }
-
-    void saveRemotePlannedWorkouts(plannedWorkouts, user.id)
-  }, [plannedWorkouts, user, hasLoadedRemoteData])
-
-  useEffect(() => {
-    if (!user || !hasLoadedRemoteData) {
-      return
-    }
-
-    void saveRemoteWeeklyGoal(weeklyGoal, user.id)
+    void saveRemoteWeeklyGoal(weeklyGoal, user.id).catch((error) => {
+      console.error('Erreur synchronisation objectif hebdomadaire :', error)
+    })
   }, [weeklyGoal, user, hasLoadedRemoteData])
 
   useEffect(() => {
@@ -235,27 +222,141 @@ function AppShell() {
       return
     }
 
-    void saveRemoteHealthProfile(healthProfile, user.id)
+    void saveRemoteHealthProfile(healthProfile, user.id).catch((error) => {
+      console.error('Erreur synchronisation profil santé :', error)
+    })
   }, [healthProfile, user, hasLoadedRemoteData])
 
-  const handleAddWorkout = (values: WorkoutFormValues) => {
+  const saveWorkoutsSafely = async (
+    nextWorkouts: Workout[],
+    errorMessage: string,
+  ) => {
+    if (!user) {
+      setWorkouts(nextWorkouts)
+      return true
+    }
+
+    try {
+      await saveRemoteWorkouts(nextWorkouts, user.id)
+      setWorkouts(nextWorkouts)
+      return true
+    } catch (error) {
+      console.error(errorMessage, error)
+
+      window.alert(
+        "La modification n'a pas pu être sauvegardée dans Supabase. Regarde la console pour voir l'erreur exacte.",
+      )
+
+      return false
+    }
+  }
+
+  const savePlannedWorkoutsSafely = async (
+    nextPlannedWorkouts: PlannedWorkout[],
+    errorMessage: string,
+  ) => {
+    if (!user) {
+      setPlannedWorkouts(nextPlannedWorkouts)
+      return true
+    }
+
+    try {
+      await saveRemotePlannedWorkouts(nextPlannedWorkouts, user.id)
+      setPlannedWorkouts(nextPlannedWorkouts)
+      return true
+    } catch (error) {
+      console.error(errorMessage, error)
+
+      window.alert(
+        "La modification du planning n'a pas pu être sauvegardée dans Supabase. Regarde la console pour voir l'erreur exacte.",
+      )
+
+      return false
+    }
+  }
+
+  const handleAddWorkout = async (values: WorkoutFormValues) => {
     const newWorkout: Workout = {
       id: crypto.randomUUID(),
       ...values,
     }
 
-    setWorkouts((currentWorkouts) => [newWorkout, ...currentWorkouts])
-    navigate('/')
+    const nextWorkouts = [newWorkout, ...workouts]
+
+    const hasSaved = await saveWorkoutsSafely(
+      nextWorkouts,
+      'Erreur lors de la sauvegarde de la séance :',
+    )
+
+    if (hasSaved) {
+      navigate('/workouts')
+    }
   }
 
-  const handleAddPlannedWorkout = (plannedWorkout: PlannedWorkout) => {
-    setPlannedWorkouts((currentPlannedWorkouts) => [
-      plannedWorkout,
-      ...currentPlannedWorkouts,
-    ])
+  const handleEditWorkout = async (
+    workoutId: string,
+    values: WorkoutFormValues,
+  ) => {
+    const nextWorkouts = workouts.map((workout) => {
+      if (workout.id !== workoutId) {
+        return workout
+      }
+
+      return {
+        id: workout.id,
+        ...values,
+      }
+    })
+
+    const hasSaved = await saveWorkoutsSafely(
+      nextWorkouts,
+      'Erreur lors de la modification de la séance :',
+    )
+
+    if (hasSaved) {
+      navigate('/workouts')
+    }
   }
 
-  const handleDeletePlannedWorkout = (plannedWorkoutId: string) => {
+  const handleDeleteWorkout = async (workoutId: string) => {
+    const workoutToDelete = workouts.find((workout) => {
+      return workout.id === workoutId
+    })
+
+    if (!workoutToDelete) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      `Supprimer la séance "${workoutToDelete.title}" ?`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
+    const nextWorkouts = workouts.filter((workout) => {
+      return workout.id !== workoutId
+    })
+
+    await saveWorkoutsSafely(
+      nextWorkouts,
+      'Erreur lors de la suppression de la séance :',
+    )
+  }
+
+  const handleAddPlannedWorkout = async (
+    plannedWorkout: PlannedWorkout,
+  ) => {
+    const nextPlannedWorkouts = [plannedWorkout, ...plannedWorkouts]
+
+    await savePlannedWorkoutsSafely(
+      nextPlannedWorkouts,
+      'Erreur lors de la sauvegarde de la séance prévue :',
+    )
+  }
+
+  const handleDeletePlannedWorkout = async (plannedWorkoutId: string) => {
     const plannedWorkoutToDelete = plannedWorkouts.find((plannedWorkout) => {
       return plannedWorkout.id === plannedWorkoutId
     })
@@ -272,14 +373,19 @@ function AppShell() {
       return
     }
 
-    setPlannedWorkouts((currentPlannedWorkouts) => {
-      return currentPlannedWorkouts.filter((plannedWorkout) => {
-        return plannedWorkout.id !== plannedWorkoutId
-      })
+    const nextPlannedWorkouts = plannedWorkouts.filter((plannedWorkout) => {
+      return plannedWorkout.id !== plannedWorkoutId
     })
+
+    await savePlannedWorkoutsSafely(
+      nextPlannedWorkouts,
+      'Erreur lors de la suppression de la séance prévue :',
+    )
   }
 
-  const handleCompletePlannedWorkout = (plannedWorkout: PlannedWorkout) => {
+  const handleCompletePlannedWorkout = async (
+    plannedWorkout: PlannedWorkout,
+  ) => {
     const confirmed = window.confirm(
       `Transformer "${plannedWorkout.title}" en séance réalisée ?`,
     )
@@ -301,61 +407,43 @@ function AppShell() {
       trend: 'stable',
     }
 
-    setWorkouts((currentWorkouts) => [completedWorkout, ...currentWorkouts])
+    const nextWorkouts = [completedWorkout, ...workouts]
 
-    setPlannedWorkouts((currentPlannedWorkouts) => {
-      return currentPlannedWorkouts.filter((item) => {
-        return item.id !== plannedWorkout.id
-      })
+    const nextPlannedWorkouts = plannedWorkouts.filter((item) => {
+      return item.id !== plannedWorkout.id
     })
 
-    navigate('/workouts')
-  }
-
-  const handleEditWorkout = (
-    workoutId: string,
-    values: WorkoutFormValues,
-  ) => {
-    setWorkouts((currentWorkouts) => {
-      return currentWorkouts.map((workout) => {
-        if (workout.id !== workoutId) {
-          return workout
-        }
-
-        return {
-          id: workout.id,
-          ...values,
-        }
-      })
-    })
-
-    navigate('/workouts')
-  }
-
-  const handleDeleteWorkout = (workoutId: string) => {
-    const workoutToDelete = workouts.find((workout) => {
-      return workout.id === workoutId
-    })
-
-    if (!workoutToDelete) {
+    if (!user) {
+      setWorkouts(nextWorkouts)
+      setPlannedWorkouts(nextPlannedWorkouts)
+      navigate('/workouts')
       return
     }
 
-    const confirmed = window.confirm(
-      `Supprimer la séance "${workoutToDelete.title}" ?`,
-    )
+    try {
+      await Promise.all([
+        saveRemoteWorkouts(nextWorkouts, user.id),
+        saveRemotePlannedWorkouts(nextPlannedWorkouts, user.id),
+      ])
 
-    if (!confirmed) {
-      return
+      setWorkouts(nextWorkouts)
+      setPlannedWorkouts(nextPlannedWorkouts)
+      navigate('/workouts')
+    } catch (error) {
+      console.error(
+        'Erreur lors de la transformation de la séance prévue :',
+        error,
+      )
+
+      window.alert(
+        "La séance prévue n'a pas pu être transformée dans Supabase. Regarde la console pour voir l'erreur exacte.",
+      )
     }
-
-    setWorkouts((currentWorkouts) => {
-      return currentWorkouts.filter((workout) => workout.id !== workoutId)
-    })
   }
 
   const isLoadingRemoteData = Boolean(user && !hasLoadedRemoteData && !syncError)
-  const shouldShowDemoBanner = !user && !isAuthLoading && location.pathname !== '/auth'
+  const shouldShowDemoBanner =
+    !user && !isAuthLoading && location.pathname !== '/auth'
 
   return (
     <>
@@ -441,7 +529,9 @@ function AppShell() {
                   onEditWorkout={(workoutId) =>
                     navigate(`/workouts/${workoutId}/edit`)
                   }
-                  onDeleteWorkout={handleDeleteWorkout}
+                  onDeleteWorkout={(workoutId) => {
+                    void handleDeleteWorkout(workoutId)
+                  }}
                 />
               }
             />
@@ -450,7 +540,9 @@ function AppShell() {
               path="/workouts/new"
               element={
                 <NewWorkoutPage
-                  onSubmit={handleAddWorkout}
+                  onSubmit={(values) => {
+                    void handleAddWorkout(values)
+                  }}
                   onCancel={() => navigate('/')}
                 />
               }
@@ -494,9 +586,15 @@ function AppShell() {
               element={
                 <PlanningPage
                   plannedWorkouts={plannedWorkouts}
-                  onAddPlannedWorkout={handleAddPlannedWorkout}
-                  onDeletePlannedWorkout={handleDeletePlannedWorkout}
-                  onCompletePlannedWorkout={handleCompletePlannedWorkout}
+                  onAddPlannedWorkout={(plannedWorkout) => {
+                    void handleAddPlannedWorkout(plannedWorkout)
+                  }}
+                  onDeletePlannedWorkout={(plannedWorkoutId) => {
+                    void handleDeletePlannedWorkout(plannedWorkoutId)
+                  }}
+                  onCompletePlannedWorkout={(plannedWorkout) => {
+                    void handleCompletePlannedWorkout(plannedWorkout)
+                  }}
                 />
               }
             />
@@ -522,7 +620,7 @@ function AppShell() {
 
 type EditWorkoutRouteProps = {
   workouts: Workout[]
-  onSubmit: (workoutId: string, values: WorkoutFormValues) => void
+  onSubmit: (workoutId: string, values: WorkoutFormValues) => Promise<void>
   onCancel: () => void
 }
 
@@ -540,6 +638,7 @@ function EditWorkoutRoute({
       <main className="min-h-screen bg-[#050816] text-slate-50">
         <section className="mx-auto max-w-5xl px-6 py-10">
           <button
+            type="button"
             onClick={onCancel}
             className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
           >
@@ -563,7 +662,9 @@ function EditWorkoutRoute({
   return (
     <EditWorkoutPage
       workout={workout}
-      onSubmit={(values) => onSubmit(workout.id, values)}
+      onSubmit={(values) => {
+        void onSubmit(workout.id, values)
+      }}
       onCancel={onCancel}
     />
   )

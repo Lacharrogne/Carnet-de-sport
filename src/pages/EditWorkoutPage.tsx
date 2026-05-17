@@ -3,7 +3,7 @@ import type { Workout, WorkoutFormValues } from '../types/workout'
 
 type EditWorkoutPageProps = {
   workout: Workout
-  onSubmit: (values: WorkoutFormValues) => void
+  onSubmit: (values: WorkoutFormValues) => void | Promise<void>
   onCancel: () => void
 }
 
@@ -29,6 +29,7 @@ export default function EditWorkoutPage({
     <main className="min-h-screen bg-[#050816] text-slate-50">
       <section className="mx-auto max-w-5xl px-6 py-10">
         <button
+          type="button"
           onClick={onCancel}
           className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
         >
@@ -45,7 +46,8 @@ export default function EditWorkoutPage({
           </h1>
 
           <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-            Mets à jour la durée, le ressenti, les notes ou l’idée d’amélioration.
+            Mets à jour la durée, le ressenti, les notes ou l’idée
+            d’amélioration.
           </p>
         </header>
 

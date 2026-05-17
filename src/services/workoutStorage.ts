@@ -7,7 +7,7 @@ type WorkoutRow = {
   title: string
   sport: Workout['category']
   date: string
-  duration: number
+  duration_minutes: number
   intensity: Workout['intensity']
   feeling: Workout['feeling']
   progress: Workout['trend']
@@ -16,6 +16,11 @@ type WorkoutRow = {
   is_record?: boolean | null
   details?: Workout['details'] | null
   created_at?: string
+  updated_at?: string
+}
+
+function logSupabaseError(label: string, error: unknown) {
+  console.error(label, error)
 }
 
 function mapWorkoutRowToWorkout(row: WorkoutRow): Workout {
@@ -24,7 +29,7 @@ function mapWorkoutRowToWorkout(row: WorkoutRow): Workout {
     title: row.title,
     category: row.sport,
     date: row.date,
-    duration: row.duration,
+    duration: row.duration_minutes,
     intensity: row.intensity,
     feeling: row.feeling,
     notes: row.notes ?? '',
@@ -41,7 +46,7 @@ function mapWorkoutToInsert(workout: Workout, userId: string): WorkoutRow {
     title: workout.title,
     sport: workout.category,
     date: workout.date,
-    duration: workout.duration,
+    duration_minutes: workout.duration,
     intensity: workout.intensity,
     feeling: workout.feeling,
     progress: workout.trend,
@@ -60,6 +65,7 @@ export async function getRemoteWorkouts(userId: string) {
     .order('date', { ascending: false })
 
   if (error) {
+    logSupabaseError('Erreur récupération séances Supabase :', error)
     throw error
   }
 
@@ -68,13 +74,24 @@ export async function getRemoteWorkouts(userId: string) {
   )
 }
 
+export async function saveRemoteWorkout(workout: Workout, userId: string) {
+  const row = mapWorkoutToInsert(workout, userId)
+
+  const { error } = await supabase
+    .from('workouts')
+    .upsert(row, { onConflict: 'id' })
+
+  if (error) {
+    logSupabaseError('Erreur insertion séance Supabase :', error)
+    throw error
+  }
+}
+
 export async function saveRemoteWorkouts(
   workouts: Workout[],
   userId: string,
 ) {
-  const rows = workouts.map((workout) =>
-    mapWorkoutToInsert(workout, userId),
-  )
+  const rows = workouts.map((workout) => mapWorkoutToInsert(workout, userId))
 
   const { error: deleteError } = await supabase
     .from('workouts')
@@ -82,6 +99,7 @@ export async function saveRemoteWorkouts(
     .eq('user_id', userId)
 
   if (deleteError) {
+    logSupabaseError('Erreur suppression séances Supabase :', deleteError)
     throw deleteError
   }
 
@@ -89,11 +107,10 @@ export async function saveRemoteWorkouts(
     return
   }
 
-  const { error: insertError } = await supabase
-    .from('workouts')
-    .insert(rows)
+  const { error: insertError } = await supabase.from('workouts').insert(rows)
 
   if (insertError) {
+    logSupabaseError('Erreur insertion séances Supabase :', insertError)
     throw insertError
   }
 }
