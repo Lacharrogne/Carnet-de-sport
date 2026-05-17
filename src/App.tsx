@@ -1,15 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   BrowserRouter,
   Navigate,
   Route,
   Routes,
+  useLocation,
   useNavigate,
   useParams,
 } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 
 import AppNavigation from './components/AppNavigation'
+import DemoModeBanner from './components/DemoModeBanner'
 import { WORKOUTS } from './data/workouts'
 
 import AuthPage from './pages/AuthPage'
@@ -65,11 +67,13 @@ function App() {
 
 function AppShell() {
   const navigate = useNavigate()
+  const location = useLocation()
 
   const [user, setUser] = useState<User | null>(null)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [hasLoadedRemoteData, setHasLoadedRemoteData] = useState(false)
   const [syncError, setSyncError] = useState('')
+  const [syncRetryKey, setSyncRetryKey] = useState(0)
 
   const [workouts, setWorkouts] = useState<Workout[]>(WORKOUTS)
   const [plannedWorkouts, setPlannedWorkouts] = useState<PlannedWorkout[]>([])
@@ -78,14 +82,14 @@ function AppShell() {
   const [healthProfile, setHealthProfile] =
     useState<HealthProfile>(DEFAULT_HEALTH_PROFILE)
 
-  const resetDemoData = () => {
+  const resetDemoData = useCallback(() => {
     setWorkouts(WORKOUTS)
     setPlannedWorkouts([])
     setWeeklyGoal(DEFAULT_WEEKLY_GOAL)
     setHealthProfile(DEFAULT_HEALTH_PROFILE)
     setHasLoadedRemoteData(false)
     setSyncError('')
-  }
+  }, [])
 
   const handleSignOut = async () => {
     await signOut()
@@ -99,7 +103,9 @@ function AppShell() {
 
     getCurrentSession()
       .then((session) => {
-        if (!isMounted) return
+        if (!isMounted) {
+          return
+        }
 
         const currentUser = session?.user ?? null
         setUser(currentUser)
@@ -109,19 +115,25 @@ function AppShell() {
         }
       })
       .catch(() => {
-        if (!isMounted) return
+        if (!isMounted) {
+          return
+        }
 
         setUser(null)
         resetDemoData()
       })
       .finally(() => {
-        if (!isMounted) return
+        if (!isMounted) {
+          return
+        }
 
         setIsAuthLoading(false)
       })
 
     const subscription = listenToAuthChanges(async (_event, session) => {
-      if (!isMounted) return
+      if (!isMounted) {
+        return
+      }
 
       const nextUser = session?.user ?? null
 
@@ -139,7 +151,7 @@ function AppShell() {
       isMounted = false
       subscription.unsubscribe()
     }
-  }, [])
+  }, [resetDemoData])
 
   useEffect(() => {
     if (!user) {
@@ -165,18 +177,21 @@ function AppShell() {
           getRemoteHealthProfile(userId),
         ])
 
-        if (!isMounted) return
+        if (!isMounted) {
+          return
+        }
 
         setWorkouts(remoteWorkouts)
         setPlannedWorkouts(remotePlannedWorkouts)
         setWeeklyGoal(remoteWeeklyGoal ?? DEFAULT_WEEKLY_GOAL)
         setHealthProfile(remoteHealthProfile ?? DEFAULT_HEALTH_PROFILE)
-
         setHasLoadedRemoteData(true)
       } catch (error) {
         console.error('Erreur lors du chargement Supabase :', error)
 
-        if (!isMounted) return
+        if (!isMounted) {
+          return
+        }
 
         setSyncError(
           'Impossible de charger les données Supabase pour le moment.',
@@ -189,7 +204,7 @@ function AppShell() {
     return () => {
       isMounted = false
     }
-  }, [user])
+  }, [user, syncRetryKey])
 
   useEffect(() => {
     if (!user || !hasLoadedRemoteData) {
@@ -340,6 +355,7 @@ function AppShell() {
   }
 
   const isLoadingRemoteData = Boolean(user && !hasLoadedRemoteData && !syncError)
+  const shouldShowDemoBanner = !user && !isAuthLoading && location.pathname !== '/auth'
 
   return (
     <>
@@ -349,7 +365,19 @@ function AppShell() {
         onSignOut={handleSignOut}
       />
 
-      {isLoadingRemoteData ? (
+      {isAuthLoading ? (
+        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
+          <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
+            <p className="text-5xl">⚡</p>
+            <h1 className="mt-5 text-4xl font-black">
+              Préparation de ton carnet sportif...
+            </h1>
+            <p className="mt-3 text-slate-400">
+              On vérifie ta session.
+            </p>
+          </section>
+        </main>
+      ) : isLoadingRemoteData ? (
         <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
             <p className="text-5xl">⚡</p>
@@ -369,11 +397,13 @@ function AppShell() {
               Erreur de synchronisation
             </h1>
             <p className="mt-3 text-red-100">{syncError}</p>
+
             <button
               type="button"
               onClick={() => {
                 setHasLoadedRemoteData(false)
                 setSyncError('')
+                setSyncRetryKey((currentValue) => currentValue + 1)
               }}
               className="mt-6 rounded-full bg-red-300 px-6 py-3 font-black text-slate-950 transition hover:bg-red-200"
             >
@@ -382,105 +412,109 @@ function AppShell() {
           </section>
         </main>
       ) : (
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <DashboardPage
-                workouts={workouts}
-                plannedWorkouts={plannedWorkouts}
-                weeklyGoal={weeklyGoal}
-                onWeeklyGoalChange={setWeeklyGoal}
-                onAddWorkoutClick={() => navigate('/workouts/new')}
-              />
-            }
-          />
+        <>
+          {shouldShowDemoBanner && <DemoModeBanner />}
 
-          <Route path="/auth" element={<AuthPage />} />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <DashboardPage
+                  workouts={workouts}
+                  plannedWorkouts={plannedWorkouts}
+                  weeklyGoal={weeklyGoal}
+                  onWeeklyGoalChange={setWeeklyGoal}
+                  onAddWorkoutClick={() => navigate('/workouts/new')}
+                />
+              }
+            />
 
-          <Route
-            path="/workouts"
-            element={
-              <WorkoutsPage
-                workouts={workouts}
-                onBack={() => navigate('/')}
-                onAddWorkoutClick={() => navigate('/workouts/new')}
-                onEditWorkout={(workoutId) =>
-                  navigate(`/workouts/${workoutId}/edit`)
-                }
-                onDeleteWorkout={handleDeleteWorkout}
-              />
-            }
-          />
+            <Route path="/auth" element={<AuthPage />} />
 
-          <Route
-            path="/workouts/new"
-            element={
-              <NewWorkoutPage
-                onSubmit={handleAddWorkout}
-                onCancel={() => navigate('/')}
-              />
-            }
-          />
+            <Route
+              path="/workouts"
+              element={
+                <WorkoutsPage
+                  workouts={workouts}
+                  onBack={() => navigate('/')}
+                  onAddWorkoutClick={() => navigate('/workouts/new')}
+                  onEditWorkout={(workoutId) =>
+                    navigate(`/workouts/${workoutId}/edit`)
+                  }
+                  onDeleteWorkout={handleDeleteWorkout}
+                />
+              }
+            />
 
-          <Route
-            path="/workouts/:workoutId/edit"
-            element={
-              <EditWorkoutRoute
-                workouts={workouts}
-                onSubmit={handleEditWorkout}
-                onCancel={() => navigate('/workouts')}
-              />
-            }
-          />
+            <Route
+              path="/workouts/new"
+              element={
+                <NewWorkoutPage
+                  onSubmit={handleAddWorkout}
+                  onCancel={() => navigate('/')}
+                />
+              }
+            />
 
-          <Route
-            path="/progress"
-            element={
-              <ProgressPage
-                workouts={workouts}
-                onBack={() => navigate('/')}
-              />
-            }
-          />
+            <Route
+              path="/workouts/:workoutId/edit"
+              element={
+                <EditWorkoutRoute
+                  workouts={workouts}
+                  onSubmit={handleEditWorkout}
+                  onCancel={() => navigate('/workouts')}
+                />
+              }
+            />
 
-          <Route
-            path="/body"
-            element={
-              <BodyPage
-                workouts={workouts}
-                profile={healthProfile}
-                onProfileChange={setHealthProfile}
-                onBack={() => navigate('/')}
-              />
-            }
-          />
+            <Route
+              path="/progress"
+              element={
+                <ProgressPage
+                  workouts={workouts}
+                  onBack={() => navigate('/')}
+                />
+              }
+            />
 
-          <Route
-            path="/planning"
-            element={
-              <PlanningPage
-                plannedWorkouts={plannedWorkouts}
-                onAddPlannedWorkout={handleAddPlannedWorkout}
-                onDeletePlannedWorkout={handleDeletePlannedWorkout}
-                onCompletePlannedWorkout={handleCompletePlannedWorkout}
-              />
-            }
-          />
+            <Route
+              path="/body"
+              element={
+                <BodyPage
+                  workouts={workouts}
+                  profile={healthProfile}
+                  onProfileChange={setHealthProfile}
+                  onBack={() => navigate('/')}
+                />
+              }
+            />
 
-          <Route
-            path="/challenges"
-            element={
-              <ChallengesPage
-                workouts={workouts}
-                plannedWorkouts={plannedWorkouts}
-                weeklyGoal={weeklyGoal}
-              />
-            }
-          />
+            <Route
+              path="/planning"
+              element={
+                <PlanningPage
+                  plannedWorkouts={plannedWorkouts}
+                  onAddPlannedWorkout={handleAddPlannedWorkout}
+                  onDeletePlannedWorkout={handleDeletePlannedWorkout}
+                  onCompletePlannedWorkout={handleCompletePlannedWorkout}
+                />
+              }
+            />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route
+              path="/challenges"
+              element={
+                <ChallengesPage
+                  workouts={workouts}
+                  plannedWorkouts={plannedWorkouts}
+                  weeklyGoal={weeklyGoal}
+                />
+              }
+            />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </>
       )}
     </>
   )
