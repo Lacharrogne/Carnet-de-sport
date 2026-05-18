@@ -1,6 +1,8 @@
+import { useMemo } from 'react'
+
+import AdvancedStatsSection from '../components/AdvancedStatsSection'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import type { Workout } from '../types/workout'
-import AdvancedStatsSection from '../components/AdvancedStatsSection'
 
 type ProgressPageProps = {
   workouts: Workout[]
@@ -15,37 +17,85 @@ type Badge = {
 }
 
 export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
+  const sortedWorkouts = useMemo(() => {
+    return [...workouts].sort((a, b) => {
+      return (
+        new Date(`${b.date}T00:00:00`).getTime() -
+        new Date(`${a.date}T00:00:00`).getTime()
+      )
+    })
+  }, [workouts])
+
   const totalWorkouts = workouts.length
 
-  const totalDuration = workouts.reduce((total, workout) => {
-    return total + workout.duration
-  }, 0)
+  const totalDuration = useMemo(() => {
+    return workouts.reduce((total, workout) => {
+      return total + workout.duration
+    }, 0)
+  }, [workouts])
 
-  const recordCount = workouts.filter((workout) => workout.trend === 'record').length
-  const progressCount = workouts.filter((workout) => workout.trend === 'progress').length
-  const regressCount = workouts.filter((workout) => workout.trend === 'regress').length
+  const recordCount = useMemo(() => {
+    return workouts.filter((workout) => workout.trend === 'record').length
+  }, [workouts])
 
-  const xp = totalDuration * 2 + totalWorkouts * 50 + recordCount * 100 + progressCount * 40
+  const progressCount = useMemo(() => {
+    return workouts.filter((workout) => workout.trend === 'progress').length
+  }, [workouts])
+
+  const regressCount = useMemo(() => {
+    return workouts.filter((workout) => workout.trend === 'regress').length
+  }, [workouts])
+
+  const averageDuration =
+    totalWorkouts > 0 ? Math.round(totalDuration / totalWorkouts) : 0
+
+  const xp =
+    totalDuration * 2 +
+    totalWorkouts * 50 +
+    recordCount * 100 +
+    progressCount * 40
+
   const level = Math.floor(xp / 300) + 1
   const currentLevelXp = xp % 300
   const xpPercent = Math.min(Math.round((currentLevelXp / 300) * 100), 100)
   const xpToNextLevel = 300 - currentLevelXp
 
-  const averageDuration =
-    totalWorkouts > 0 ? Math.round(totalDuration / totalWorkouts) : 0
+  const lastWorkout = sortedWorkouts[0] ?? null
 
-  const categoryStats = SPORT_CATEGORIES.map((category) => {
-    const categoryWorkouts = workouts.filter((workout) => workout.category === category.id)
-    const categoryDuration = categoryWorkouts.reduce((total, workout) => {
+  const lastSevenDaysWorkouts = useMemo(() => {
+    const today = new Date()
+    const sevenDaysAgo = new Date()
+    sevenDaysAgo.setDate(today.getDate() - 7)
+
+    return workouts.filter((workout) => {
+      const workoutDate = new Date(`${workout.date}T00:00:00`)
+      return workoutDate >= sevenDaysAgo && workoutDate <= today
+    })
+  }, [workouts])
+
+  const lastSevenDaysDuration = useMemo(() => {
+    return lastSevenDaysWorkouts.reduce((total, workout) => {
       return total + workout.duration
     }, 0)
+  }, [lastSevenDaysWorkouts])
 
-    return {
-      ...category,
-      count: categoryWorkouts.length,
-      duration: categoryDuration,
-    }
-  }).sort((a, b) => b.count - a.count)
+  const categoryStats = useMemo(() => {
+    return SPORT_CATEGORIES.map((category) => {
+      const categoryWorkouts = workouts.filter((workout) => {
+        return workout.category === category.id
+      })
+
+      const categoryDuration = categoryWorkouts.reduce((total, workout) => {
+        return total + workout.duration
+      }, 0)
+
+      return {
+        ...category,
+        count: categoryWorkouts.length,
+        duration: categoryDuration,
+      }
+    }).sort((a, b) => b.count - a.count)
+  }, [workouts])
 
   const favoriteCategory = categoryStats.find((category) => category.count > 0)
 
@@ -94,6 +144,7 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
     <main className="min-h-screen bg-[#050816] text-slate-50">
       <section className="mx-auto max-w-7xl px-6 py-10">
         <button
+          type="button"
           onClick={onBack}
           className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
         >
@@ -112,7 +163,8 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Chaque séance te donne de l’XP. Plus tu bouges, plus ton personnage progresse.
+                Chaque séance te donne de l’XP. Plus tu bouges, plus ton
+                personnage progresse.
               </p>
             </div>
 
@@ -134,7 +186,8 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
               </div>
 
               <p className="mt-3 text-sm text-slate-300">
-                {currentLevelXp} / 300 XP — encore {xpToNextLevel} XP pour le niveau suivant.
+                {currentLevelXp} / 300 XP — encore {xpToNextLevel} XP pour le
+                niveau suivant.
               </p>
             </div>
           </div>
@@ -142,9 +195,57 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <StatCard label="XP total" value={xp.toString()} icon="⚡" />
-          <StatCard label="Séances" value={totalWorkouts.toString()} icon="🏃" />
-          <StatCard label="Temps actif" value={`${totalDuration} min`} icon="⏱️" />
-          <StatCard label="Badges" value={`${unlockedBadges}/${badges.length}`} icon="🏅" />
+          <StatCard
+            label="Séances"
+            value={totalWorkouts.toString()}
+            icon="🏃"
+          />
+          <StatCard
+            label="Temps actif"
+            value={`${totalDuration} min`}
+            icon="⏱️"
+          />
+          <StatCard
+            label="Badges"
+            value={`${unlockedBadges}/${badges.length}`}
+            icon="🏅"
+          />
+        </section>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-3">
+          <InfoCard
+            title="Cette semaine"
+            value={`${lastSevenDaysDuration} min`}
+            description={`${lastSevenDaysWorkouts.length} séance${
+              lastSevenDaysWorkouts.length > 1 ? 's' : ''
+            } sur les 7 derniers jours.`}
+          />
+
+          <InfoCard
+            title="Dernière séance"
+            value={lastWorkout ? lastWorkout.title : 'Aucune'}
+            description={
+              lastWorkout
+                ? `${formatDate(lastWorkout.date)} · ${lastWorkout.duration} min`
+                : 'Ajoute une séance pour commencer ton suivi.'
+            }
+          />
+
+          <InfoCard
+            title="Sport dominant"
+            value={
+              favoriteCategory
+                ? `${favoriteCategory.emoji} ${favoriteCategory.label}`
+                : 'Aucun'
+            }
+            description={
+              favoriteCategory
+                ? `${favoriteCategory.count} séance${
+                    favoriteCategory.count > 1 ? 's' : ''
+                  } enregistrée${favoriteCategory.count > 1 ? 's' : ''}.`
+                : 'Aucune donnée pour le moment.'
+            }
+          />
         </section>
 
         <AdvancedStatsSection workouts={workouts} />
@@ -167,7 +268,7 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
                 <div className="absolute -right-10 top-12 rounded-2xl border border-emerald-400/20 bg-slate-950 px-4 py-3">
                   <p className="text-xs text-slate-400">Force</p>
                   <p className="font-black text-emerald-300">
-                    Niv. {Math.max(1, Math.floor(progressCount + recordCount + 1))}
+                    Niv. {Math.max(1, progressCount + recordCount + 1)}
                   </p>
                 </div>
 
@@ -181,7 +282,8 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
             </div>
 
             <p className="mt-6 text-center text-sm leading-6 text-slate-300">
-              Version simple de la future page corps. Plus tard, les zones travaillées pourront s’illuminer selon les sports pratiqués.
+              Version simple de la future page corps. Plus tard, les zones
+              travaillées pourront s’illuminer selon les sports pratiqués.
             </p>
           </div>
 
@@ -192,19 +294,15 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               <InfoCard
-                title="Sport dominant"
-                value={favoriteCategory ? `${favoriteCategory.emoji} ${favoriteCategory.label}` : 'Aucun'}
-                description={
-                  favoriteCategory
-                    ? `${favoriteCategory.count} séance(s) enregistrée(s).`
-                    : 'Ajoute une séance pour commencer.'
-                }
-              />
-
-              <InfoCard
                 title="Durée moyenne"
                 value={`${averageDuration} min`}
                 description="Durée moyenne de tes entraînements."
+              />
+
+              <InfoCard
+                title="Records"
+                value={`${recordCount} 🔥`}
+                description="Séances marquées comme record."
               />
 
               <InfoCard
@@ -221,16 +319,14 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
             </div>
 
             <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-              <p className="font-black text-white">
-                Conseil automatique
-              </p>
+              <p className="font-black text-white">Conseil automatique</p>
 
               <p className="mt-2 text-sm leading-6 text-slate-300">
-                {regressCount > progressCount
-                  ? 'Tu as plus de séances en régression qu’en progression. Prévois une séance plus légère ou un jour de repos pour mieux récupérer.'
-                  : totalWorkouts < 3
-                    ? 'Ajoute encore quelques séances pour obtenir une analyse plus précise de ta progression.'
-                    : 'Ta progression est positive. Continue à garder une bonne régularité et note ce que tu peux améliorer après chaque séance.'}
+                {getAutomaticAdvice({
+                  totalWorkouts,
+                  progressCount,
+                  regressCount,
+                })}
               </p>
             </div>
           </div>
@@ -245,7 +341,9 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
             <div className="mt-6 space-y-4">
               {categoryStats.map((category) => {
                 const percent =
-                  totalWorkouts > 0 ? Math.round((category.count / totalWorkouts) * 100) : 0
+                  totalWorkouts > 0
+                    ? Math.round((category.count / totalWorkouts) * 100)
+                    : 0
 
                 return (
                   <div key={category.id}>
@@ -253,8 +351,10 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
                       <p className="font-bold text-white">
                         {category.emoji} {category.label}
                       </p>
+
                       <p className="text-sm text-slate-400">
-                        {category.count} séance(s)
+                        {category.count} séance
+                        {category.count > 1 ? 's' : ''}
                       </p>
                     </div>
 
@@ -279,19 +379,23 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
               {badges.map((badge) => (
                 <div
                   key={badge.title}
-                  className={`rounded-3xl border p-5 ${
+                  className={[
+                    'rounded-3xl border p-5 transition',
                     badge.unlocked
                       ? 'border-emerald-400/20 bg-emerald-400/10'
-                      : 'border-white/10 bg-white/[0.03] opacity-50'
-                  }`}
+                      : 'border-white/10 bg-white/[0.03] opacity-50',
+                  ].join(' ')}
                 >
                   <p className="text-3xl">{badge.icon}</p>
+
                   <h3 className="mt-3 font-black text-white">
                     {badge.title}
                   </h3>
+
                   <p className="mt-2 text-sm leading-6 text-slate-300">
                     {badge.description}
                   </p>
+
                   <p className="mt-3 text-sm font-bold text-emerald-300">
                     {badge.unlocked ? 'Débloqué' : 'Verrouillé'}
                   </p>
@@ -332,9 +436,39 @@ function InfoCard({ title, value, description }: InfoCardProps) {
     <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
       <p className="text-sm text-slate-400">{title}</p>
       <p className="mt-2 text-2xl font-black text-white">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-300">
-        {description}
-      </p>
+      <p className="mt-2 text-sm leading-6 text-slate-300">{description}</p>
     </div>
   )
+}
+
+function formatDate(date: string) {
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(`${date}T00:00:00`))
+}
+
+function getAutomaticAdvice({
+  totalWorkouts,
+  progressCount,
+  regressCount,
+}: {
+  totalWorkouts: number
+  progressCount: number
+  regressCount: number
+}) {
+  if (totalWorkouts === 0) {
+    return 'Ajoute ta première séance pour commencer à générer des conseils personnalisés.'
+  }
+
+  if (regressCount > progressCount) {
+    return 'Tu as plus de séances en régression qu’en progression. Prévois une séance plus légère ou un jour de repos pour mieux récupérer.'
+  }
+
+  if (totalWorkouts < 3) {
+    return 'Ajoute encore quelques séances pour obtenir une analyse plus précise de ta progression.'
+  }
+
+  return 'Ta progression est positive. Continue à garder une bonne régularité et note ce que tu peux améliorer après chaque séance.'
 }
