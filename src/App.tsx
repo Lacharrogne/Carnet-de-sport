@@ -99,6 +99,12 @@ function AppShell() {
     navigate('/auth')
   }
 
+  const handleRetrySync = () => {
+    setHasLoadedRemoteData(false)
+    setSyncError('')
+    setSyncRetryKey((currentValue) => currentValue + 1)
+  }
+
   useEffect(() => {
     let isMounted = true
 
@@ -109,6 +115,7 @@ function AppShell() {
         }
 
         const currentUser = session?.user ?? null
+
         setUser(currentUser)
 
         if (!currentUser) {
@@ -187,6 +194,7 @@ function AppShell() {
         setWeeklyGoal(remoteWeeklyGoal ?? DEFAULT_WEEKLY_GOAL)
         setHealthProfile(remoteHealthProfile ?? DEFAULT_HEALTH_PROFILE)
         setHasLoadedRemoteData(true)
+        setSyncError('')
       } catch (error) {
         console.error('Erreur lors du chargement Supabase :', error)
 
@@ -383,65 +391,93 @@ function AppShell() {
     )
   }
 
-  const handleCompletePlannedWorkout = async (
-    plannedWorkout: PlannedWorkout,
-  ) => {
-    const confirmed = window.confirm(
-      `Transformer "${plannedWorkout.title}" en séance réalisée ?`,
-    )
+const handleCompletePlannedWorkout = async (plannedWorkout: PlannedWorkout) => {
+  console.group('🟡 DEBUG - Bouton Réaliser une séance prévue')
 
-    if (!confirmed) {
-      return
-    }
+  console.log('1) Séance prévue reçue :', plannedWorkout)
+  console.log('2) Utilisateur connecté :', user)
+  console.log('3) Liste actuelle des séances :', workouts)
+  console.log('4) Liste actuelle des séances prévues :', plannedWorkouts)
 
-    const completedWorkout: Workout = {
-      id: crypto.randomUUID(),
-      title: plannedWorkout.title,
-      category: plannedWorkout.category,
-      date: plannedWorkout.date,
-      duration: plannedWorkout.duration,
-      intensity: 'Moyenne',
-      feeling: 'Bon',
-      notes: plannedWorkout.objective,
-      improvementIdea: '',
-      trend: 'stable',
-    }
-
-    const nextWorkouts = [completedWorkout, ...workouts]
-
-    const nextPlannedWorkouts = plannedWorkouts.filter((item) => {
-      return item.id !== plannedWorkout.id
-    })
-
-    if (!user) {
-      setWorkouts(nextWorkouts)
-      setPlannedWorkouts(nextPlannedWorkouts)
-      navigate('/workouts')
-      return
-    }
-
-    try {
-      await Promise.all([
-        saveRemoteWorkouts(nextWorkouts, user.id),
-        saveRemotePlannedWorkouts(nextPlannedWorkouts, user.id),
-      ])
-
-      setWorkouts(nextWorkouts)
-      setPlannedWorkouts(nextPlannedWorkouts)
-      navigate('/workouts')
-    } catch (error) {
-      console.error(
-        'Erreur lors de la transformation de la séance prévue :',
-        error,
-      )
-
-      window.alert(
-        "La séance prévue n'a pas pu être transformée dans Supabase. Regarde la console pour voir l'erreur exacte.",
-      )
-    }
+  if (!user) {
+    console.error('❌ Aucun utilisateur connecté. Impossible de sauvegarder.')
+    console.groupEnd()
+    return
   }
 
+const completedWorkout: Workout = {
+  id: crypto.randomUUID(),
+  title: plannedWorkout.title,
+  category: plannedWorkout.category,
+  date: plannedWorkout.date,
+  duration: plannedWorkout.duration,
+  intensity: 'Moyenne',
+  feeling: 'Bon',
+  notes: plannedWorkout.objective
+    ? `Objectif prévu : ${plannedWorkout.objective}`
+    : '',
+  improvementIdea: '',
+  trend: 'stable',
+  details: {},
+}
+
+  console.log('5) Séance transformée en vraie séance :', completedWorkout)
+
+  const nextWorkouts = [completedWorkout, ...workouts]
+
+  const nextPlannedWorkouts = plannedWorkouts.filter(
+    (workout) => workout.id !== plannedWorkout.id,
+  )
+
+  console.log('6) Nouvelle liste des séances à sauvegarder :', nextWorkouts)
+  console.log(
+    '7) Nouvelle liste des séances prévues à sauvegarder :',
+    nextPlannedWorkouts,
+  )
+
+  setWorkouts(nextWorkouts)
+  setPlannedWorkouts(nextPlannedWorkouts)
+
+  try {
+    console.log('8) Tentative sauvegarde Supabase des séances...')
+    await saveRemoteWorkouts(nextWorkouts, user.id)
+    console.log('✅ Sauvegarde des séances réussie')
+
+    console.log('9) Tentative sauvegarde Supabase des séances prévues...')
+    await saveRemotePlannedWorkouts(nextPlannedWorkouts, user.id)
+    console.log('✅ Sauvegarde des séances prévues réussie')
+
+    console.log('✅ Transformation terminée avec succès')
+  } catch (error) {
+    console.error('❌ ERREUR COMPLÈTE pendant le bouton Réaliser :', error)
+
+    if (error && typeof error === 'object') {
+      console.error('Code erreur :', 'code' in error ? error.code : 'aucun')
+      console.error(
+        'Message erreur :',
+        'message' in error ? error.message : 'aucun',
+      )
+      console.error(
+        'Détails erreur :',
+        'details' in error ? error.details : 'aucun',
+      )
+      console.error('Hint erreur :', 'hint' in error ? error.hint : 'aucun')
+    }
+
+    console.error('Données qui ont échoué :')
+    console.error('Séance prévue originale :', plannedWorkout)
+    console.error('Séance transformée :', completedWorkout)
+    console.error('User ID :', user.id)
+
+    setWorkouts(workouts)
+    setPlannedWorkouts(plannedWorkouts)
+  }
+
+  console.groupEnd()
+}
+
   const isLoadingRemoteData = Boolean(user && !hasLoadedRemoteData && !syncError)
+
   const shouldShowDemoBanner =
     !user && !isAuthLoading && location.pathname !== '/auth'
 
@@ -457,9 +493,11 @@ function AppShell() {
         <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
             <p className="text-5xl">⚡</p>
+
             <h1 className="mt-5 text-4xl font-black">
               Préparation de ton carnet sportif...
             </h1>
+
             <p className="mt-3 text-slate-400">
               On vérifie ta session.
             </p>
@@ -469,9 +507,11 @@ function AppShell() {
         <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
             <p className="text-5xl">⚡</p>
+
             <h1 className="mt-5 text-4xl font-black">
               Chargement de ton carnet sportif...
             </h1>
+
             <p className="mt-3 text-slate-400">
               On récupère tes séances, ton planning, tes objectifs et ton profil.
             </p>
@@ -481,18 +521,16 @@ function AppShell() {
         <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-red-400/20 bg-red-400/10 p-10 text-center">
             <p className="text-5xl">⚠️</p>
+
             <h1 className="mt-5 text-4xl font-black">
               Erreur de synchronisation
             </h1>
+
             <p className="mt-3 text-red-100">{syncError}</p>
 
             <button
               type="button"
-              onClick={() => {
-                setHasLoadedRemoteData(false)
-                setSyncError('')
-                setSyncRetryKey((currentValue) => currentValue + 1)
-              }}
+              onClick={handleRetrySync}
               className="mt-6 rounded-full bg-red-300 px-6 py-3 font-black text-slate-950 transition hover:bg-red-200"
             >
               Réessayer
@@ -526,9 +564,9 @@ function AppShell() {
                   workouts={workouts}
                   onBack={() => navigate('/')}
                   onAddWorkoutClick={() => navigate('/workouts/new')}
-                  onEditWorkout={(workoutId) =>
+                  onEditWorkout={(workoutId) => {
                     navigate(`/workouts/${workoutId}/edit`)
-                  }
+                  }}
                   onDeleteWorkout={(workoutId) => {
                     void handleDeleteWorkout(workoutId)
                   }}
@@ -543,7 +581,7 @@ function AppShell() {
                   onSubmit={(values) => {
                     void handleAddWorkout(values)
                   }}
-                  onCancel={() => navigate('/')}
+                  onCancel={() => navigate('/workouts')}
                 />
               }
             />
@@ -631,7 +669,9 @@ function EditWorkoutRoute({
 }: EditWorkoutRouteProps) {
   const { workoutId } = useParams()
 
-  const workout = workouts.find((item) => item.id === workoutId)
+  const workout = workouts.find((item) => {
+    return item.id === workoutId
+  })
 
   if (!workout) {
     return (
@@ -647,9 +687,11 @@ function EditWorkoutRoute({
 
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
             <p className="text-5xl">🔎</p>
+
             <h1 className="mt-4 text-3xl font-black">
               Séance introuvable.
             </h1>
+
             <p className="mt-2 text-slate-400">
               Cette séance a peut-être été supprimée.
             </p>

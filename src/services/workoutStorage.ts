@@ -53,8 +53,7 @@ function mapWorkoutToInsert(workout: Workout, userId: string): WorkoutRow {
     notes: workout.notes,
     improvement: workout.improvementIdea,
     is_record: workout.trend === 'record',
-    details: workout.details ?? null,
-  }
+details: workout.details ?? {},  }
 }
 
 export async function getRemoteWorkouts(userId: string) {
@@ -91,7 +90,16 @@ export async function saveRemoteWorkouts(
   workouts: Workout[],
   userId: string,
 ) {
+  console.group('🔵 DEBUG - saveRemoteWorkouts')
+
+  console.log('1) User ID reçu :', userId)
+  console.log('2) Séances reçues côté React :', workouts)
+
   const rows = workouts.map((workout) => mapWorkoutToInsert(workout, userId))
+
+  console.log('3) Rows envoyées à Supabase :', rows)
+
+  console.log('4) Suppression des anciennes séances Supabase...')
 
   const { error: deleteError } = await supabase
     .from('workouts')
@@ -99,18 +107,39 @@ export async function saveRemoteWorkouts(
     .eq('user_id', userId)
 
   if (deleteError) {
-    logSupabaseError('Erreur suppression séances Supabase :', deleteError)
+    console.error('❌ Erreur suppression séances Supabase :', deleteError)
+    console.groupEnd()
     throw deleteError
   }
 
+  console.log('✅ Suppression OK')
+
   if (rows.length === 0) {
+    console.log('Aucune séance à insérer.')
+    console.groupEnd()
     return
   }
 
-  const { error: insertError } = await supabase.from('workouts').insert(rows)
+  console.log('5) Insertion des nouvelles séances Supabase...')
+
+  const { data, error: insertError } = await supabase
+    .from('workouts')
+    .insert(rows)
+    .select('*')
 
   if (insertError) {
-    logSupabaseError('Erreur insertion séances Supabase :', insertError)
+    console.error('❌ Erreur insertion séances Supabase :', insertError)
+    console.error('Code :', insertError.code)
+    console.error('Message :', insertError.message)
+    console.error('Details :', insertError.details)
+    console.error('Hint :', insertError.hint)
+    console.error('Rows qui ont provoqué l’erreur :', rows)
+    console.groupEnd()
     throw insertError
   }
+
+  console.log('✅ Insertion OK')
+  console.log('6) Données retournées par Supabase :', data)
+
+  console.groupEnd()
 }

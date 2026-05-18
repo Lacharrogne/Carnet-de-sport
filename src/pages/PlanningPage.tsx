@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import type { PlannedWorkout } from '../types/plannedWorkout'
@@ -6,9 +6,9 @@ import type { SportCategoryId } from '../types/workout'
 
 type PlanningPageProps = {
   plannedWorkouts: PlannedWorkout[]
-  onAddPlannedWorkout: (plannedWorkout: PlannedWorkout) => void
-  onDeletePlannedWorkout: (plannedWorkoutId: string) => void
-  onCompletePlannedWorkout: (plannedWorkout: PlannedWorkout) => void
+  onAddPlannedWorkout: (plannedWorkout: PlannedWorkout) => void | Promise<void>
+  onDeletePlannedWorkout: (plannedWorkoutId: string) => void | Promise<void>
+  onCompletePlannedWorkout: (plannedWorkout: PlannedWorkout) => void | Promise<void>
 }
 
 export default function PlanningPage({
@@ -24,43 +24,82 @@ export default function PlanningPage({
   const [date, setDate] = useState(today)
   const [duration, setDuration] = useState('')
   const [objective, setObjective] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const sortedPlannedWorkouts = [...plannedWorkouts].sort((a, b) => {
-    return new Date(a.date).getTime() - new Date(b.date).getTime()
-  })
+  const sortedPlannedWorkouts = useMemo(() => {
+    return [...plannedWorkouts].sort((a, b) => {
+      return new Date(a.date).getTime() - new Date(b.date).getTime()
+    })
+  }, [plannedWorkouts])
 
-  const nextWorkout = sortedPlannedWorkouts[0]
+  const nextWorkout = useMemo(() => {
+    return sortedPlannedWorkouts.find((plannedWorkout) => {
+      return plannedWorkout.date >= today
+    })
+  }, [sortedPlannedWorkouts, today])
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const upcomingWorkoutsCount = useMemo(() => {
+    return plannedWorkouts.filter((plannedWorkout) => {
+      return plannedWorkout.date >= today
+    }).length
+  }, [plannedWorkouts, today])
+
+  const overdueWorkoutsCount = useMemo(() => {
+    return plannedWorkouts.filter((plannedWorkout) => {
+      return plannedWorkout.date < today
+    }).length
+  }, [plannedWorkouts, today])
+
+  const totalPlannedDuration = useMemo(() => {
+    return plannedWorkouts.reduce((total, plannedWorkout) => {
+      return total + plannedWorkout.duration
+    }, 0)
+  }, [plannedWorkouts])
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const cleanedTitle = title.trim()
     const cleanedDuration = Number(duration)
+    const cleanedObjective = objective.trim()
 
     if (!cleanedTitle) {
-      alert('Donne un nom à ta séance prévue.')
+      window.alert('Donne un nom à ta séance prévue.')
       return
     }
 
-    if (!duration || cleanedDuration <= 0) {
-      alert('Ajoute une durée valide.')
+    if (!date) {
+      window.alert('Choisis une date pour ta séance prévue.')
       return
     }
 
-    onAddPlannedWorkout({
+    if (!duration || Number.isNaN(cleanedDuration) || cleanedDuration <= 0) {
+      window.alert('Ajoute une durée valide.')
+      return
+    }
+
+    const newPlannedWorkout: PlannedWorkout = {
       id: crypto.randomUUID(),
       title: cleanedTitle,
       category,
       date,
       duration: cleanedDuration,
-      objective: objective.trim(),
-    })
+      objective: cleanedObjective,
+    }
 
-    setTitle('')
-    setCategory('musculation')
-    setDate(today)
-    setDuration('')
-    setObjective('')
+    setIsSubmitting(true)
+
+    try {
+      await onAddPlannedWorkout(newPlannedWorkout)
+
+      setTitle('')
+      setCategory('musculation')
+      setDate(today)
+      setDuration('')
+      setObjective('')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -78,7 +117,8 @@ export default function PlanningPage({
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Planifie tes entraînements à l’avance pour transformer ton sport en routine claire et motivante.
+                Planifie tes entraînements à l’avance pour transformer ton sport
+                en routine claire et motivante.
               </p>
             </div>
 
@@ -111,6 +151,28 @@ export default function PlanningPage({
             </div>
           </div>
         </header>
+
+        <section className="mt-8 grid gap-4 md:grid-cols-4">
+          <StatCard
+            label="Séances prévues"
+            value={plannedWorkouts.length.toString()}
+          />
+
+          <StatCard
+            label="À venir"
+            value={upcomingWorkoutsCount.toString()}
+          />
+
+          <StatCard
+            label="À rattraper"
+            value={overdueWorkoutsCount.toString()}
+          />
+
+          <StatCard
+            label="Temps prévu"
+            value={`${totalPlannedDuration} min`}
+          />
+        </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <form
@@ -164,6 +226,7 @@ export default function PlanningPage({
                   <input
                     type="date"
                     value={date}
+                    min={today}
                     onChange={(event) => setDate(event.target.value)}
                     className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
                   />
@@ -201,9 +264,10 @@ export default function PlanningPage({
 
               <button
                 type="submit"
-                className="w-full rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+                disabled={isSubmitting}
+                className="w-full rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                + Ajouter au planning
+                {isSubmitting ? 'Ajout en cours...' : '+ Ajouter au planning'}
               </button>
             </div>
           </form>
@@ -221,9 +285,7 @@ export default function PlanningPage({
               </div>
 
               <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4">
-                <p className="text-sm text-emerald-300">
-                  Total prévu
-                </p>
+                <p className="text-sm text-emerald-300">Total prévu</p>
 
                 <p className="mt-1 text-2xl font-black text-white">
                   {plannedWorkouts.length}
@@ -237,8 +299,13 @@ export default function PlanningPage({
                   <PlannedWorkoutCard
                     key={plannedWorkout.id}
                     plannedWorkout={plannedWorkout}
-                    onDelete={() => onDeletePlannedWorkout(plannedWorkout.id)}
-                    onComplete={() => onCompletePlannedWorkout(plannedWorkout)}
+                    isOverdue={plannedWorkout.date < today}
+                    onDelete={() =>
+                      onDeletePlannedWorkout(plannedWorkout.id)
+                    }
+                    onComplete={() =>
+                      onCompletePlannedWorkout(plannedWorkout)
+                    }
                   />
                 ))}
               </div>
@@ -262,14 +329,25 @@ export default function PlanningPage({
   )
 }
 
+function StatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
+      <p className="text-sm font-semibold text-slate-400">{label}</p>
+      <p className="mt-3 text-3xl font-black text-white">{value}</p>
+    </div>
+  )
+}
+
 function PlannedWorkoutCard({
   plannedWorkout,
+  isOverdue,
   onDelete,
   onComplete,
 }: {
   plannedWorkout: PlannedWorkout
-  onDelete: () => void
-  onComplete: () => void
+  isOverdue: boolean
+  onDelete: () => void | Promise<void>
+  onComplete: () => void | Promise<void>
 }) {
   const sportCategory = SPORT_CATEGORIES.find((category) => {
     return category.id === plannedWorkout.category
@@ -279,9 +357,21 @@ function PlannedWorkoutCard({
     <article className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-sm text-slate-400">
-            {formatDate(plannedWorkout.date)}
-          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm text-slate-400">
+              {formatDate(plannedWorkout.date)}
+            </p>
+
+            {isOverdue ? (
+              <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-xs font-black text-red-200">
+                À rattraper
+              </span>
+            ) : (
+              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200">
+                À venir
+              </span>
+            )}
+          </div>
 
           <h3 className="mt-2 text-2xl font-black text-white">
             {plannedWorkout.title}
@@ -289,7 +379,7 @@ function PlannedWorkoutCard({
 
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full bg-white/10 px-3 py-1 text-sm text-white">
-              {sportCategory?.emoji} {sportCategory?.label}
+              {sportCategory?.emoji ?? '🏃'} {sportCategory?.label ?? 'Sport'}
             </span>
 
             <span className="rounded-full bg-white/10 px-3 py-1 text-sm text-white">
@@ -313,15 +403,19 @@ function PlannedWorkoutCard({
         <div className="flex gap-2 sm:flex-col">
           <button
             type="button"
-            onClick={onComplete}
+            onClick={() => {
+              void onComplete()
+            }}
             className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
           >
-            Validée
+            Marquer réalisée
           </button>
 
           <button
             type="button"
-            onClick={onDelete}
+            onClick={() => {
+              void onDelete()
+            }}
             className="rounded-full border border-red-400/20 bg-red-400/10 px-4 py-2 text-sm font-black text-red-200 transition hover:bg-red-400/20"
           >
             Supprimer
