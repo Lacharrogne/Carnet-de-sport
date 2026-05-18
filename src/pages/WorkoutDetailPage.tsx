@@ -10,14 +10,13 @@ type WorkoutDetailPageProps = {
   onDelete?: (workoutId: string) => void
 }
 
-const trendConfig: Record<
-  Workout['trend'],
-  {
-    icon: string
-    label: string
-    className: string
-  }
-> = {
+type TrendDisplay = {
+  icon: string
+  label: string
+  className: string
+}
+
+const trendConfig: Record<Workout['trend'], TrendDisplay> = {
   progress: {
     icon: '📈',
     label: 'Progression',
@@ -55,11 +54,8 @@ export default function WorkoutDetailPage({
     return item.id === workout.category
   })
 
-  const trend = trendConfig[workout.trend]
+  const trend = trendConfig[workout.trend] ?? trendConfig.stable
   const strengthExercises = workout.details?.strengthExercises ?? []
-
-  const totalVolume = getTotalVolume(strengthExercises)
-  const totalSets = getTotalSets(strengthExercises)
 
   const formattedDate = new Intl.DateTimeFormat('fr-FR', {
     weekday: 'long',
@@ -105,10 +101,10 @@ export default function WorkoutDetailPage({
           <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl" />
           <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-sky-400/10 blur-3xl" />
 
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_380px]">
+          <div className="relative grid gap-8 lg:grid-cols-[1fr_420px]">
             <div>
-              <div className="flex flex-wrap items-center gap-4">
-                <div className="flex h-20 w-20 items-center justify-center rounded-[1.75rem] border border-white/10 bg-white/10 text-4xl">
+              <div className="flex flex-wrap items-center gap-5">
+                <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] border border-white/10 bg-white/10 text-5xl shadow-2xl shadow-black/20">
                   {category?.emoji ?? '✨'}
                 </div>
 
@@ -117,17 +113,17 @@ export default function WorkoutDetailPage({
                     Séance réalisée
                   </p>
 
-                  <h1 className="mt-2 text-4xl font-black leading-tight text-white md:text-5xl">
+                  <h1 className="mt-2 text-5xl font-black leading-tight text-white md:text-6xl">
                     {workout.title}
                   </h1>
 
-                  <p className="mt-2 capitalize text-slate-400">
+                  <p className="mt-3 text-lg capitalize text-slate-400">
                     {formattedDate}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-10 flex flex-wrap gap-3">
                 <Badge>{category?.label ?? 'Autre'}</Badge>
                 <Badge>{workout.duration} min</Badge>
                 <Badge>Intensité : {workout.intensity}</Badge>
@@ -135,37 +131,28 @@ export default function WorkoutDetailPage({
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-white/10 bg-slate-950/40 p-5">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-slate-500">
-                Résumé de performance
-              </p>
-
-              <div className="mt-5 grid grid-cols-2 gap-3">
-                <StatCard label="Durée" value={`${workout.duration} min`} />
-                <StatCard
-                  label="Exercices"
-                  value={`${strengthExercises.length}`}
-                />
-                <StatCard label="Séries" value={`${totalSets}`} />
-                <StatCard
-                  label="Volume"
-                  value={
-                    totalVolume > 0 ? `${formatNumber(totalVolume)} kg` : '—'
-                  }
-                />
-              </div>
-
-              <div
-                className={`mt-5 inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-black ${trend.className}`}
+            <aside className="space-y-4">
+              <TextPanel
+                title="Notes"
+                emptyText="Aucune note ajoutée pour cette séance."
+                compact
               >
-                <span>{trend.icon}</span>
-                <span>{trend.label}</span>
-              </div>
-            </div>
+                {workout.notes}
+              </TextPanel>
+
+              <TextPanel
+                title="À améliorer"
+                variant="emerald"
+                emptyText="Aucune idée d'amélioration ajoutée."
+                compact
+              >
+                {workout.improvementIdea}
+              </TextPanel>
+            </aside>
           </div>
         </section>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_380px]">
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_420px]">
           <div className="space-y-8">
             {strengthExercises.length > 0 ? (
               <StrengthExercisesSection exercises={strengthExercises} />
@@ -180,25 +167,86 @@ export default function WorkoutDetailPage({
             <OtherDetailsSection workout={workout} />
           </div>
 
-          <aside className="space-y-6">
-            <TextPanel
-              title="Notes"
-              emptyText="Aucune note ajoutée pour cette séance."
-            >
-              {workout.notes}
-            </TextPanel>
-
-            <TextPanel
-              title="À améliorer"
-              variant="emerald"
-              emptyText="Aucune idée d'amélioration ajoutée."
-            >
-              {workout.improvementIdea}
-            </TextPanel>
+          <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start">
+            <PerformanceSummaryPanel
+              workout={workout}
+              exercises={strengthExercises}
+              trend={trend}
+            />
           </aside>
         </div>
       </section>
     </main>
+  )
+}
+
+function PerformanceSummaryPanel({
+  workout,
+  exercises,
+  trend,
+}: {
+  workout: Workout
+  exercises: StrengthExercise[]
+  trend: TrendDisplay
+}) {
+  const totalVolume = getTotalVolume(exercises)
+  const totalSets = getTotalSets(exercises)
+  const heaviestExercise = getHeaviestExercise(exercises)
+  const bestVolumeExercise = getBestVolumeExercise(exercises)
+  const averageReps = getAverageReps(exercises)
+
+  return (
+    <section className="rounded-[2.5rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
+      <p className="text-xs font-black uppercase tracking-[0.25em] text-slate-500">
+        Résumé de performance
+      </p>
+
+      <div className="mt-6 grid grid-cols-2 gap-3">
+        <StatCard label="Durée" value={`${workout.duration} min`} />
+        <StatCard label="Exercices" value={`${exercises.length}`} />
+        <StatCard label="Séries" value={`${totalSets}`} />
+
+        <StatCard
+          label="Volume"
+          value={totalVolume > 0 ? `${formatNumber(totalVolume)} kg` : '—'}
+        />
+
+        <StatCard
+          label="Charge max"
+          value={
+            heaviestExercise ? formatWeight(heaviestExercise.weight) : '—'
+          }
+        />
+
+        <StatCard
+          label="Moy. reps"
+          value={averageReps > 0 ? `${averageReps} reps` : '—'}
+        />
+      </div>
+
+      {bestVolumeExercise ? (
+        <div className="mt-5 rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
+            Meilleur volume
+          </p>
+
+          <p className="mt-2 text-xl font-black text-white">
+            {bestVolumeExercise.name || 'Exercice sans nom'}
+          </p>
+
+          <p className="mt-1 text-sm font-bold text-slate-400">
+            {formatNumber(getExerciseVolume(bestVolumeExercise))} kg estimés
+          </p>
+        </div>
+      ) : null}
+
+      <div
+        className={`mt-6 inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-black ${trend.className}`}
+      >
+        <span>{trend.icon}</span>
+        <span>{trend.label}</span>
+      </div>
+    </section>
   )
 }
 
@@ -217,11 +265,11 @@ function StrengthExercisesSection({
             Exercices réalisés
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-white">
+          <h2 className="mt-2 text-4xl font-black text-white">
             Détail musculation
           </h2>
 
-          <p className="mt-2 text-slate-400">
+          <p className="mt-2 text-lg text-slate-400">
             {exercises.length} exercice{exercises.length > 1 ? 's' : ''}{' '}
             enregistré{exercises.length > 1 ? 's' : ''}.
           </p>
@@ -254,7 +302,7 @@ function StrengthExercisesSection({
                   key={exercise.id}
                   className="border-t border-white/10 transition hover:bg-white/[0.04]"
                 >
-                  <td className="px-5 py-4">
+                  <td className="px-5 py-5">
                     <p className="font-black text-white">
                       {exercise.name || 'Exercice sans nom'}
                     </p>
@@ -266,23 +314,23 @@ function StrengthExercisesSection({
                     ) : null}
                   </td>
 
-                  <td className="px-5 py-4 font-black text-sky-100">
+                  <td className="px-5 py-5 font-black text-sky-100">
                     {exercise.sets || '—'}
                   </td>
 
-                  <td className="px-5 py-4 font-black text-sky-100">
+                  <td className="px-5 py-5 font-black text-sky-100">
                     {exercise.reps || '—'}
                   </td>
 
-                  <td className="px-5 py-4 font-black text-sky-100">
+                  <td className="px-5 py-5 font-black text-sky-100">
                     {formatWeight(exercise.weight)}
                   </td>
 
-                  <td className="px-5 py-4 font-black text-sky-100">
+                  <td className="px-5 py-5 font-black text-sky-100">
                     {formatRest(exercise.rest)}
                   </td>
 
-                  <td className="px-5 py-4 font-black text-emerald-200">
+                  <td className="px-5 py-5 font-black text-emerald-200">
                     {exerciseVolume > 0
                       ? `${formatNumber(exerciseVolume)} kg`
                       : '—'}
@@ -358,19 +406,26 @@ function TextPanel({
   children,
   emptyText,
   variant = 'default',
+  compact = false,
 }: {
   title: string
-  children: string
+  children?: ReactNode
   emptyText: string
   variant?: 'default' | 'emerald'
+  compact?: boolean
 }) {
   const className =
     variant === 'emerald'
       ? 'border-emerald-400/15 bg-emerald-400/5'
-      : 'border-white/10 bg-white/[0.04]'
+      : 'border-white/10 bg-slate-950/35'
+
+  const hasContent =
+    typeof children === 'string' ? children.trim().length > 0 : Boolean(children)
 
   return (
-    <section className={`rounded-[2rem] border p-6 ${className}`}>
+    <section
+      className={`rounded-[2rem] border ${compact ? 'p-5' : 'p-6'} ${className}`}
+    >
       <p
         className={`text-xs font-black uppercase tracking-[0.25em] ${
           variant === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
@@ -379,8 +434,8 @@ function TextPanel({
         {title}
       </p>
 
-      <p className="mt-5 leading-8 text-slate-200">
-        {children || emptyText}
+      <p className="mt-4 leading-8 text-slate-200">
+        {hasContent ? children : emptyText}
       </p>
     </section>
   )
@@ -408,7 +463,7 @@ function EmptyPanel({
 
 function Badge({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-black text-slate-100">
+    <span className="rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-black text-slate-100">
       {children}
     </span>
   )
@@ -421,18 +476,18 @@ function StatCard({ label, value }: { label: string; value: string }) {
         {label}
       </p>
 
-      <p className="mt-2 text-xl font-black text-white">{value}</p>
+      <p className="mt-2 text-2xl font-black text-white">{value}</p>
     </div>
   )
 }
 
-function getTotalVolume(exercises: StrengthExercise[]) {
+function getTotalVolume(exercises: StrengthExercise[]): number {
   return exercises.reduce((total, exercise) => {
     return total + getExerciseVolume(exercise)
   }, 0)
 }
 
-function getExerciseVolume(exercise: StrengthExercise) {
+function getExerciseVolume(exercise: StrengthExercise): number {
   const sets = parseSportNumber(exercise.sets)
   const reps = parseSportNumber(exercise.reps)
   const weight = parseSportNumber(exercise.weight)
@@ -444,14 +499,66 @@ function getExerciseVolume(exercise: StrengthExercise) {
   return sets * reps * weight
 }
 
-function getTotalSets(exercises: StrengthExercise[]) {
+function getTotalSets(exercises: StrengthExercise[]): number {
   return exercises.reduce((total, exercise) => {
     return total + parseSportNumber(exercise.sets)
   }, 0)
 }
 
-function parseSportNumber(value: string) {
-  const normalizedValue = value.trim().replace(',', '.')
+function getHeaviestExercise(
+  exercises: StrengthExercise[],
+): StrengthExercise | null {
+  let heaviestExercise: StrengthExercise | null = null
+  let heaviestWeight = 0
+
+  exercises.forEach((exercise) => {
+    const weight = parseSportNumber(exercise.weight)
+
+    if (weight > heaviestWeight) {
+      heaviestWeight = weight
+      heaviestExercise = exercise
+    }
+  })
+
+  return heaviestExercise
+}
+
+function getBestVolumeExercise(
+  exercises: StrengthExercise[],
+): StrengthExercise | null {
+  let bestExercise: StrengthExercise | null = null
+  let bestVolume = 0
+
+  exercises.forEach((exercise) => {
+    const volume = getExerciseVolume(exercise)
+
+    if (volume > bestVolume) {
+      bestVolume = volume
+      bestExercise = exercise
+    }
+  })
+
+  return bestExercise
+}
+
+function getAverageReps(exercises: StrengthExercise[]): number {
+  if (exercises.length === 0) {
+    return 0
+  }
+
+  const totalReps = exercises.reduce((total, exercise) => {
+    return total + parseSportNumber(exercise.reps)
+  }, 0)
+
+  return Math.round(totalReps / exercises.length)
+}
+
+function parseSportNumber(value: string | number | null | undefined): number {
+  if (value === null || value === undefined) {
+    return 0
+  }
+
+  const normalizedValue = String(value).trim().replace(',', '.')
   const match = normalizedValue.match(/\d+(\.\d+)?/)
 
   if (!match) {
@@ -461,8 +568,12 @@ function parseSportNumber(value: string) {
   return Number(match[0])
 }
 
-function formatWeight(value: string) {
-  const trimmedValue = value.trim()
+function formatWeight(value: string | number | null | undefined): string {
+  if (value === null || value === undefined) {
+    return '—'
+  }
+
+  const trimmedValue = String(value).trim()
 
   if (!trimmedValue) {
     return '—'
@@ -475,8 +586,12 @@ function formatWeight(value: string) {
   return trimmedValue
 }
 
-function formatRest(value: string) {
-  const trimmedValue = value.trim()
+function formatRest(value: string | number | null | undefined): string {
+  if (value === null || value === undefined) {
+    return '—'
+  }
+
+  const trimmedValue = String(value).trim()
 
   if (!trimmedValue) {
     return '—'
@@ -489,7 +604,7 @@ function formatRest(value: string) {
   return trimmedValue
 }
 
-function formatNumber(value: number) {
+function formatNumber(value: number): string {
   return new Intl.NumberFormat('fr-FR', {
     maximumFractionDigits: 0,
   }).format(value)
