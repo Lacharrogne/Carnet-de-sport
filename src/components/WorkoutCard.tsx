@@ -5,11 +5,19 @@ import type { StrengthExercise, Workout } from '../types/workout'
 
 type WorkoutCardProps = {
   workout: Workout
+  onOpen?: (workoutId: string) => void
   onEdit?: (workoutId: string) => void
   onDelete?: (workoutId: string) => void | Promise<void>
 }
 
-const trendConfig = {
+const trendConfig: Record<
+  Workout['trend'],
+  {
+    icon: string
+    label: string
+    className: string
+  }
+> = {
   progress: {
     icon: '📈',
     label: 'Progression',
@@ -39,6 +47,7 @@ const trendConfig = {
 
 export default function WorkoutCard({
   workout,
+  onOpen,
   onEdit,
   onDelete,
 }: WorkoutCardProps) {
@@ -46,7 +55,7 @@ export default function WorkoutCard({
     return item.id === workout.category
   })
 
-  const trend = trendConfig[workout.trend] ?? trendConfig.stable
+  const trend = trendConfig[workout.trend]
 
   const formattedDate = new Intl.DateTimeFormat('fr-FR', {
     weekday: 'long',
@@ -57,8 +66,21 @@ export default function WorkoutCard({
 
   const hasActions = Boolean(onEdit || onDelete)
 
+  const handleOpen = () => {
+    if (!onOpen) {
+      return
+    }
+
+    onOpen(workout.id)
+  }
+
   return (
-    <article className="group relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 transition hover:-translate-y-1 hover:border-emerald-400/25 hover:bg-white/[0.07]">
+    <article
+      className={`group relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 transition hover:-translate-y-1 hover:border-emerald-400/25 hover:bg-white/[0.07] ${
+        onOpen ? 'cursor-pointer' : ''
+      }`}
+      onClick={handleOpen}
+    >
       <div className="absolute -right-14 -top-14 h-36 w-36 rounded-full bg-emerald-400/10 opacity-0 blur-3xl transition group-hover:opacity-100" />
 
       <div className="relative flex h-full flex-col">
@@ -75,7 +97,10 @@ export default function WorkoutCard({
 
           <div className="flex shrink-0 items-center gap-2">
             {hasActions ? (
-              <div className="flex items-center gap-2">
+              <div
+                className="flex items-center gap-2"
+                onClick={(event) => event.stopPropagation()}
+              >
                 {onEdit ? (
                   <button
                     type="button"
@@ -131,7 +156,7 @@ export default function WorkoutCard({
                 Notes
               </p>
 
-              <p className="mt-2 text-sm leading-7 text-slate-300">
+              <p className="mt-2 line-clamp-4 text-sm leading-7 text-slate-300">
                 {workout.notes}
               </p>
             </div>
@@ -143,7 +168,7 @@ export default function WorkoutCard({
                 À améliorer
               </p>
 
-              <p className="mt-2 text-sm leading-7 text-slate-200">
+              <p className="mt-2 line-clamp-4 text-sm leading-7 text-slate-200">
                 {workout.improvementIdea}
               </p>
             </div>
@@ -154,6 +179,14 @@ export default function WorkoutCard({
               <p className="text-sm leading-6 text-slate-500">
                 Aucune note ajoutée pour cette séance.
               </p>
+            </div>
+          ) : null}
+
+          {onOpen ? (
+            <div className="mt-auto pt-1">
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm font-black text-slate-300 transition group-hover:border-emerald-400/25 group-hover:text-emerald-200">
+                Voir le détail de la séance →
+              </div>
             </div>
           ) : null}
         </div>
@@ -201,8 +234,12 @@ function WorkoutDetailsList({ workout }: { workout: Workout }) {
     details.bodyZones ? `Zones : ${details.bodyZones}` : null,
   ].filter((item): item is string => Boolean(item))
 
+  if (items.length === 0 && !hasStrengthExercises) {
+    return null
+  }
+
   return (
-    <div className="mt-4 space-y-4">
+    <div className="mt-5 space-y-4">
       {items.length > 0 ? (
         <div className="flex flex-wrap gap-2">
           {items.map((item) => (
@@ -217,143 +254,190 @@ function WorkoutDetailsList({ workout }: { workout: Workout }) {
       ) : null}
 
       {hasStrengthExercises ? (
-        <StrengthExercisesList exercises={strengthExercises} />
+        <StrengthExercisesPreview exercises={strengthExercises} />
       ) : null}
     </div>
   )
 }
 
-function StrengthExercisesList({
+function StrengthExercisesPreview({
   exercises,
 }: {
   exercises: StrengthExercise[]
 }) {
-  const totalSets = exercises.reduce((total, exercise) => {
-    return total + parseNumber(exercise.sets)
-  }, 0)
-
+  const visibleExercises = exercises.slice(0, 4)
+  const hiddenExercisesCount = exercises.length - visibleExercises.length
   const totalVolume = exercises.reduce((total, exercise) => {
-    const sets = parseNumber(exercise.sets)
-    const reps = parseNumber(exercise.reps)
-    const weight = parseNumber(exercise.weight)
-
-    return total + sets * reps * weight
+    return total + getExerciseVolume(exercise)
   }, 0)
 
   return (
     <section className="rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
             Détail musculation
           </p>
 
           <p className="mt-1 text-sm text-slate-400">
-            {exercises.length} exercice{exercises.length > 1 ? 's' : ''} ·{' '}
-            {totalSets} série{totalSets > 1 ? 's' : ''}
+            {exercises.length} exercice{exercises.length > 1 ? 's' : ''}
           </p>
         </div>
 
         {totalVolume > 0 ? (
           <div className="rounded-full border border-emerald-400/20 bg-slate-950/60 px-3 py-1.5 text-xs font-black text-emerald-200">
-            Volume estimé : {Math.round(totalVolume)} kg
+            {formatNumber(totalVolume)} kg
           </div>
         ) : null}
       </div>
 
       <div className="mt-4 space-y-3">
-        {exercises.map((exercise) => (
-          <StrengthExerciseCard key={exercise.id} exercise={exercise} />
+        {visibleExercises.map((exercise) => (
+          <StrengthExercisePreviewItem
+            key={exercise.id}
+            exercise={exercise}
+          />
         ))}
       </div>
+
+      {hiddenExercisesCount > 0 ? (
+        <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3 text-center text-sm font-black text-slate-300">
+          + {hiddenExercisesCount} autre
+          {hiddenExercisesCount > 1 ? 's' : ''} exercice
+          {hiddenExercisesCount > 1 ? 's' : ''}
+        </div>
+      ) : null}
     </section>
   )
 }
 
-function StrengthExerciseCard({
+function StrengthExercisePreviewItem({
   exercise,
 }: {
   exercise: StrengthExercise
 }) {
-  const exerciseVolume =
-    parseNumber(exercise.sets) *
-    parseNumber(exercise.reps) *
-    parseNumber(exercise.weight)
+  const volume = getExerciseVolume(exercise)
 
   return (
-    <article className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h4 className="font-black text-white">
-            {exercise.name.trim() || 'Exercice sans nom'}
+    <article className="rounded-2xl border border-white/10 bg-slate-950/45 p-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h4 className="truncate font-black text-white">
+            {exercise.name || 'Exercice sans nom'}
           </h4>
 
-          {exercise.notes.trim() ? (
-            <p className="mt-1 text-xs leading-5 text-slate-400">
+          {exercise.notes ? (
+            <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
               {exercise.notes}
             </p>
           ) : null}
         </div>
 
-        {exerciseVolume > 0 ? (
-          <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-slate-200">
-            {Math.round(exerciseVolume)} kg
-          </div>
+        {volume > 0 ? (
+          <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-xs font-black text-emerald-200">
+            {formatNumber(volume)} kg
+          </span>
         ) : null}
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {exercise.sets.trim() ? (
-          <DetailPill>{exercise.sets} série{parseNumber(exercise.sets) > 1 ? 's' : ''}</DetailPill>
+        {exercise.sets ? (
+          <MiniStat label="Séries" value={exercise.sets} />
         ) : null}
 
-        {exercise.reps.trim() ? (
-          <DetailPill>{exercise.reps} rep{parseNumber(exercise.reps) > 1 ? 's' : ''}</DetailPill>
+        {exercise.reps ? (
+          <MiniStat label="Reps" value={exercise.reps} />
         ) : null}
 
-        {exercise.weight.trim() ? (
-          <DetailPill>{formatValueWithUnit(exercise.weight, 'kg')}</DetailPill>
+        {exercise.weight ? (
+          <MiniStat label="Charge" value={formatWeight(exercise.weight)} />
         ) : null}
 
-        {exercise.rest.trim() ? (
-          <DetailPill>Repos : {exercise.rest}</DetailPill>
+        {exercise.rest ? (
+          <MiniStat label="Repos" value={formatRest(exercise.rest)} />
         ) : null}
       </div>
     </article>
   )
 }
 
-function DetailPill({ children }: { children: ReactNode }) {
+function MiniStat({ label, value }: { label: string; value: string }) {
   return (
-    <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-slate-300">
-      {children}
+    <span className="rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-1 text-xs font-bold text-slate-300">
+      <span className="text-slate-500">{label} :</span> {value}
     </span>
   )
 }
 
-function parseNumber(value: string) {
-  const cleanedValue = value.replace(',', '.').replace(/[^\d.-]/g, '')
-  const parsedValue = Number(cleanedValue)
+function getExerciseVolume(exercise: StrengthExercise) {
+  const sets = parseStrengthNumber(exercise.sets)
+  const reps = parseStrengthNumber(exercise.reps)
+  const weight = parseStrengthNumber(exercise.weight)
 
-  if (Number.isNaN(parsedValue)) {
+  if (!sets || !reps || !weight) {
     return 0
   }
 
-  return parsedValue
+  return sets * reps * weight
 }
 
-function formatValueWithUnit(value: string, unit: string) {
-  const cleanedValue = value.trim()
+function parseStrengthNumber(value: string) {
+  const cleanedValue = value
+    .replace(',', '.')
+    .replace(/[^\d.-]/g, '')
+    .trim()
 
-  if (!cleanedValue) {
-    return ''
+  const number = Number(cleanedValue)
+
+  if (Number.isNaN(number)) {
+    return 0
   }
 
-  if (/[a-zA-Z]/.test(cleanedValue)) {
-    return cleanedValue
+  return number
+}
+
+function formatWeight(value: string) {
+  const trimmedValue = value.trim()
+
+  if (!trimmedValue) {
+    return '—'
   }
 
-  return `${cleanedValue} ${unit}`
+  const lowerValue = trimmedValue.toLowerCase()
+
+  if (
+    lowerValue.includes('kg') ||
+    lowerValue.includes('pdc') ||
+    lowerValue.includes('poids')
+  ) {
+    return trimmedValue
+  }
+
+  return `${trimmedValue} kg`
+}
+
+function formatRest(value: string) {
+  const trimmedValue = value.trim()
+
+  if (!trimmedValue) {
+    return '—'
+  }
+
+  const lowerValue = trimmedValue.toLowerCase()
+
+  if (
+    lowerValue.includes('s') ||
+    lowerValue.includes('min') ||
+    lowerValue.includes('mn')
+  ) {
+    return trimmedValue
+  }
+
+  return `${trimmedValue} min`
+}
+
+function formatNumber(value: number) {
+  return new Intl.NumberFormat('fr-FR').format(value)
 }
 
 function formatLabel(value: string) {

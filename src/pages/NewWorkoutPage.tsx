@@ -2,11 +2,15 @@ import WorkoutForm from '../components/WorkoutForm'
 import type { WorkoutFormValues } from '../types/workout'
 
 type NewWorkoutPageProps = {
+  initialValues?: WorkoutFormValues
+  submitLabel?: string
   onSubmit: (values: WorkoutFormValues) => void
   onCancel: () => void
 }
 
 export default function NewWorkoutPage({
+  initialValues,
+  submitLabel = 'Enregistrer la séance',
   onSubmit,
   onCancel,
 }: NewWorkoutPageProps) {
@@ -14,10 +18,11 @@ export default function NewWorkoutPage({
     <main className="min-h-screen bg-[#050816] text-slate-50">
       <section className="mx-auto max-w-5xl px-6 py-10">
         <button
+          type="button"
           onClick={onCancel}
           className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
         >
-          ← Retour au dashboard
+          ← Retour
         </button>
 
         <header className="mb-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-black/30">
@@ -26,16 +31,22 @@ export default function NewWorkoutPage({
           </p>
 
           <h1 className="mt-6 text-4xl font-black tracking-tight sm:text-5xl">
-            Ajoute ton entraînement.
+            Ajoute les détails de ta séance.
           </h1>
 
           <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
-            Note ce que tu as fait, ton ressenti et ce que tu veux améliorer pour la prochaine fois.
+            Complète les informations importantes : durée, ressenti, exercices,
+            séries, répétitions et progression.
           </p>
         </header>
 
-        <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 sm:p-8">
-          <WorkoutForm onSubmit={onSubmit} onCancel={onCancel} />
+        <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+          <WorkoutForm
+            initialValues={initialValues}
+            submitLabel={submitLabel}
+            onSubmit={onSubmit}
+            onCancel={onCancel}
+          />
         </section>
       </section>
     </main>

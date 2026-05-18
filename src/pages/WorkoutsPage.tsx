@@ -8,6 +8,7 @@ type WorkoutsPageProps = {
   workouts: Workout[]
   onBack: () => void
   onAddWorkoutClick: () => void
+  onOpenWorkout: (workoutId: string) => void
   onEditWorkout: (workoutId: string) => void
   onDeleteWorkout: (workoutId: string) => void | Promise<void>
 }
@@ -26,6 +27,7 @@ export default function WorkoutsPage({
   workouts,
   onBack,
   onAddWorkoutClick,
+  onOpenWorkout,
   onEditWorkout,
   onDeleteWorkout,
 }: WorkoutsPageProps) {
@@ -285,11 +287,11 @@ export default function WorkoutsPage({
               <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
                 {filteredWorkouts.map((workout) => (
                   <WorkoutCard
-                    key={workout.id}
-                    workout={workout}
-                    onEdit={onEditWorkout}
-                    onDelete={onDeleteWorkout}
-                  />
+  workout={workout}
+  onOpen={onOpenWorkout}
+  onEdit={onEditWorkout}
+  onDelete={onDeleteWorkout}
+/>
                 ))}
               </div>
             </>

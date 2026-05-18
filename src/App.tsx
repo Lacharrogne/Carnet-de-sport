@@ -7,6 +7,7 @@ import {
   useLocation,
   useNavigate,
   useParams,
+  useSearchParams,
 } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 
@@ -22,6 +23,7 @@ import EditWorkoutPage from './pages/EditWorkoutPage'
 import NewWorkoutPage from './pages/NewWorkoutPage'
 import PlanningPage from './pages/PlanningPage'
 import ProgressPage from './pages/ProgressPage'
+import WorkoutDetailPage from './pages/WorkoutDetailPage'
 import WorkoutsPage from './pages/WorkoutsPage'
 
 import {
@@ -140,7 +142,7 @@ function AppShell() {
         setIsAuthLoading(false)
       })
 
-const subscription = listenToAuthChanges(async (_event, session) => {
+    const subscription = listenToAuthChanges(async (_event, session) => {
       if (!isMounted) {
         return
       }
@@ -332,7 +334,7 @@ const subscription = listenToAuthChanges(async (_event, session) => {
     })
 
     if (!workoutToDelete) {
-      return
+      return false
     }
 
     const confirmed = window.confirm(
@@ -340,22 +342,20 @@ const subscription = listenToAuthChanges(async (_event, session) => {
     )
 
     if (!confirmed) {
-      return
+      return false
     }
 
     const nextWorkouts = workouts.filter((workout) => {
       return workout.id !== workoutId
     })
 
-    await saveWorkoutsSafely(
+    return await saveWorkoutsSafely(
       nextWorkouts,
       'Erreur lors de la suppression de la séance :',
     )
   }
 
-  const handleAddPlannedWorkout = async (
-    plannedWorkout: PlannedWorkout,
-  ) => {
+  const handleAddPlannedWorkout = async (plannedWorkout: PlannedWorkout) => {
     const nextPlannedWorkouts = [plannedWorkout, ...plannedWorkouts]
 
     await savePlannedWorkoutsSafely(
@@ -409,33 +409,24 @@ const subscription = listenToAuthChanges(async (_event, session) => {
   }
 
   const handleCompletePlannedWorkout = async (
-    plannedWorkout: PlannedWorkout,
+    plannedWorkoutId: string,
+    values: WorkoutFormValues,
   ) => {
     const completedWorkout: Workout = {
       id: crypto.randomUUID(),
-      title: plannedWorkout.title,
-      category: plannedWorkout.category,
-      date: plannedWorkout.date,
-      duration: plannedWorkout.duration,
-      intensity: 'Moyenne',
-      feeling: 'Bon',
-      notes: plannedWorkout.objective
-        ? `Objectif prévu : ${plannedWorkout.objective}`
-        : '',
-      improvementIdea: '',
-      trend: 'stable',
-      details: {},
+      ...values,
     }
 
     const nextWorkouts = [completedWorkout, ...workouts]
 
-    const nextPlannedWorkouts = plannedWorkouts.filter((workout) => {
-      return workout.id !== plannedWorkout.id
+    const nextPlannedWorkouts = plannedWorkouts.filter((plannedWorkout) => {
+      return plannedWorkout.id !== plannedWorkoutId
     })
 
     if (!user) {
       setWorkouts(nextWorkouts)
       setPlannedWorkouts(nextPlannedWorkouts)
+      navigate('/workouts')
       return
     }
 
@@ -447,6 +438,8 @@ const subscription = listenToAuthChanges(async (_event, session) => {
 
       setWorkouts(nextWorkouts)
       setPlannedWorkouts(nextPlannedWorkouts)
+
+      navigate('/workouts')
     } catch (error) {
       console.error(
         'Erreur lors de la transformation de la séance prévue en séance réalisée :',
@@ -545,6 +538,9 @@ const subscription = listenToAuthChanges(async (_event, session) => {
                   workouts={workouts}
                   onBack={() => navigate('/')}
                   onAddWorkoutClick={() => navigate('/workouts/new')}
+                  onOpenWorkout={(workoutId) => {
+                    navigate(`/workouts/${workoutId}`)
+                  }}
                   onEditWorkout={(workoutId) => {
                     navigate(`/workouts/${workoutId}/edit`)
                   }}
@@ -558,11 +554,36 @@ const subscription = listenToAuthChanges(async (_event, session) => {
             <Route
               path="/workouts/new"
               element={
-                <NewWorkoutPage
+                <NewWorkoutRoute
+                  plannedWorkouts={plannedWorkouts}
                   onSubmit={(values) => {
                     void handleAddWorkout(values)
                   }}
+                  onSubmitPlannedWorkout={(plannedWorkoutId, values) => {
+                    void handleCompletePlannedWorkout(plannedWorkoutId, values)
+                  }}
                   onCancel={() => navigate('/workouts')}
+                  onCancelPlannedWorkout={() => navigate('/planning')}
+                />
+              }
+            />
+
+            <Route
+              path="/workouts/:workoutId"
+              element={
+                <WorkoutDetailRoute
+                  workouts={workouts}
+                  onBack={() => navigate('/workouts')}
+                  onEditWorkout={(workoutId) => {
+                    navigate(`/workouts/${workoutId}/edit`)
+                  }}
+                  onDeleteWorkout={(workoutId) => {
+                    void handleDeleteWorkout(workoutId).then((hasDeleted) => {
+                      if (hasDeleted) {
+                        navigate('/workouts')
+                      }
+                    })
+                  }}
                 />
               }
             />
@@ -578,17 +599,17 @@ const subscription = listenToAuthChanges(async (_event, session) => {
               }
             />
 
-<Route
-  path="/progress"
-  element={
-    <ProgressPage
-      workouts={workouts}
-      plannedWorkouts={plannedWorkouts}
-      weeklyGoal={weeklyGoal}
-      onBack={() => navigate('/')}
-    />
-  }
-/>
+            <Route
+              path="/progress"
+              element={
+                <ProgressPage
+                  workouts={workouts}
+                  plannedWorkouts={plannedWorkouts}
+                  weeklyGoal={weeklyGoal}
+                  onBack={() => navigate('/')}
+                />
+              }
+            />
 
             <Route
               path="/body"
@@ -617,7 +638,7 @@ const subscription = listenToAuthChanges(async (_event, session) => {
                     void handleDeletePlannedWorkout(plannedWorkoutId)
                   }}
                   onCompletePlannedWorkout={(plannedWorkout) => {
-                    void handleCompletePlannedWorkout(plannedWorkout)
+                    navigate(`/workouts/new?plannedWorkoutId=${plannedWorkout.id}`)
                   }}
                 />
               }
@@ -639,6 +660,99 @@ const subscription = listenToAuthChanges(async (_event, session) => {
         </>
       )}
     </>
+  )
+}
+
+type NewWorkoutRouteProps = {
+  plannedWorkouts: PlannedWorkout[]
+  onSubmit: (values: WorkoutFormValues) => void
+  onSubmitPlannedWorkout: (
+    plannedWorkoutId: string,
+    values: WorkoutFormValues,
+  ) => void
+  onCancel: () => void
+  onCancelPlannedWorkout: () => void
+}
+
+function NewWorkoutRoute({
+  plannedWorkouts,
+  onSubmit,
+  onSubmitPlannedWorkout,
+  onCancel,
+  onCancelPlannedWorkout,
+}: NewWorkoutRouteProps) {
+  const [searchParams] = useSearchParams()
+  const plannedWorkoutId = searchParams.get('plannedWorkoutId')
+
+  const plannedWorkout = plannedWorkoutId
+    ? plannedWorkouts.find((item) => {
+        return item.id === plannedWorkoutId
+      })
+    : null
+
+  if (plannedWorkoutId && !plannedWorkout) {
+    return (
+      <main className="min-h-screen bg-[#050816] text-slate-50">
+        <section className="mx-auto max-w-5xl px-6 py-10">
+          <button
+            type="button"
+            onClick={onCancelPlannedWorkout}
+            className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+          >
+            ← Retour au planning
+          </button>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
+            <p className="text-5xl">🔎</p>
+
+            <h1 className="mt-4 text-3xl font-black">
+              Séance prévue introuvable.
+            </h1>
+
+            <p className="mt-2 text-slate-400">
+              Cette séance a peut-être déjà été réalisée ou supprimée.
+            </p>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  const initialValues: WorkoutFormValues | undefined = plannedWorkout
+    ? {
+        title: plannedWorkout.title,
+        category: plannedWorkout.category,
+        date: plannedWorkout.date,
+        duration: plannedWorkout.duration,
+        intensity: 'Moyenne',
+        feeling: 'Bon',
+        notes: plannedWorkout.objective
+          ? `Objectif prévu : ${plannedWorkout.objective}`
+          : '',
+        improvementIdea: '',
+        trend: 'stable',
+        details: {},
+      }
+    : undefined
+
+  return (
+    <NewWorkoutPage
+      initialValues={initialValues}
+      submitLabel={
+        plannedWorkout
+          ? 'Enregistrer la séance réalisée'
+          : 'Enregistrer la séance'
+      }
+      onSubmit={(values) => {
+        if (plannedWorkout) {
+          onSubmitPlannedWorkout(plannedWorkout.id, values)
+          return
+        }
+
+        onSubmit(values)
+      }}
+      onCancel={plannedWorkout ? onCancelPlannedWorkout : onCancel}
+    />
   )
 }
 
@@ -694,6 +808,63 @@ function EditWorkoutRoute({
         void onSubmit(workout.id, values)
       }}
       onCancel={onCancel}
+    />
+  )
+}
+
+type WorkoutDetailRouteProps = {
+  workouts: Workout[]
+  onBack: () => void
+  onEditWorkout: (workoutId: string) => void
+  onDeleteWorkout: (workoutId: string) => void
+}
+
+function WorkoutDetailRoute({
+  workouts,
+  onBack,
+  onEditWorkout,
+  onDeleteWorkout,
+}: WorkoutDetailRouteProps) {
+  const { workoutId } = useParams()
+
+  const workout = workouts.find((item) => {
+    return item.id === workoutId
+  })
+
+  if (!workout) {
+    return (
+      <main className="min-h-screen bg-[#050816] text-slate-50">
+        <section className="mx-auto max-w-5xl px-6 py-10">
+          <button
+            type="button"
+            onClick={onBack}
+            className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+          >
+            ← Retour au carnet
+          </button>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
+            <p className="text-5xl">🔎</p>
+
+            <h1 className="mt-4 text-3xl font-black">
+              Séance introuvable.
+            </h1>
+
+            <p className="mt-2 text-slate-400">
+              Cette séance a peut-être été supprimée.
+            </p>
+          </div>
+        </section>
+      </main>
+    )
+  }
+
+  return (
+    <WorkoutDetailPage
+      workout={workout}
+      onBack={onBack}
+      onEdit={onEditWorkout}
+      onDelete={onDeleteWorkout}
     />
   )
 }
