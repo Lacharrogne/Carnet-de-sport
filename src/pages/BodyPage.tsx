@@ -1,8 +1,7 @@
-import { useMemo } from 'react'
+import { useMemo, useState, type ChangeEvent } from 'react'
+
 import HealthyRecipeSection from '../components/HealthyRecipeSection'
-
-
-import type { HealthProfile, ActivityLevel, FitnessGoal } from '../types/health'
+import type { ActivityLevel, FitnessGoal, HealthProfile } from '../types/health'
 import type { Workout } from '../types/workout'
 
 type BodyPageProps = {
@@ -28,6 +27,8 @@ const activityLabels: Record<ActivityLevel, string> = {
   'tres-actif': 'Très actif',
 }
 
+const cardioCategories = ['course', 'natation', 'football', 'velo', 'marche']
+
 export default function BodyPage({
   workouts,
   profile,
@@ -35,16 +36,16 @@ export default function BodyPage({
   onBack,
 }: BodyPageProps) {
   const bmi = useMemo(() => {
-    const heightInMeters = profile.height / 100
-
-    if (heightInMeters <= 0) {
+    if (profile.height <= 0 || profile.weight <= 0) {
       return 0
     }
 
-    return Number((profile.weight / (heightInMeters * heightInMeters)).toFixed(1))
-  }, [profile.height, profile.weight])
+    const heightInMeters = profile.height / 100
 
-  const bmiLabel = getBmiLabel(bmi)
+    return Number(
+      (profile.weight / (heightInMeters * heightInMeters)).toFixed(1),
+    )
+  }, [profile.height, profile.weight])
 
   const bodyStats = useMemo(() => {
     const upperBodyWorkouts = workouts.filter((workout) => {
@@ -52,9 +53,7 @@ export default function BodyPage({
     }).length
 
     const cardioWorkouts = workouts.filter((workout) => {
-      return ['course', 'natation', 'football', 'velo', 'marche'].includes(
-        workout.category
-      )
+      return cardioCategories.includes(workout.category)
     }).length
 
     const mobilityWorkouts = workouts.filter((workout) => {
@@ -73,11 +72,12 @@ export default function BodyPage({
     }
   }, [workouts])
 
+  const bmiLabel = getBmiLabel(bmi)
   const estimatedMetabolism = getEstimatedMetabolism(profile)
 
   const updateProfileField = <Key extends keyof HealthProfile>(
     key: Key,
-    value: HealthProfile[Key]
+    value: HealthProfile[Key],
   ) => {
     onProfileChange({
       ...profile,
@@ -89,6 +89,7 @@ export default function BodyPage({
     <main className="min-h-screen bg-[#050816] text-slate-50">
       <section className="mx-auto max-w-7xl px-6 py-10">
         <button
+          type="button"
           onClick={onBack}
           className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
         >
@@ -107,7 +108,9 @@ export default function BodyPage({
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Suis tes informations physiques, tes zones travaillées et ton objectif principal. Les données restent indicatives et ne remplacent pas un avis médical.
+                Suis tes informations physiques, tes zones travaillées et ton
+                objectif principal. Les données restent indicatives et ne
+                remplacent pas un avis médical.
               </p>
             </div>
 
@@ -121,7 +124,8 @@ export default function BodyPage({
               </p>
 
               <p className="mt-3 text-sm leading-6 text-slate-300">
-                Le but est de transformer tes données en repères motivants, pas en pression.
+                Le but est de transformer tes données en repères motivants, pas
+                en pression.
               </p>
             </div>
           </div>
@@ -131,7 +135,11 @@ export default function BodyPage({
           <StatCard label="Taille" value={`${profile.height} cm`} icon="📏" />
           <StatCard label="Poids" value={`${profile.weight} kg`} icon="⚖️" />
           <StatCard label="IMC indicatif" value={bmi.toString()} icon="🧬" />
-          <StatCard label="Métabolisme estimé" value={`${estimatedMetabolism} kcal`} icon="🔥" />
+          <StatCard
+            label="Métabolisme estimé"
+            value={`${estimatedMetabolism} kcal`}
+            icon="🔥"
+          />
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -182,7 +190,10 @@ export default function BodyPage({
                 <FloatingStat
                   position="left-[-30px] bottom-24"
                   label="Cardio"
-                  value={`Niv. ${Math.max(1, Math.floor(bodyStats.cardioWorkouts / 2) + 1)}`}
+                  value={`Niv. ${Math.max(
+                    1,
+                    Math.floor(bodyStats.cardioWorkouts / 2) + 1,
+                  )}`}
                   color="sky"
                 />
 
@@ -196,7 +207,9 @@ export default function BodyPage({
             </div>
 
             <p className="mt-8 text-center text-sm leading-6 text-slate-300">
-              Les zones s’activent selon tes séances : musculation pour le haut du corps, cardio pour les jambes et l’endurance, mobilité pour la récupération.
+              Les zones s’activent selon tes séances : musculation pour le haut
+              du corps, cardio pour les jambes et l’endurance, mobilité pour la
+              récupération.
             </p>
           </div>
 
@@ -210,18 +223,24 @@ export default function BodyPage({
                 <NumberField
                   label="Taille en cm"
                   value={profile.height}
+                  min={1}
+                  step={1}
                   onChange={(value) => updateProfileField('height', value)}
                 />
 
                 <NumberField
                   label="Poids en kg"
                   value={profile.weight}
+                  min={1}
+                  step={0.1}
                   onChange={(value) => updateProfileField('weight', value)}
                 />
 
                 <NumberField
                   label="Âge"
                   value={profile.age}
+                  min={1}
+                  step={1}
                   onChange={(value) => updateProfileField('age', value)}
                 />
 
@@ -235,7 +254,7 @@ export default function BodyPage({
                     onChange={(event) =>
                       updateProfileField(
                         'activityLevel',
-                        event.target.value as ActivityLevel
+                        event.target.value as ActivityLevel,
                       )
                     }
                     className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
@@ -307,12 +326,17 @@ export default function BodyPage({
                 </p>
 
                 <p className="mt-2 text-sm leading-6 text-slate-300">
-                  {getBodySuggestion(bodyStats.upperBodyWorkouts, bodyStats.cardioWorkouts, bodyStats.mobilityWorkouts)}
+                  {getBodySuggestion(
+                    bodyStats.upperBodyWorkouts,
+                    bodyStats.cardioWorkouts,
+                    bodyStats.mobilityWorkouts,
+                  )}
                 </p>
               </div>
             </section>
           </div>
         </section>
+
         <HealthyRecipeSection profile={profile} />
       </section>
     </main>
@@ -324,11 +348,16 @@ function getBmiLabel(bmi: number) {
   if (bmi < 18.5) return 'Bas'
   if (bmi < 25) return 'Standard'
   if (bmi < 30) return 'Élevé'
+
   return 'Très élevé'
 }
 
 function getEstimatedMetabolism(profile: HealthProfile) {
-  const base = 10 * profile.weight + 6.25 * profile.height - 5 * profile.age + 5
+  const height = Math.max(profile.height, 1)
+  const weight = Math.max(profile.weight, 1)
+  const age = Math.max(profile.age, 1)
+
+  const base = 10 * weight + 6.25 * height - 5 * age + 5
 
   const multiplierByActivity: Record<ActivityLevel, number> = {
     sedentaire: 1.2,
@@ -344,7 +373,7 @@ function getEstimatedMetabolism(profile: HealthProfile) {
 function getBodySuggestion(
   upperBodyWorkouts: number,
   cardioWorkouts: number,
-  mobilityWorkouts: number
+  mobilityWorkouts: number,
 ) {
   if (upperBodyWorkouts === 0 && cardioWorkouts === 0) {
     return 'Commence par une petite séance simple : 20 minutes de marche, de mobilité ou de musculation légère.'
@@ -402,10 +431,53 @@ function InfoCard({ title, value, description }: InfoCardProps) {
 type NumberFieldProps = {
   label: string
   value: number
+  min?: number
+  step?: number
   onChange: (value: number) => void
 }
 
-function NumberField({ label, value, onChange }: NumberFieldProps) {
+function NumberField({
+  label,
+  value,
+  min = 1,
+  step = 1,
+  onChange,
+}: NumberFieldProps) {
+  const [inputValue, setInputValue] = useState(() => String(value))
+
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextValue = event.target.value
+
+    setInputValue(nextValue)
+
+    if (nextValue === '') {
+      return
+    }
+
+    const parsedValue = Number(nextValue)
+
+    if (!Number.isNaN(parsedValue)) {
+      onChange(parsedValue)
+    }
+  }
+
+  const handleBlur = () => {
+    const parsedValue = Number(inputValue)
+
+    if (
+      inputValue.trim() === '' ||
+      Number.isNaN(parsedValue) ||
+      parsedValue < min
+    ) {
+      setInputValue(String(min))
+      onChange(min)
+      return
+    }
+
+    setInputValue(String(parsedValue))
+    onChange(parsedValue)
+  }
+
   return (
     <label className="space-y-2">
       <span className="text-sm font-bold text-slate-200">
@@ -414,9 +486,11 @@ function NumberField({ label, value, onChange }: NumberFieldProps) {
 
       <input
         type="number"
-        min="1"
-        value={value}
-        onChange={(event) => onChange(Number(event.target.value))}
+        min={min}
+        step={step}
+        value={inputValue}
+        onChange={handleChange}
+        onBlur={handleBlur}
         className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
       />
     </label>
@@ -455,7 +529,9 @@ function FloatingStat({ position, label, value, color }: FloatingStatProps) {
   }
 
   return (
-    <div className={`absolute ${position} rounded-2xl border bg-slate-950 px-4 py-3 ${colorClasses[color]}`}>
+    <div
+      className={`absolute ${position} rounded-2xl border bg-slate-950 px-4 py-3 ${colorClasses[color]}`}
+    >
       <p className="text-xs text-slate-400">{label}</p>
       <p className="font-black">{value}</p>
     </div>
