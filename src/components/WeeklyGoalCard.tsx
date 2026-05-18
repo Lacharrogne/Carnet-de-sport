@@ -16,23 +16,40 @@ export default function WeeklyGoalCard({
 }: WeeklyGoalCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [targetMinutes, setTargetMinutes] = useState(
-    String(weeklyGoal.targetMinutes)
+    String(weeklyGoal.targetMinutes),
   )
+  const [errorMessage, setErrorMessage] = useState('')
 
   const weeklyMinutes = getCurrentWeekDuration(workouts)
-  const progress = Math.min(
-    Math.round((weeklyMinutes / weeklyGoal.targetMinutes) * 100),
-    100
-  )
+  const progress =
+    weeklyGoal.targetMinutes > 0
+      ? Math.min(
+          Math.round((weeklyMinutes / weeklyGoal.targetMinutes) * 100),
+          100,
+        )
+      : 0
 
   const remainingMinutes = Math.max(weeklyGoal.targetMinutes - weeklyMinutes, 0)
+  const bonusMinutes = Math.max(weeklyMinutes - weeklyGoal.targetMinutes, 0)
   const isCompleted = weeklyMinutes >= weeklyGoal.targetMinutes
+
+  const handleStartEditing = () => {
+    setTargetMinutes(String(weeklyGoal.targetMinutes))
+    setErrorMessage('')
+    setIsEditing(true)
+  }
+
+  const handleCancel = () => {
+    setTargetMinutes(String(weeklyGoal.targetMinutes))
+    setErrorMessage('')
+    setIsEditing(false)
+  }
 
   const handleSave = () => {
     const newTarget = Number(targetMinutes)
 
-    if (!targetMinutes || newTarget <= 0) {
-      alert('Ajoute un objectif valide.')
+    if (!targetMinutes || Number.isNaN(newTarget) || newTarget <= 0) {
+      setErrorMessage('Ajoute un objectif supérieur à 0 minute.')
       return
     }
 
@@ -40,103 +57,186 @@ export default function WeeklyGoalCard({
       targetMinutes: newTarget,
     })
 
+    setErrorMessage('')
     setIsEditing(false)
   }
 
   return (
-    <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.7fr] lg:items-center">
-        <div>
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-            Objectif hebdomadaire
-          </p>
+    <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
+      <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-emerald-400/10 blur-3xl" />
+      <div className="absolute -bottom-24 -left-24 h-52 w-52 rounded-full bg-cyan-400/10 blur-3xl" />
 
-          <h2 className="mt-2 text-3xl font-black text-white">
-            {isCompleted
-              ? 'Objectif validé cette semaine.'
-              : 'Garde ta série active.'}
-          </h2>
+      <div className="relative grid gap-6 xl:grid-cols-[1.15fr_0.85fr] xl:items-stretch">
+        <div className="flex flex-col justify-between gap-7">
+          <div>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+                  Objectif hebdomadaire
+                </p>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-            {getMotivationText(isCompleted, remainingMinutes)}
-          </p>
+                <h2 className="mt-3 text-3xl font-black leading-tight text-white sm:text-4xl">
+                  {isCompleted
+                    ? 'Objectif validé cette semaine.'
+                    : 'Garde ta dynamique active.'}
+                </h2>
+              </div>
 
-          <div className="mt-6">
-            <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-bold text-slate-300">
-                {weeklyMinutes} / {weeklyGoal.targetMinutes} min
-              </p>
+              <div
+                className={`w-fit rounded-3xl border px-5 py-4 ${
+                  isCompleted
+                    ? 'border-emerald-400/25 bg-emerald-400/10'
+                    : 'border-white/10 bg-slate-950/40'
+                }`}
+              >
+                <p
+                  className={`text-sm font-bold ${
+                    isCompleted ? 'text-emerald-300' : 'text-slate-400'
+                  }`}
+                >
+                  Avancement
+                </p>
 
-              <p className="text-sm font-black text-emerald-300">
-                {progress} %
-              </p>
+                <p className="mt-1 text-3xl font-black text-white">
+                  {progress}%
+                </p>
+              </div>
             </div>
 
-            <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-950">
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400">
+              {getMotivationText(isCompleted, remainingMinutes, bonusMinutes)}
+            </p>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/40 p-5">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-bold text-slate-300">
+                  Temps réalisé cette semaine
+                </p>
+
+                <p className="mt-2 text-4xl font-black text-white">
+                  {weeklyMinutes} min
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-sm font-bold text-slate-400">
+                  Objectif
+                </p>
+
+                <p className="mt-2 text-2xl font-black text-emerald-300">
+                  {weeklyGoal.targetMinutes} min
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 h-4 overflow-hidden rounded-full bg-slate-950">
               <div
-                className="h-full rounded-full bg-emerald-400 transition-all"
+                className={`h-full rounded-full transition-all ${
+                  isCompleted ? 'bg-emerald-300' : 'bg-emerald-400'
+                }`}
                 style={{ width: `${progress}%` }}
               />
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-white">
+                Lundi → Dimanche
+              </span>
+
+              <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-white">
+                {isCompleted
+                  ? `Bonus : +${bonusMinutes} min`
+                  : `Reste : ${remainingMinutes} min`}
+              </span>
             </div>
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-5">
+        <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-5 sm:p-6">
           {isEditing ? (
-            <div>
-              <label className="block space-y-2">
-                <span className="text-sm font-bold text-slate-200">
-                  Nouvel objectif en minutes
-                </span>
+            <div className="flex h-full flex-col justify-between gap-6">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-300">
+                  Modifier l’objectif
+                </p>
 
-                <input
-                  type="number"
-                  min="1"
-                  value={targetMinutes}
-                  onChange={(event) => setTargetMinutes(event.target.value)}
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
-                />
-              </label>
+                <label className="mt-5 block space-y-2">
+                  <span className="text-sm font-bold text-slate-200">
+                    Nouvel objectif en minutes
+                  </span>
 
-              <div className="mt-4 flex gap-2">
+                  <input
+                    type="number"
+                    min="1"
+                    value={targetMinutes}
+                    onChange={(event) => {
+                      setTargetMinutes(event.target.value)
+                      setErrorMessage('')
+                    }}
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-lg font-black text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400/60"
+                    placeholder="Ex : 180"
+                  />
+                </label>
+
+                {errorMessage ? (
+                  <p className="mt-3 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm font-bold text-red-200">
+                    {errorMessage}
+                  </p>
+                ) : null}
+
+                <p className="mt-4 text-sm leading-6 text-slate-300">
+                  Un bon objectif doit être motivant, mais atteignable. Tu peux
+                  commencer simple puis augmenter progressivement.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="flex-1 rounded-full bg-emerald-400 px-4 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+                  className="flex-1 rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
                 >
                   Sauvegarder
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    setTargetMinutes(String(weeklyGoal.targetMinutes))
-                    setIsEditing(false)
-                  }}
-                  className="rounded-full border border-white/10 bg-white/5 px-4 py-3 text-sm font-black text-white transition hover:bg-white/10"
+                  onClick={handleCancel}
+                  className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-white transition hover:bg-white/10"
                 >
                   Annuler
                 </button>
               </div>
             </div>
           ) : (
-            <div>
-              <p className="text-sm text-emerald-300">
-                Objectif actuel
-              </p>
+            <div className="flex h-full flex-col justify-between gap-7">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-300">
+                  Objectif actuel
+                </p>
 
-              <p className="mt-1 text-4xl font-black text-white">
-                {weeklyGoal.targetMinutes} min
-              </p>
+                <div className="mt-5 flex items-end gap-3">
+                  <p className="text-6xl font-black leading-none text-white">
+                    {weeklyGoal.targetMinutes}
+                  </p>
 
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                À atteindre entre lundi et dimanche.
-              </p>
+                  <p className="pb-2 text-lg font-bold text-slate-300">
+                    min
+                  </p>
+                </div>
+
+                <p className="mt-4 text-sm leading-7 text-slate-300">
+                  À atteindre entre lundi et dimanche. Même les petites séances
+                  comptent dans ta progression.
+                </p>
+              </div>
 
               <button
                 type="button"
-                onClick={() => setIsEditing(true)}
-                className="mt-5 w-full rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm font-black text-emerald-300 transition hover:bg-emerald-400/20"
+                onClick={handleStartEditing}
+                className="w-full rounded-full border border-emerald-400/30 bg-emerald-400/10 px-5 py-4 text-sm font-black text-emerald-300 transition hover:bg-emerald-400/20"
               >
                 Modifier l’objectif
               </button>
@@ -172,8 +272,16 @@ function getCurrentWeekDuration(workouts: Workout[]) {
   }, 0)
 }
 
-function getMotivationText(isCompleted: boolean, remainingMinutes: number) {
+function getMotivationText(
+  isCompleted: boolean,
+  remainingMinutes: number,
+  bonusMinutes: number,
+) {
   if (isCompleted) {
+    if (bonusMinutes > 0) {
+      return `Bien joué. Tu as dépassé ton objectif de ${bonusMinutes} minutes cette semaine.`
+    }
+
     return 'Bien joué. Tu as rempli ton objectif hebdomadaire, tu peux maintenant viser le bonus ou récupérer intelligemment.'
   }
 

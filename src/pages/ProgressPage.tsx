@@ -2,10 +2,15 @@ import { useMemo } from 'react'
 
 import AdvancedStatsSection from '../components/AdvancedStatsSection'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
+import { getSportProfileXp } from '../services/xpService'
+import type { PlannedWorkout } from '../types/plannedWorkout'
+import type { WeeklyGoal } from '../types/weeklyGoal'
 import type { Workout } from '../types/workout'
 
 type ProgressPageProps = {
   workouts: Workout[]
+  plannedWorkouts: PlannedWorkout[]
+  weeklyGoal: WeeklyGoal
   onBack: () => void
 }
 
@@ -16,7 +21,12 @@ type Badge = {
   unlocked: boolean
 }
 
-export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
+export default function ProgressPage({
+  workouts,
+  plannedWorkouts,
+  weeklyGoal,
+  onBack,
+}: ProgressPageProps) {
   const sortedWorkouts = useMemo(() => {
     return [...workouts].sort((a, b) => {
       return (
@@ -25,6 +35,14 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
       )
     })
   }, [workouts])
+
+  const sportProfileXp = useMemo(() => {
+    return getSportProfileXp({
+      workouts,
+      plannedWorkouts,
+      weeklyGoal,
+    })
+  }, [workouts, plannedWorkouts, weeklyGoal])
 
   const totalWorkouts = workouts.length
 
@@ -49,26 +67,19 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
   const averageDuration =
     totalWorkouts > 0 ? Math.round(totalDuration / totalWorkouts) : 0
 
-  const xp =
-    totalDuration * 2 +
-    totalWorkouts * 50 +
-    recordCount * 100 +
-    progressCount * 40
-
-  const level = Math.floor(xp / 300) + 1
-  const currentLevelXp = xp % 300
-  const xpPercent = Math.min(Math.round((currentLevelXp / 300) * 100), 100)
-  const xpToNextLevel = 300 - currentLevelXp
-
   const lastWorkout = sortedWorkouts[0] ?? null
 
   const lastSevenDaysWorkouts = useMemo(() => {
     const today = new Date()
+    today.setHours(23, 59, 59, 999)
+
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(today.getDate() - 7)
+    sevenDaysAgo.setHours(0, 0, 0, 0)
 
     return workouts.filter((workout) => {
       const workoutDate = new Date(`${workout.date}T00:00:00`)
+
       return workoutDate >= sevenDaysAgo && workoutDate <= today
     })
   }, [workouts])
@@ -134,7 +145,7 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
       icon: '👑',
       title: 'Machine lancée',
       description: 'Atteindre le niveau 5.',
-      unlocked: level >= 5,
+      unlocked: sportProfileXp.level >= 5,
     },
   ]
 
@@ -163,8 +174,8 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Chaque séance te donne de l’XP. Plus tu bouges, plus ton
-                personnage progresse.
+                Chaque séance, mission et défi alimente ton XP. Ton niveau est
+                maintenant calculé avec le même système dans toute l’application.
               </p>
             </div>
 
@@ -174,37 +185,50 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
               </p>
 
               <div className="mt-4 flex items-end gap-3">
-                <p className="text-7xl font-black">{level}</p>
+                <p className="text-7xl font-black">
+                  {sportProfileXp.level}
+                </p>
+
                 <p className="pb-3 text-slate-300">niveau</p>
               </div>
 
               <div className="mt-6 h-4 overflow-hidden rounded-full bg-slate-950">
                 <div
                   className="h-full rounded-full bg-emerald-400"
-                  style={{ width: `${xpPercent}%` }}
+                  style={{
+                    width: `${sportProfileXp.levelProgressPercent}%`,
+                  }}
                 />
               </div>
 
               <p className="mt-3 text-sm text-slate-300">
-                {currentLevelXp} / 300 XP — encore {xpToNextLevel} XP pour le
-                niveau suivant.
+                {sportProfileXp.currentLevelXp} / {sportProfileXp.xpPerLevel} XP
+                — encore {sportProfileXp.xpToNextLevel} XP pour le niveau
+                suivant.
               </p>
             </div>
           </div>
         </header>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
-          <StatCard label="XP total" value={xp.toString()} icon="⚡" />
+          <StatCard
+            label="XP total"
+            value={sportProfileXp.totalXp.toString()}
+            icon="⚡"
+          />
+
           <StatCard
             label="Séances"
             value={totalWorkouts.toString()}
             icon="🏃"
           />
+
           <StatCard
             label="Temps actif"
             value={`${totalDuration} min`}
             icon="⏱️"
           />
+
           <StatCard
             label="Badges"
             value={`${unlockedBadges}/${badges.length}`}
@@ -248,6 +272,54 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
           />
         </section>
 
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+            Détail de l’XP
+          </p>
+
+          <h2 className="mt-2 text-3xl font-black text-white">
+            D’où vient ta progression ?
+          </h2>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
+            <XpDetailCard
+              label="Séances"
+              value={sportProfileXp.details.workoutXp}
+              icon="🏃"
+            />
+
+            <XpDetailCard
+              label="Durée"
+              value={sportProfileXp.details.durationXp}
+              icon="⏱️"
+            />
+
+            <XpDetailCard
+              label="Records"
+              value={sportProfileXp.details.recordXp}
+              icon="🔥"
+            />
+
+            <XpDetailCard
+              label="Progression"
+              value={sportProfileXp.details.progressXp}
+              icon="📈"
+            />
+
+            <XpDetailCard
+              label="Défis"
+              value={sportProfileXp.details.challengeXp}
+              icon="🎯"
+            />
+
+            <XpDetailCard
+              label="Missions"
+              value={sportProfileXp.details.missionXp}
+              icon="✅"
+            />
+          </div>
+        </section>
+
         <AdvancedStatsSection workouts={workouts} />
 
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -267,6 +339,7 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
 
                 <div className="absolute -right-10 top-12 rounded-2xl border border-emerald-400/20 bg-slate-950 px-4 py-3">
                   <p className="text-xs text-slate-400">Force</p>
+
                   <p className="font-black text-emerald-300">
                     Niv. {Math.max(1, progressCount + recordCount + 1)}
                   </p>
@@ -274,6 +347,7 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
 
                 <div className="absolute -left-10 bottom-12 rounded-2xl border border-sky-400/20 bg-slate-950 px-4 py-3">
                   <p className="text-xs text-slate-400">Endurance</p>
+
                   <p className="font-black text-sky-300">
                     Niv. {Math.max(1, Math.floor(totalDuration / 120) + 1)}
                   </p>
@@ -361,7 +435,9 @@ export default function ProgressPage({ workouts, onBack }: ProgressPageProps) {
                     <div className="h-3 overflow-hidden rounded-full bg-slate-950">
                       <div
                         className="h-full rounded-full bg-emerald-400"
-                        style={{ width: `${percent}%` }}
+                        style={{
+                          width: `${percent}%`,
+                        }}
                       />
                     </div>
                   </div>
@@ -419,7 +495,9 @@ function StatCard({ label, value, icon }: StatCardProps) {
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
       <p className="text-3xl">{icon}</p>
+
       <p className="mt-4 text-sm text-slate-400">{label}</p>
+
       <p className="mt-2 text-3xl font-black">{value}</p>
     </div>
   )
@@ -435,8 +513,34 @@ function InfoCard({ title, value, description }: InfoCardProps) {
   return (
     <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
       <p className="text-sm text-slate-400">{title}</p>
+
       <p className="mt-2 text-2xl font-black text-white">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-300">{description}</p>
+
+      <p className="mt-2 text-sm leading-6 text-slate-300">
+        {description}
+      </p>
+    </div>
+  )
+}
+
+function XpDetailCard({
+  label,
+  value,
+  icon,
+}: {
+  label: string
+  value: number
+  icon: string
+}) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+      <p className="text-2xl">{icon}</p>
+
+      <p className="mt-3 text-sm text-slate-400">{label}</p>
+
+      <p className="mt-1 text-2xl font-black text-white">
+        +{value}
+      </p>
     </div>
   )
 }

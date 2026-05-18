@@ -1,4 +1,5 @@
 import { getChallenges } from '../services/challengeService'
+import { getSportProfileXp } from '../services/xpService'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 import type { WeeklyGoal } from '../types/weeklyGoal'
 import type { Workout } from '../types/workout'
@@ -17,27 +18,18 @@ function getProgressPercent(progress: number, target: number) {
   return Math.min(Math.round((progress / target) * 100), 100)
 }
 
-function getLevelFromXp(totalXp: number) {
-  const xpPerLevel = 500
-  const level = Math.floor(totalXp / xpPerLevel) + 1
-  const currentLevelXp = totalXp % xpPerLevel
-  const nextLevelXp = xpPerLevel
-  const percent = getProgressPercent(currentLevelXp, nextLevelXp)
-
-  return {
-    level,
-    currentLevelXp,
-    nextLevelXp,
-    percent,
-  }
-}
-
 export default function ChallengesPage({
   workouts,
   plannedWorkouts,
   weeklyGoal,
 }: ChallengesPageProps) {
   const challenges = getChallenges({
+    workouts,
+    plannedWorkouts,
+    weeklyGoal,
+  })
+
+  const sportProfileXp = getSportProfileXp({
     workouts,
     plannedWorkouts,
     weeklyGoal,
@@ -61,12 +53,6 @@ export default function ChallengesPage({
   const highlightedChallenges = ongoingChallenges.filter((challenge) => {
     return getProgressPercent(challenge.progress, challenge.target) >= 70
   })
-
-  const totalXp = unlockedChallenges.reduce((total, challenge) => {
-    return total + challenge.xp
-  }, 0)
-
-  const levelInfo = getLevelFromXp(totalXp)
 
   const completionPercent = getProgressPercent(
     unlockedChallenges.length,
@@ -101,24 +87,29 @@ export default function ChallengesPage({
                   </p>
 
                   <p className="mt-4 text-6xl font-black text-white">
-                    {levelInfo.level}
+                    {sportProfileXp.level}
                   </p>
                 </div>
 
                 <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-right">
-                  <p className="text-sm font-bold text-slate-400">XP total</p>
-                  <p className="text-2xl font-black text-white">{totalXp}</p>
+                  <p className="text-sm font-bold text-slate-400">
+                    XP total
+                  </p>
+
+                  <p className="text-2xl font-black text-white">
+                    {sportProfileXp.totalXp}
+                  </p>
                 </div>
               </div>
 
               <div className="mt-6">
                 <div className="flex items-center justify-between gap-4">
                   <p className="text-sm font-bold text-slate-300">
-                    {levelInfo.currentLevelXp} / {levelInfo.nextLevelXp} XP
+                    {sportProfileXp.currentLevelXp} / {sportProfileXp.xpPerLevel} XP
                   </p>
 
                   <p className="text-sm font-black text-emerald-300">
-                    Niveau {levelInfo.level + 1}
+                    Niveau {sportProfileXp.level + 1}
                   </p>
                 </div>
 
@@ -126,7 +117,7 @@ export default function ChallengesPage({
                   <div
                     className="h-full rounded-full bg-emerald-400 transition-all"
                     style={{
-                      width: `${levelInfo.percent}%`,
+                      width: `${sportProfileXp.levelProgressPercent}%`,
                     }}
                   />
                 </div>
@@ -157,15 +148,15 @@ export default function ChallengesPage({
 
           <article className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">
-              Défis en cours
+              XP défis
             </p>
 
             <p className="mt-4 text-5xl font-black text-white">
-              {ongoingChallenges.length}
+              +{sportProfileXp.details.challengeXp}
             </p>
 
             <p className="mt-3 text-sm leading-6 text-slate-400">
-              Continue tes séances pour les débloquer progressivement.
+              XP gagné uniquement grâce aux défis débloqués.
             </p>
           </article>
 
@@ -182,6 +173,26 @@ export default function ChallengesPage({
               Les défis à finir en priorité pour gagner rapidement de l’XP.
             </p>
           </article>
+        </section>
+
+        <section className="mt-8 grid gap-5 md:grid-cols-3">
+          <XpDetailCard
+            label="XP séances"
+            value={sportProfileXp.details.workoutXp}
+            description="Gagné avec tes entraînements réalisés."
+          />
+
+          <XpDetailCard
+            label="XP missions"
+            value={sportProfileXp.details.missionXp}
+            description="Gagné avec les missions quotidiennes."
+          />
+
+<XpDetailCard
+  label="XP bonus"
+  value={sportProfileXp.details.recordXp + sportProfileXp.details.progressXp}
+  description="Bonus liés aux records et aux séances en progression."
+/>
         </section>
 
         {highlightedChallenges.length > 0 && (
@@ -334,5 +345,31 @@ export default function ChallengesPage({
         </section>
       </section>
     </main>
+  )
+}
+
+function XpDetailCard({
+  label,
+  value,
+  description,
+}: {
+  label: string
+  value: number
+  description: string
+}) {
+  return (
+    <article className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+      <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400">
+        {label}
+      </p>
+
+      <p className="mt-4 text-4xl font-black text-emerald-300">
+        +{value}
+      </p>
+
+      <p className="mt-3 text-sm leading-6 text-slate-400">
+        {description}
+      </p>
+    </article>
   )
 }

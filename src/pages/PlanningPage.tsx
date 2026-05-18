@@ -7,6 +7,7 @@ import type { SportCategoryId } from '../types/workout'
 type PlanningPageProps = {
   plannedWorkouts: PlannedWorkout[]
   onAddPlannedWorkout: (plannedWorkout: PlannedWorkout) => void | Promise<void>
+  onUpdatePlannedWorkout: (plannedWorkout: PlannedWorkout) => void | Promise<void>
   onDeletePlannedWorkout: (plannedWorkoutId: string) => void | Promise<void>
   onCompletePlannedWorkout: (plannedWorkout: PlannedWorkout) => void | Promise<void>
 }
@@ -14,17 +15,21 @@ type PlanningPageProps = {
 export default function PlanningPage({
   plannedWorkouts,
   onAddPlannedWorkout,
+  onUpdatePlannedWorkout,
   onDeletePlannedWorkout,
   onCompletePlannedWorkout,
 }: PlanningPageProps) {
-  const today = new Date().toISOString().split('T')[0]
+  const today = getTodayDateKey()
 
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<SportCategoryId>('musculation')
   const [date, setDate] = useState(today)
   const [duration, setDuration] = useState('')
   const [objective, setObjective] = useState('')
+  const [editingPlannedWorkoutId, setEditingPlannedWorkoutId] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const isEditing = editingPlannedWorkoutId !== null
 
   const sortedPlannedWorkouts = useMemo(() => {
     return [...plannedWorkouts].sort((a, b) => {
@@ -56,6 +61,24 @@ export default function PlanningPage({
     }, 0)
   }, [plannedWorkouts])
 
+  const resetForm = () => {
+    setTitle('')
+    setCategory('musculation')
+    setDate(today)
+    setDuration('')
+    setObjective('')
+    setEditingPlannedWorkoutId(null)
+  }
+
+  const handleEditClick = (plannedWorkout: PlannedWorkout) => {
+    setEditingPlannedWorkoutId(plannedWorkout.id)
+    setTitle(plannedWorkout.title)
+    setCategory(plannedWorkout.category)
+    setDate(plannedWorkout.date)
+    setDuration(String(plannedWorkout.duration))
+    setObjective(plannedWorkout.objective ?? '')
+  }
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
@@ -78,8 +101,8 @@ export default function PlanningPage({
       return
     }
 
-    const newPlannedWorkout: PlannedWorkout = {
-      id: crypto.randomUUID(),
+    const plannedWorkoutToSave: PlannedWorkout = {
+      id: editingPlannedWorkoutId ?? crypto.randomUUID(),
       title: cleanedTitle,
       category,
       date,
@@ -90,13 +113,13 @@ export default function PlanningPage({
     setIsSubmitting(true)
 
     try {
-      await onAddPlannedWorkout(newPlannedWorkout)
+      if (isEditing) {
+        await onUpdatePlannedWorkout(plannedWorkoutToSave)
+      } else {
+        await onAddPlannedWorkout(plannedWorkoutToSave)
+      }
 
-      setTitle('')
-      setCategory('musculation')
-      setDate(today)
-      setDuration('')
-      setObjective('')
+      resetForm()
     } finally {
       setIsSubmitting(false)
     }
@@ -177,11 +200,33 @@ export default function PlanningPage({
         <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <form
             onSubmit={handleSubmit}
-            className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6"
+            className={`rounded-[2rem] border p-6 transition ${
+              isEditing
+                ? 'border-sky-400/30 bg-sky-400/10'
+                : 'border-white/10 bg-white/[0.04]'
+            }`}
           >
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-              Nouvelle séance prévue
-            </p>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+                  {isEditing ? 'Modifier la séance' : 'Nouvelle séance prévue'}
+                </p>
+
+                <h2 className="mt-2 text-3xl font-black text-white">
+                  {isEditing ? 'Ajuste ton programme.' : 'Crée ton prochain objectif.'}
+                </h2>
+              </div>
+
+              {isEditing ? (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-black text-slate-200 transition hover:bg-white/10"
+                >
+                  Annuler
+                </button>
+              ) : null}
+            </div>
 
             <div className="mt-6 space-y-5">
               <label className="block space-y-2">
@@ -267,7 +312,11 @@ export default function PlanningPage({
                 disabled={isSubmitting}
                 className="w-full rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? 'Ajout en cours...' : '+ Ajouter au planning'}
+                {isSubmitting
+                  ? 'Sauvegarde en cours...'
+                  : isEditing
+                    ? 'Enregistrer les modifications'
+                    : '+ Ajouter au planning'}
               </button>
             </div>
           </form>
@@ -300,12 +349,10 @@ export default function PlanningPage({
                     key={plannedWorkout.id}
                     plannedWorkout={plannedWorkout}
                     isOverdue={plannedWorkout.date < today}
-                    onDelete={() =>
-                      onDeletePlannedWorkout(plannedWorkout.id)
-                    }
-                    onComplete={() =>
-                      onCompletePlannedWorkout(plannedWorkout)
-                    }
+                    isEditing={plannedWorkout.id === editingPlannedWorkoutId}
+                    onEdit={() => handleEditClick(plannedWorkout)}
+                    onDelete={() => onDeletePlannedWorkout(plannedWorkout.id)}
+                    onComplete={() => onCompletePlannedWorkout(plannedWorkout)}
                   />
                 ))}
               </div>
@@ -341,11 +388,15 @@ function StatCard({ label, value }: { label: string; value: string }) {
 function PlannedWorkoutCard({
   plannedWorkout,
   isOverdue,
+  isEditing,
+  onEdit,
   onDelete,
   onComplete,
 }: {
   plannedWorkout: PlannedWorkout
   isOverdue: boolean
+  isEditing: boolean
+  onEdit: () => void
   onDelete: () => void | Promise<void>
   onComplete: () => void | Promise<void>
 }) {
@@ -354,7 +405,13 @@ function PlannedWorkoutCard({
   })
 
   return (
-    <article className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+    <article
+      className={`rounded-3xl border p-5 transition ${
+        isEditing
+          ? 'border-sky-400/40 bg-sky-400/10'
+          : 'border-white/10 bg-slate-950/60'
+      }`}
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
@@ -362,7 +419,11 @@ function PlannedWorkoutCard({
               {formatDate(plannedWorkout.date)}
             </p>
 
-            {isOverdue ? (
+            {isEditing ? (
+              <span className="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1 text-xs font-black text-sky-200">
+                En modification
+              </span>
+            ) : isOverdue ? (
               <span className="rounded-full border border-red-400/20 bg-red-400/10 px-3 py-1 text-xs font-black text-red-200">
                 À rattraper
               </span>
@@ -400,7 +461,15 @@ function PlannedWorkoutCard({
           ) : null}
         </div>
 
-        <div className="flex gap-2 sm:flex-col">
+        <div className="flex flex-wrap gap-2 sm:flex-col">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-sm font-black text-sky-200 transition hover:bg-sky-400/20"
+          >
+            Modifier
+          </button>
+
           <button
             type="button"
             onClick={() => {
@@ -424,6 +493,15 @@ function PlannedWorkoutCard({
       </div>
     </article>
   )
+}
+
+function getTodayDateKey() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 
 function formatDate(date: string) {

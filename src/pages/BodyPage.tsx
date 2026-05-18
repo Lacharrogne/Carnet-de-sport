@@ -48,7 +48,7 @@ export default function BodyPage({
   }, [profile.height, profile.weight])
 
   const bodyStats = useMemo(() => {
-    const upperBodyWorkouts = workouts.filter((workout) => {
+    const strengthWorkouts = workouts.filter((workout) => {
       return workout.category === 'musculation'
     }).length
 
@@ -64,11 +64,23 @@ export default function BodyPage({
       return total + workout.duration
     }, 0)
 
+    const activePillars = [
+      strengthWorkouts,
+      cardioWorkouts,
+      mobilityWorkouts,
+    ].filter((value) => value > 0).length
+
+    const balanceScore = Math.round((activePillars / 3) * 100)
+
     return {
-      upperBodyWorkouts,
+      strengthWorkouts,
       cardioWorkouts,
       mobilityWorkouts,
       totalDuration,
+      balanceScore,
+      strengthLevel: Math.max(1, strengthWorkouts + 1),
+      cardioLevel: Math.max(1, Math.floor(cardioWorkouts / 2) + 1),
+      mobilityLevel: Math.max(1, mobilityWorkouts + 1),
     }
   }, [workouts])
 
@@ -86,8 +98,8 @@ export default function BodyPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] text-slate-50">
-      <section className="mx-auto max-w-7xl px-6 py-10">
+    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
+      <section className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
         <button
           type="button"
           onClick={onBack}
@@ -96,36 +108,59 @@ export default function BodyPage({
           ← Retour au dashboard
         </button>
 
-        <header className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-black/30">
-          <div className="grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
+        <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 sm:p-8 lg:p-10">
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 left-10 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
+
+          <div className="relative grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
             <div>
               <p className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-bold text-emerald-300">
                 Mon corps
               </p>
 
-              <h1 className="mt-6 text-4xl font-black tracking-tight sm:text-6xl">
+              <h1 className="mt-6 max-w-4xl text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
                 Visualise ton corps comme un personnage.
               </h1>
 
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Suis tes informations physiques, tes zones travaillées et ton
-                objectif principal. Les données restent indicatives et ne
-                remplacent pas un avis médical.
+              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+                Suis tes informations physiques, tes zones travaillées et ton objectif principal. Les données restent indicatives et ne remplacent pas un avis médical.
               </p>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                <MiniStatCard
+                  label="Objectif"
+                  value={goalLabels[profile.goal]}
+                />
+
+                <MiniStatCard
+                  label="Activité"
+                  value={activityLabels[profile.activityLevel]}
+                />
+
+                <MiniStatCard
+                  label="Équilibre"
+                  value={`${bodyStats.balanceScore}%`}
+                />
+              </div>
             </div>
 
             <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-6">
               <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-                Objectif actuel
+                Profil actuel
               </p>
 
-              <p className="mt-4 text-3xl font-black text-white">
-                {goalLabels[profile.goal]}
-              </p>
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                <HeroMetric label="Taille" value={`${profile.height} cm`} />
+                <HeroMetric label="Poids" value={`${profile.weight} kg`} />
+                <HeroMetric label="IMC" value={bmi.toString()} />
+                <HeroMetric
+                  label="Dépense estimée"
+                  value={`${estimatedMetabolism} kcal`}
+                />
+              </div>
 
-              <p className="mt-3 text-sm leading-6 text-slate-300">
-                Le but est de transformer tes données en repères motivants, pas
-                en pression.
+              <p className="mt-5 text-sm leading-6 text-slate-300">
+                Le but est de transformer tes données en repères motivants, pas en pression.
               </p>
             </div>
           </div>
@@ -134,7 +169,11 @@ export default function BodyPage({
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <StatCard label="Taille" value={`${profile.height} cm`} icon="📏" />
           <StatCard label="Poids" value={`${profile.weight} kg`} icon="⚖️" />
-          <StatCard label="IMC indicatif" value={bmi.toString()} icon="🧬" />
+          <StatCard
+            label="IMC indicatif"
+            value={`${bmi} · ${bmiLabel}`}
+            icon="🧬"
+          />
           <StatCard
             label="Métabolisme estimé"
             value={`${estimatedMetabolism} kcal`}
@@ -142,14 +181,35 @@ export default function BodyPage({
           />
         </section>
 
-        <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-              Représentation du corps
-            </p>
+        <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+                  Avatar corporel
+                </p>
+
+                <h2 className="mt-2 text-3xl font-black text-white">
+                  Tes zones actives.
+                </h2>
+              </div>
+
+              <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4">
+                <p className="text-sm text-emerald-300">
+                  Score d’équilibre
+                </p>
+
+                <p className="mt-1 text-2xl font-black text-white">
+                  {bodyStats.balanceScore}%
+                </p>
+              </div>
+            </div>
 
             <div className="mt-8 flex justify-center">
-              <div className="relative flex h-[420px] w-[280px] items-center justify-center rounded-[3rem] border border-emerald-400/20 bg-emerald-400/5 shadow-2xl shadow-emerald-400/10">
+              <div className="relative flex h-[440px] w-[290px] items-center justify-center rounded-[3rem] border border-emerald-400/20 bg-gradient-to-b from-emerald-400/10 via-white/[0.03] to-sky-400/10 shadow-2xl shadow-emerald-400/10 sm:w-[330px]">
+                <div className="absolute inset-8 rounded-full border border-white/5" />
+                <div className="absolute inset-14 rounded-full border border-white/5" />
+
                 <BodyPart
                   className="absolute top-10 h-20 w-20 rounded-full"
                   active={workouts.length > 0}
@@ -157,67 +217,66 @@ export default function BodyPage({
 
                 <BodyPart
                   className="absolute top-32 h-36 w-28 rounded-[3rem]"
-                  active={bodyStats.upperBodyWorkouts > 0}
+                  active={bodyStats.strengthWorkouts > 0}
                 />
 
                 <BodyPart
-                  className="absolute left-14 top-36 h-32 w-9 rotate-12 rounded-full"
-                  active={bodyStats.upperBodyWorkouts > 0}
+                  className="absolute left-[68px] top-36 h-32 w-9 rotate-12 rounded-full sm:left-[88px]"
+                  active={bodyStats.strengthWorkouts > 0}
                 />
 
                 <BodyPart
-                  className="absolute right-14 top-36 h-32 w-9 -rotate-12 rounded-full"
-                  active={bodyStats.upperBodyWorkouts > 0}
+                  className="absolute right-[68px] top-36 h-32 w-9 -rotate-12 rounded-full sm:right-[88px]"
+                  active={bodyStats.strengthWorkouts > 0}
                 />
 
                 <BodyPart
-                  className="absolute bottom-14 left-[104px] h-36 w-10 rounded-full"
+                  className="absolute bottom-16 left-[104px] h-36 w-10 rounded-full sm:left-[124px]"
                   active={bodyStats.cardioWorkouts > 0}
                 />
 
                 <BodyPart
-                  className="absolute bottom-14 right-[104px] h-36 w-10 rounded-full"
+                  className="absolute bottom-16 right-[104px] h-36 w-10 rounded-full sm:right-[124px]"
                   active={bodyStats.cardioWorkouts > 0}
                 />
 
                 <FloatingStat
-                  position="right-[-30px] top-20"
+                  position="right-[-16px] top-20 sm:right-[-28px]"
                   label="Force"
-                  value={`Niv. ${Math.max(1, bodyStats.upperBodyWorkouts + 1)}`}
+                  value={`Niv. ${bodyStats.strengthLevel}`}
                   color="emerald"
                 />
 
                 <FloatingStat
-                  position="left-[-30px] bottom-24"
+                  position="left-[-16px] bottom-28 sm:left-[-28px]"
                   label="Cardio"
-                  value={`Niv. ${Math.max(
-                    1,
-                    Math.floor(bodyStats.cardioWorkouts / 2) + 1,
-                  )}`}
+                  value={`Niv. ${bodyStats.cardioLevel}`}
                   color="sky"
                 />
 
                 <FloatingStat
-                  position="right-[-20px] bottom-10"
+                  position="right-[-12px] bottom-12 sm:right-[-22px]"
                   label="Mobilité"
-                  value={`Niv. ${Math.max(1, bodyStats.mobilityWorkouts + 1)}`}
+                  value={`Niv. ${bodyStats.mobilityLevel}`}
                   color="violet"
                 />
               </div>
             </div>
 
             <p className="mt-8 text-center text-sm leading-6 text-slate-300">
-              Les zones s’activent selon tes séances : musculation pour le haut
-              du corps, cardio pour les jambes et l’endurance, mobilité pour la
-              récupération.
+              Les zones s’activent selon tes séances : musculation pour la force, cardio pour l’endurance, mobilité pour la récupération.
             </p>
-          </div>
+          </section>
 
           <div className="space-y-6">
-            <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+            <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
               <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
                 Mes informations
               </p>
+
+              <h2 className="mt-2 text-3xl font-black text-white">
+                Ton profil de base.
+              </h2>
 
               <div className="mt-6 grid gap-5 sm:grid-cols-2">
                 <NumberField
@@ -276,7 +335,10 @@ export default function BodyPage({
                 <select
                   value={profile.goal}
                   onChange={(event) =>
-                    updateProfileField('goal', event.target.value as FitnessGoal)
+                    updateProfileField(
+                      'goal',
+                      event.target.value as FitnessGoal,
+                    )
                   }
                   className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
                 >
@@ -289,7 +351,7 @@ export default function BodyPage({
               </label>
             </section>
 
-            <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
+            <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
               <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
                 Analyse corporelle
               </p>
@@ -309,13 +371,17 @@ export default function BodyPage({
 
                 <InfoCard
                   title="Force"
-                  value={`${bodyStats.upperBodyWorkouts} séance(s)`}
+                  value={`${bodyStats.strengthWorkouts} séance${
+                    bodyStats.strengthWorkouts > 1 ? 's' : ''
+                  }`}
                   description="Principalement lié aux séances de musculation."
                 />
 
                 <InfoCard
                   title="Cardio"
-                  value={`${bodyStats.cardioWorkouts} séance(s)`}
+                  value={`${bodyStats.cardioWorkouts} séance${
+                    bodyStats.cardioWorkouts > 1 ? 's' : ''
+                  }`}
                   description="Course, foot, vélo, natation ou marche."
                 />
               </div>
@@ -327,10 +393,20 @@ export default function BodyPage({
 
                 <p className="mt-2 text-sm leading-6 text-slate-300">
                   {getBodySuggestion(
-                    bodyStats.upperBodyWorkouts,
+                    bodyStats.strengthWorkouts,
                     bodyStats.cardioWorkouts,
                     bodyStats.mobilityWorkouts,
                   )}
+                </p>
+              </div>
+
+              <div className="mt-4 rounded-3xl border border-sky-400/10 bg-sky-400/5 p-5">
+                <p className="font-black text-white">
+                  Objectif nutrition
+                </p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  {getGoalSuggestion(profile.goal)}
                 </p>
               </div>
             </section>
@@ -371,19 +447,19 @@ function getEstimatedMetabolism(profile: HealthProfile) {
 }
 
 function getBodySuggestion(
-  upperBodyWorkouts: number,
+  strengthWorkouts: number,
   cardioWorkouts: number,
   mobilityWorkouts: number,
 ) {
-  if (upperBodyWorkouts === 0 && cardioWorkouts === 0) {
+  if (strengthWorkouts === 0 && cardioWorkouts === 0) {
     return 'Commence par une petite séance simple : 20 minutes de marche, de mobilité ou de musculation légère.'
   }
 
-  if (upperBodyWorkouts > cardioWorkouts + 2) {
+  if (strengthWorkouts > cardioWorkouts + 2) {
     return 'Tu travailles beaucoup la force. Ajoute une séance cardio courte pour mieux équilibrer ton profil.'
   }
 
-  if (cardioWorkouts > upperBodyWorkouts + 2) {
+  if (cardioWorkouts > strengthWorkouts + 2) {
     return 'Ton cardio est bien présent. Tu pourrais ajouter une séance de renforcement pour équilibrer ton corps.'
   }
 
@@ -394,6 +470,44 @@ function getBodySuggestion(
   return 'Ton profil est assez équilibré. Continue à varier les séances pour progresser sans te lasser.'
 }
 
+function getGoalSuggestion(goal: FitnessGoal) {
+  if (goal === 'perte-de-poids') {
+    return 'Privilégie des recettes rassasiantes, riches en protéines et en légumes, tout en gardant du plaisir dans l’assiette.'
+  }
+
+  if (goal === 'prise-de-muscle') {
+    return 'Pense à des repas plus riches en protéines et en glucides de qualité pour soutenir la récupération et la progression.'
+  }
+
+  if (goal === 'endurance') {
+    return 'Mise sur des repas digestes, avec de bons glucides, pour garder de l’énergie sur les séances longues.'
+  }
+
+  if (goal === 'performance') {
+    return 'L’objectif est de mieux organiser énergie, récupération et régularité autour de tes entraînements.'
+  }
+
+  return 'Cherche surtout une alimentation simple, régulière et agréable pour accompagner ton bien-être au quotidien.'
+}
+
+function MiniStatCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
+      <p className="text-sm font-bold text-slate-400">{label}</p>
+      <p className="mt-1 truncate text-2xl font-black text-white">{value}</p>
+    </div>
+  )
+}
+
+function HeroMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
+      <p className="text-sm text-slate-400">{label}</p>
+      <p className="mt-1 text-2xl font-black text-white">{value}</p>
+    </div>
+  )
+}
+
 type StatCardProps = {
   label: string
   value: string
@@ -402,11 +516,18 @@ type StatCardProps = {
 
 function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-      <p className="text-3xl">{icon}</p>
-      <p className="mt-4 text-sm text-slate-400">{label}</p>
-      <p className="mt-2 text-3xl font-black">{value}</p>
-    </div>
+    <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/10 transition hover:-translate-y-1 hover:bg-white/[0.07]">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-slate-400">{label}</p>
+          <p className="mt-3 text-3xl font-black text-white">{value}</p>
+        </div>
+
+        <div className="rounded-2xl bg-white/10 px-3 py-2 text-3xl">
+          {icon}
+        </div>
+      </div>
+    </article>
   )
 }
 
@@ -443,12 +564,21 @@ function NumberField({
   step = 1,
   onChange,
 }: NumberFieldProps) {
-  const [inputValue, setInputValue] = useState(() => String(value))
+  const [fieldState, setFieldState] = useState(() => ({
+    inputValue: String(value),
+    syncedValue: value,
+  }))
+
+  const inputValue =
+    fieldState.syncedValue === value ? fieldState.inputValue : String(value)
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const nextValue = event.target.value
 
-    setInputValue(nextValue)
+    setFieldState({
+      inputValue: nextValue,
+      syncedValue: value,
+    })
 
     if (nextValue === '') {
       return
@@ -469,12 +599,20 @@ function NumberField({
       Number.isNaN(parsedValue) ||
       parsedValue < min
     ) {
-      setInputValue(String(min))
+      setFieldState({
+        inputValue: String(min),
+        syncedValue: min,
+      })
+
       onChange(min)
       return
     }
 
-    setInputValue(String(parsedValue))
+    setFieldState({
+      inputValue: String(parsedValue),
+      syncedValue: parsedValue,
+    })
+
     onChange(parsedValue)
   }
 
@@ -507,7 +645,7 @@ function BodyPart({ className, active }: BodyPartProps) {
     <div
       className={`${className} border transition ${
         active
-          ? 'border-emerald-300/50 bg-emerald-300/20 shadow-lg shadow-emerald-400/20'
+          ? 'border-emerald-300/50 bg-emerald-300/25 shadow-lg shadow-emerald-400/20'
           : 'border-white/20 bg-white/10'
       }`}
     />
@@ -530,7 +668,7 @@ function FloatingStat({ position, label, value, color }: FloatingStatProps) {
 
   return (
     <div
-      className={`absolute ${position} rounded-2xl border bg-slate-950 px-4 py-3 ${colorClasses[color]}`}
+      className={`absolute ${position} rounded-2xl border bg-slate-950/95 px-4 py-3 shadow-2xl shadow-black/30 ${colorClasses[color]}`}
     >
       <p className="text-xs text-slate-400">{label}</p>
       <p className="font-black">{value}</p>

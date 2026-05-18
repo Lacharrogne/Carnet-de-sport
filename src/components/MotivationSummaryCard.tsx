@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import { getChallenges } from '../services/challengeService'
+import { getSportProfileXp } from '../services/xpService'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 import type { WeeklyGoal } from '../types/weeklyGoal'
 import type { Workout } from '../types/workout'
@@ -22,17 +23,15 @@ export default function MotivationSummaryCard({
     weeklyGoal,
   })
 
+  const sportProfileXp = getSportProfileXp({
+    workouts,
+    plannedWorkouts,
+    weeklyGoal,
+  })
+
   const unlockedChallenges = challenges.filter((challenge) => {
     return challenge.unlocked
   })
-
-  const totalXp = unlockedChallenges.reduce((total, challenge) => {
-    return total + challenge.xp
-  }, 0)
-
-  const level = Math.floor(totalXp / 300) + 1
-  const currentLevelXp = totalXp % 300
-  const progressPercent = Math.round((currentLevelXp / 300) * 100)
 
   const nextChallenge = challenges
     .filter((challenge) => !challenge.unlocked)
@@ -44,7 +43,7 @@ export default function MotivationSummaryCard({
     })[0]
 
   return (
-    <section className="mt-8 rounded-[2rem] border border-emerald-400/20 bg-gradient-to-br from-emerald-400/15 via-white/[0.04] to-cyan-400/10 p-6 shadow-2xl shadow-emerald-400/10">
+    <section className="rounded-[2rem] border border-emerald-400/20 bg-gradient-to-br from-emerald-400/15 via-white/[0.04] to-cyan-400/10 p-6 shadow-2xl shadow-emerald-400/10">
       <div className="grid gap-6 lg:grid-cols-[1fr_0.7fr] lg:items-center">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
@@ -56,23 +55,31 @@ export default function MotivationSummaryCard({
           </h2>
 
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-            Chaque séance alimente ton niveau, tes défis et ta régularité. Le but est simple :
-            rendre tes progrès visibles pour garder l’envie de bouger.
+            Chaque séance alimente ton niveau, tes défis, tes missions et ta
+            régularité. Le but est simple : rendre tes progrès visibles pour
+            garder l’envie de bouger.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
               <p className="text-sm text-slate-400">Niveau</p>
-              <p className="mt-1 text-3xl font-black text-white">{level}</p>
+
+              <p className="mt-1 text-3xl font-black text-white">
+                {sportProfileXp.level}
+              </p>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
               <p className="text-sm text-slate-400">XP total</p>
-              <p className="mt-1 text-3xl font-black text-white">{totalXp}</p>
+
+              <p className="mt-1 text-3xl font-black text-white">
+                {sportProfileXp.totalXp}
+              </p>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
               <p className="text-sm text-slate-400">Défis débloqués</p>
+
               <p className="mt-1 text-3xl font-black text-white">
                 {unlockedChallenges.length}/{challenges.length}
               </p>
@@ -86,16 +93,35 @@ export default function MotivationSummaryCard({
               </p>
 
               <p className="text-sm font-black text-emerald-300">
-                {currentLevelXp} / 300 XP
+                {sportProfileXp.currentLevelXp} / {sportProfileXp.xpPerLevel} XP
               </p>
             </div>
 
             <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-950">
               <div
                 className="h-full rounded-full bg-emerald-400 transition-all"
-                style={{ width: `${progressPercent}%` }}
+                style={{
+                  width: `${sportProfileXp.levelProgressPercent}%`,
+                }}
               />
             </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <XpMiniStat
+              label="Séances"
+              value={sportProfileXp.details.workoutXp}
+            />
+
+            <XpMiniStat
+              label="Défis"
+              value={sportProfileXp.details.challengeXp}
+            />
+
+            <XpMiniStat
+              label="Missions"
+              value={sportProfileXp.details.missionXp}
+            />
           </div>
         </div>
 
@@ -122,8 +148,8 @@ export default function MotivationSummaryCard({
               </div>
 
               <p className="mt-5 text-sm leading-6 text-slate-300">
-                C’est le défi le plus proche d’être terminé. Une petite action peut suffire
-                à débloquer de l’XP.
+                C’est le défi le plus proche d’être terminé. Une petite action
+                peut suffire à débloquer de l’XP.
               </p>
 
               <Link
@@ -140,13 +166,33 @@ export default function MotivationSummaryCard({
               </p>
 
               <p className="mt-3 text-sm leading-6 text-slate-300">
-                Tu as débloqué tous les objectifs actuels. Il faudra bientôt ajouter des défis
-                plus ambitieux.
+                Tu as débloqué tous les objectifs actuels. Il faudra bientôt
+                ajouter des défis plus ambitieux.
               </p>
             </>
           )}
         </div>
       </div>
     </section>
+  )
+}
+
+function XpMiniStat({
+  label,
+  value,
+}: {
+  label: string
+  value: number
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3">
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 text-lg font-black text-emerald-300">
+        +{value} XP
+      </p>
+    </div>
   )
 }

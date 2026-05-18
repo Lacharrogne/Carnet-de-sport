@@ -1,17 +1,28 @@
+import type { PlannedWorkout } from '../types/plannedWorkout'
+import type { WeeklyGoal } from '../types/weeklyGoal'
 import type { Workout } from '../types/workout'
 
 export type Mission = {
   id: string
-  icon: string
   title: string
   description: string
-  xpReward: number
+  icon: string
   completed: boolean
-  progressLabel: string
+  progress: number
+  target: number
+  unit: string
+  xpReward: number
 }
 
-function getTodayKey() {
+type GetDailyMissionsParams = {
+  workouts: Workout[]
+  plannedWorkouts: PlannedWorkout[]
+  weeklyGoal?: WeeklyGoal
+}
+
+function getTodayDateKey() {
   const today = new Date()
+
   const year = today.getFullYear()
   const month = String(today.getMonth() + 1).padStart(2, '0')
   const day = String(today.getDate()).padStart(2, '0')
@@ -19,47 +30,74 @@ function getTodayKey() {
   return `${year}-${month}-${day}`
 }
 
-function getWorkoutDate(date: string) {
+function parseDate(date: string) {
   return new Date(`${date}T00:00:00`)
 }
 
-function isInLastDays(date: string, days: number) {
-  const today = new Date()
-  const todayStart = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  )
+function getStartOfWeek(date: Date) {
+  const start = new Date(date)
+  const day = start.getDay()
+  const diff = day === 0 ? -6 : 1 - day
 
-  const workoutDate = getWorkoutDate(date)
-  const difference = todayStart.getTime() - workoutDate.getTime()
-  const maxDifference = (days - 1) * 24 * 60 * 60 * 1000
+  start.setDate(start.getDate() + diff)
+  start.setHours(0, 0, 0, 0)
 
-  return difference >= 0 && difference <= maxDifference
+  return start
 }
 
-export function getDailyMissions(workouts: Workout[]): Mission[] {
-  const todayKey = getTodayKey()
+function getEndOfWeek(date: Date) {
+  const end = getStartOfWeek(date)
+
+  end.setDate(end.getDate() + 6)
+  end.setHours(23, 59, 59, 999)
+
+  return end
+}
+
+function isDateInCurrentWeek(date: string) {
+  const workoutDate = parseDate(date)
+  const today = new Date()
+
+  const startOfWeek = getStartOfWeek(today)
+  const endOfWeek = getEndOfWeek(today)
+
+  return workoutDate >= startOfWeek && workoutDate <= endOfWeek
+}
+
+export function getDailyMissions({
+  workouts,
+  plannedWorkouts,
+}: GetDailyMissionsParams): Mission[] {
+  const todayDateKey = getTodayDateKey()
+  const today = parseDate(todayDateKey)
 
   const todayWorkouts = workouts.filter((workout) => {
-    return workout.date === todayKey
+    return workout.date === todayDateKey
   })
 
   const todayDuration = todayWorkouts.reduce((total, workout) => {
     return total + workout.duration
   }, 0)
 
-  const workoutsThisWeek = workouts.filter((workout) => {
-    return isInLastDays(workout.date, 7)
-  })
-
-  const sportsThisWeek = new Set(
-    workoutsThisWeek.map((workout) => workout.category)
-  )
+  const todayWorkoutCount = todayWorkouts.length
 
   const hasImprovementIdeaToday = todayWorkouts.some((workout) => {
     return workout.improvementIdea.trim().length > 0
   })
+
+  const currentWeekWorkouts = workouts.filter((workout) => {
+    return isDateInCurrentWeek(workout.date)
+  })
+
+  const weeklySportsCount = new Set(
+    currentWeekWorkouts.map((workout) => workout.category),
+  ).size
+
+  const upcomingPlannedWorkoutsCount = plannedWorkouts.filter(
+    (plannedWorkout) => {
+      return parseDate(plannedWorkout.date) >= today
+    },
+  ).length
 
   return [
     {
@@ -67,36 +105,55 @@ export function getDailyMissions(workouts: Workout[]): Mission[] {
       icon: '⚡',
       title: 'Bouger 20 minutes',
       description: 'Fais au moins 20 minutes d’activité aujourd’hui.',
+      progress: Math.min(todayDuration, 20),
+      target: 20,
+      unit: 'min',
       xpReward: 80,
       completed: todayDuration >= 20,
-      progressLabel: `${Math.min(todayDuration, 20)} / 20 min`,
     },
     {
-      id: 'add-workout',
+      id: 'log-workout',
       icon: '📝',
       title: 'Noter une séance',
       description: 'Ajoute au moins un entraînement dans ton carnet aujourd’hui.',
+      progress: Math.min(todayWorkoutCount, 1),
+      target: 1,
+      unit: 'séance',
       xpReward: 50,
-      completed: todayWorkouts.length >= 1,
-      progressLabel: `${Math.min(todayWorkouts.length, 1)} / 1 séance`,
+      completed: todayWorkoutCount >= 1,
     },
     {
       id: 'prepare-next-time',
       icon: '🎯',
       title: 'Préparer la prochaine fois',
       description: 'Ajoute une idée d’amélioration à ta séance du jour.',
+      progress: hasImprovementIdeaToday ? 1 : 0,
+      target: 1,
+      unit: 'idée',
       xpReward: 40,
       completed: hasImprovementIdeaToday,
-      progressLabel: hasImprovementIdeaToday ? 'Objectif noté' : 'À compléter',
     },
     {
-      id: 'sport-variety',
+      id: 'vary-sports',
       icon: '🔁',
       title: 'Varier les sports',
       description: 'Pratique au moins deux types de sport cette semaine.',
+      progress: Math.min(weeklySportsCount, 2),
+      target: 2,
+      unit: 'sports',
       xpReward: 100,
-      completed: sportsThisWeek.size >= 2,
-      progressLabel: `${Math.min(sportsThisWeek.size, 2)} / 2 sports`,
+      completed: weeklySportsCount >= 2,
+    },
+    {
+      id: 'plan-session',
+      icon: '📅',
+      title: 'Planifier une séance',
+      description: 'Prévois au moins une séance à venir dans ton planning.',
+      progress: Math.min(upcomingPlannedWorkoutsCount, 1),
+      target: 1,
+      unit: 'séance prévue',
+      xpReward: 60,
+      completed: upcomingPlannedWorkoutsCount >= 1,
     },
   ]
 }

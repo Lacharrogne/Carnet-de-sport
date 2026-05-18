@@ -140,7 +140,7 @@ function AppShell() {
         setIsAuthLoading(false)
       })
 
-    const subscription = listenToAuthChanges(async (_event, session) => {
+const subscription = listenToAuthChanges(async (_event, session) => {
       if (!isMounted) {
         return
       }
@@ -364,6 +364,23 @@ function AppShell() {
     )
   }
 
+  const handleUpdatePlannedWorkout = async (
+    updatedPlannedWorkout: PlannedWorkout,
+  ) => {
+    const nextPlannedWorkouts = plannedWorkouts.map((plannedWorkout) => {
+      if (plannedWorkout.id !== updatedPlannedWorkout.id) {
+        return plannedWorkout
+      }
+
+      return updatedPlannedWorkout
+    })
+
+    await savePlannedWorkoutsSafely(
+      nextPlannedWorkouts,
+      'Erreur lors de la modification de la séance prévue :',
+    )
+  }
+
   const handleDeletePlannedWorkout = async (plannedWorkoutId: string) => {
     const plannedWorkoutToDelete = plannedWorkouts.find((plannedWorkout) => {
       return plannedWorkout.id === plannedWorkoutId
@@ -391,90 +408,56 @@ function AppShell() {
     )
   }
 
-const handleCompletePlannedWorkout = async (plannedWorkout: PlannedWorkout) => {
-  console.group('🟡 DEBUG - Bouton Réaliser une séance prévue')
-
-  console.log('1) Séance prévue reçue :', plannedWorkout)
-  console.log('2) Utilisateur connecté :', user)
-  console.log('3) Liste actuelle des séances :', workouts)
-  console.log('4) Liste actuelle des séances prévues :', plannedWorkouts)
-
-  if (!user) {
-    console.error('❌ Aucun utilisateur connecté. Impossible de sauvegarder.')
-    console.groupEnd()
-    return
-  }
-
-const completedWorkout: Workout = {
-  id: crypto.randomUUID(),
-  title: plannedWorkout.title,
-  category: plannedWorkout.category,
-  date: plannedWorkout.date,
-  duration: plannedWorkout.duration,
-  intensity: 'Moyenne',
-  feeling: 'Bon',
-  notes: plannedWorkout.objective
-    ? `Objectif prévu : ${plannedWorkout.objective}`
-    : '',
-  improvementIdea: '',
-  trend: 'stable',
-  details: {},
-}
-
-  console.log('5) Séance transformée en vraie séance :', completedWorkout)
-
-  const nextWorkouts = [completedWorkout, ...workouts]
-
-  const nextPlannedWorkouts = plannedWorkouts.filter(
-    (workout) => workout.id !== plannedWorkout.id,
-  )
-
-  console.log('6) Nouvelle liste des séances à sauvegarder :', nextWorkouts)
-  console.log(
-    '7) Nouvelle liste des séances prévues à sauvegarder :',
-    nextPlannedWorkouts,
-  )
-
-  setWorkouts(nextWorkouts)
-  setPlannedWorkouts(nextPlannedWorkouts)
-
-  try {
-    console.log('8) Tentative sauvegarde Supabase des séances...')
-    await saveRemoteWorkouts(nextWorkouts, user.id)
-    console.log('✅ Sauvegarde des séances réussie')
-
-    console.log('9) Tentative sauvegarde Supabase des séances prévues...')
-    await saveRemotePlannedWorkouts(nextPlannedWorkouts, user.id)
-    console.log('✅ Sauvegarde des séances prévues réussie')
-
-    console.log('✅ Transformation terminée avec succès')
-  } catch (error) {
-    console.error('❌ ERREUR COMPLÈTE pendant le bouton Réaliser :', error)
-
-    if (error && typeof error === 'object') {
-      console.error('Code erreur :', 'code' in error ? error.code : 'aucun')
-      console.error(
-        'Message erreur :',
-        'message' in error ? error.message : 'aucun',
-      )
-      console.error(
-        'Détails erreur :',
-        'details' in error ? error.details : 'aucun',
-      )
-      console.error('Hint erreur :', 'hint' in error ? error.hint : 'aucun')
+  const handleCompletePlannedWorkout = async (
+    plannedWorkout: PlannedWorkout,
+  ) => {
+    const completedWorkout: Workout = {
+      id: crypto.randomUUID(),
+      title: plannedWorkout.title,
+      category: plannedWorkout.category,
+      date: plannedWorkout.date,
+      duration: plannedWorkout.duration,
+      intensity: 'Moyenne',
+      feeling: 'Bon',
+      notes: plannedWorkout.objective
+        ? `Objectif prévu : ${plannedWorkout.objective}`
+        : '',
+      improvementIdea: '',
+      trend: 'stable',
+      details: {},
     }
 
-    console.error('Données qui ont échoué :')
-    console.error('Séance prévue originale :', plannedWorkout)
-    console.error('Séance transformée :', completedWorkout)
-    console.error('User ID :', user.id)
+    const nextWorkouts = [completedWorkout, ...workouts]
 
-    setWorkouts(workouts)
-    setPlannedWorkouts(plannedWorkouts)
+    const nextPlannedWorkouts = plannedWorkouts.filter((workout) => {
+      return workout.id !== plannedWorkout.id
+    })
+
+    if (!user) {
+      setWorkouts(nextWorkouts)
+      setPlannedWorkouts(nextPlannedWorkouts)
+      return
+    }
+
+    try {
+      await Promise.all([
+        saveRemoteWorkouts(nextWorkouts, user.id),
+        saveRemotePlannedWorkouts(nextPlannedWorkouts, user.id),
+      ])
+
+      setWorkouts(nextWorkouts)
+      setPlannedWorkouts(nextPlannedWorkouts)
+    } catch (error) {
+      console.error(
+        'Erreur lors de la transformation de la séance prévue en séance réalisée :',
+        error,
+      )
+
+      window.alert(
+        "La séance prévue n'a pas pu être transformée en séance réalisée. Regarde la console pour voir l'erreur exacte.",
+      )
+    }
   }
-
-  console.groupEnd()
-}
 
   const isLoadingRemoteData = Boolean(user && !hasLoadedRemoteData && !syncError)
 
@@ -498,9 +481,7 @@ const completedWorkout: Workout = {
               Préparation de ton carnet sportif...
             </h1>
 
-            <p className="mt-3 text-slate-400">
-              On vérifie ta session.
-            </p>
+            <p className="mt-3 text-slate-400">On vérifie ta session.</p>
           </section>
         </main>
       ) : isLoadingRemoteData ? (
@@ -597,15 +578,17 @@ const completedWorkout: Workout = {
               }
             />
 
-            <Route
-              path="/progress"
-              element={
-                <ProgressPage
-                  workouts={workouts}
-                  onBack={() => navigate('/')}
-                />
-              }
-            />
+<Route
+  path="/progress"
+  element={
+    <ProgressPage
+      workouts={workouts}
+      plannedWorkouts={plannedWorkouts}
+      weeklyGoal={weeklyGoal}
+      onBack={() => navigate('/')}
+    />
+  }
+/>
 
             <Route
               path="/body"
@@ -626,6 +609,9 @@ const completedWorkout: Workout = {
                   plannedWorkouts={plannedWorkouts}
                   onAddPlannedWorkout={(plannedWorkout) => {
                     void handleAddPlannedWorkout(plannedWorkout)
+                  }}
+                  onUpdatePlannedWorkout={(plannedWorkout) => {
+                    void handleUpdatePlannedWorkout(plannedWorkout)
                   }}
                   onDeletePlannedWorkout={(plannedWorkoutId) => {
                     void handleDeletePlannedWorkout(plannedWorkoutId)
