@@ -19,6 +19,32 @@ export type WorkoutFeeling =
 
 export type WorkoutTrend = 'progress' | 'stable' | 'regress' | 'record' | 'first'
 
+export type StrengthExercise = {
+  id: string
+  name: string
+  sets: string
+  reps: string
+  weight: string
+  rest: string
+  notes: string
+}
+
+export type WorkoutDetails = {
+  exercises?: string
+  sets?: number
+  reps?: number
+  weight?: number
+  strengthExercises?: StrengthExercise[]
+  distance?: number
+  pace?: string
+  swimmingStyle?: string
+  position?: string
+  goals?: number
+  assists?: number
+  elevation?: number
+  bodyZones?: string
+}
+
 export type Workout = {
   id: string
   title: string
@@ -44,18 +70,4 @@ export type WorkoutFormValues = {
   improvementIdea: string
   trend: WorkoutTrend
   details?: WorkoutDetails
-}
-export type WorkoutDetails = {
-  exercises?: string
-  sets?: number
-  reps?: number
-  weight?: number
-  distance?: number
-  pace?: string
-  swimmingStyle?: string
-  position?: string
-  goals?: number
-  assists?: number
-  elevation?: number
-  bodyZones?: string
 }

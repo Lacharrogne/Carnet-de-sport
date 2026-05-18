@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react'
+
 import { SPORT_CATEGORIES } from '../data/sportOptions'
-import type { Workout } from '../types/workout'
+import type { StrengthExercise, Workout } from '../types/workout'
 
 type WorkoutCardProps = {
   workout: Workout
@@ -57,7 +59,7 @@ export default function WorkoutCard({
 
   return (
     <article className="group relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 transition hover:-translate-y-1 hover:border-emerald-400/25 hover:bg-white/[0.07]">
-      <div className="absolute -right-14 -top-14 h-36 w-36 rounded-full bg-emerald-400/10 blur-3xl opacity-0 transition group-hover:opacity-100" />
+      <div className="absolute -right-14 -top-14 h-36 w-36 rounded-full bg-emerald-400/10 opacity-0 blur-3xl transition group-hover:opacity-100" />
 
       <div className="relative flex h-full flex-col">
         <div className="flex items-start justify-between gap-4">
@@ -160,7 +162,7 @@ export default function WorkoutCard({
   )
 }
 
-function InfoPill({ children }: { children: React.ReactNode }) {
+function InfoPill({ children }: { children: ReactNode }) {
   return (
     <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-sm font-bold text-slate-200">
       {children}
@@ -175,11 +177,16 @@ function WorkoutDetailsList({ workout }: { workout: Workout }) {
     return null
   }
 
+  const strengthExercises = details.strengthExercises ?? []
+  const hasStrengthExercises = strengthExercises.length > 0
+
   const items = [
-    details.exercises ? `Exercices : ${details.exercises}` : null,
-    details.sets ? `${details.sets} séries` : null,
-    details.reps ? `${details.reps} reps` : null,
-    details.weight ? `${details.weight} kg` : null,
+    !hasStrengthExercises && details.exercises
+      ? `Exercices : ${details.exercises}`
+      : null,
+    !hasStrengthExercises && details.sets ? `${details.sets} séries` : null,
+    !hasStrengthExercises && details.reps ? `${details.reps} reps` : null,
+    !hasStrengthExercises && details.weight ? `${details.weight} kg` : null,
     details.distance
       ? `Distance : ${details.distance} ${
           workout.category === 'natation' ? 'm' : 'km'
@@ -194,22 +201,159 @@ function WorkoutDetailsList({ workout }: { workout: Workout }) {
     details.bodyZones ? `Zones : ${details.bodyZones}` : null,
   ].filter((item): item is string => Boolean(item))
 
-  if (items.length === 0) {
-    return null
-  }
-
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
-      {items.map((item) => (
-        <span
-          key={item}
-          className="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1.5 text-xs font-bold text-sky-200"
-        >
-          {item}
-        </span>
-      ))}
+    <div className="mt-4 space-y-4">
+      {items.length > 0 ? (
+        <div className="flex flex-wrap gap-2">
+          {items.map((item) => (
+            <span
+              key={item}
+              className="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1.5 text-xs font-bold text-sky-200"
+            >
+              {item}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {hasStrengthExercises ? (
+        <StrengthExercisesList exercises={strengthExercises} />
+      ) : null}
     </div>
   )
+}
+
+function StrengthExercisesList({
+  exercises,
+}: {
+  exercises: StrengthExercise[]
+}) {
+  const totalSets = exercises.reduce((total, exercise) => {
+    return total + parseNumber(exercise.sets)
+  }, 0)
+
+  const totalVolume = exercises.reduce((total, exercise) => {
+    const sets = parseNumber(exercise.sets)
+    const reps = parseNumber(exercise.reps)
+    const weight = parseNumber(exercise.weight)
+
+    return total + sets * reps * weight
+  }, 0)
+
+  return (
+    <section className="rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
+            Détail musculation
+          </p>
+
+          <p className="mt-1 text-sm text-slate-400">
+            {exercises.length} exercice{exercises.length > 1 ? 's' : ''} ·{' '}
+            {totalSets} série{totalSets > 1 ? 's' : ''}
+          </p>
+        </div>
+
+        {totalVolume > 0 ? (
+          <div className="rounded-full border border-emerald-400/20 bg-slate-950/60 px-3 py-1.5 text-xs font-black text-emerald-200">
+            Volume estimé : {Math.round(totalVolume)} kg
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {exercises.map((exercise) => (
+          <StrengthExerciseCard key={exercise.id} exercise={exercise} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function StrengthExerciseCard({
+  exercise,
+}: {
+  exercise: StrengthExercise
+}) {
+  const exerciseVolume =
+    parseNumber(exercise.sets) *
+    parseNumber(exercise.reps) *
+    parseNumber(exercise.weight)
+
+  return (
+    <article className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h4 className="font-black text-white">
+            {exercise.name.trim() || 'Exercice sans nom'}
+          </h4>
+
+          {exercise.notes.trim() ? (
+            <p className="mt-1 text-xs leading-5 text-slate-400">
+              {exercise.notes}
+            </p>
+          ) : null}
+        </div>
+
+        {exerciseVolume > 0 ? (
+          <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-slate-200">
+            {Math.round(exerciseVolume)} kg
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {exercise.sets.trim() ? (
+          <DetailPill>{exercise.sets} série{parseNumber(exercise.sets) > 1 ? 's' : ''}</DetailPill>
+        ) : null}
+
+        {exercise.reps.trim() ? (
+          <DetailPill>{exercise.reps} rep{parseNumber(exercise.reps) > 1 ? 's' : ''}</DetailPill>
+        ) : null}
+
+        {exercise.weight.trim() ? (
+          <DetailPill>{formatValueWithUnit(exercise.weight, 'kg')}</DetailPill>
+        ) : null}
+
+        {exercise.rest.trim() ? (
+          <DetailPill>Repos : {exercise.rest}</DetailPill>
+        ) : null}
+      </div>
+    </article>
+  )
+}
+
+function DetailPill({ children }: { children: ReactNode }) {
+  return (
+    <span className="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-bold text-slate-300">
+      {children}
+    </span>
+  )
+}
+
+function parseNumber(value: string) {
+  const cleanedValue = value.replace(',', '.').replace(/[^\d.-]/g, '')
+  const parsedValue = Number(cleanedValue)
+
+  if (Number.isNaN(parsedValue)) {
+    return 0
+  }
+
+  return parsedValue
+}
+
+function formatValueWithUnit(value: string, unit: string) {
+  const cleanedValue = value.trim()
+
+  if (!cleanedValue) {
+    return ''
+  }
+
+  if (/[a-zA-Z]/.test(cleanedValue)) {
+    return cleanedValue
+  }
+
+  return `${cleanedValue} ${unit}`
 }
 
 function formatLabel(value: string) {

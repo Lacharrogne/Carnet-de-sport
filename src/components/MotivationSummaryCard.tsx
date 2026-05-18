@@ -12,6 +12,14 @@ type MotivationSummaryCardProps = {
   weeklyGoal: WeeklyGoal
 }
 
+function getProgressPercent(progress: number, target: number) {
+  if (target <= 0) {
+    return 0
+  }
+
+  return Math.min(Math.round((progress / target) * 100), 100)
+}
+
 export default function MotivationSummaryCard({
   workouts,
   plannedWorkouts,
@@ -34,12 +42,14 @@ export default function MotivationSummaryCard({
   })
 
   const nextChallenge = challenges
-    .filter((challenge) => !challenge.unlocked)
+    .filter((challenge) => {
+      return !challenge.unlocked
+    })
     .sort((a, b) => {
-      const progressA = a.progress / a.target
-      const progressB = b.progress / b.target
-
-      return progressB - progressA
+      return (
+        getProgressPercent(b.progress, b.target) -
+        getProgressPercent(a.progress, a.target)
+      )
     })[0]
 
   return (
@@ -55,9 +65,8 @@ export default function MotivationSummaryCard({
           </h2>
 
           <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
-            Chaque séance alimente ton niveau, tes défis, tes missions et ta
-            régularité. Le but est simple : rendre tes progrès visibles pour
-            garder l’envie de bouger.
+            Chaque séance, défi et mission alimente ton niveau. Le but est de
+            rendre tes efforts visibles pour garder l’envie de bouger.
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -105,23 +114,11 @@ export default function MotivationSummaryCard({
                 }}
               />
             </div>
-          </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <XpMiniStat
-              label="Séances"
-              value={sportProfileXp.details.workoutXp}
-            />
-
-            <XpMiniStat
-              label="Défis"
-              value={sportProfileXp.details.challengeXp}
-            />
-
-            <XpMiniStat
-              label="Missions"
-              value={sportProfileXp.details.missionXp}
-            />
+            <p className="mt-3 text-sm text-slate-400">
+              Encore {sportProfileXp.xpToNextLevel} XP pour atteindre le niveau{' '}
+              {sportProfileXp.level + 1}.
+            </p>
           </div>
         </div>
 
@@ -174,25 +171,5 @@ export default function MotivationSummaryCard({
         </div>
       </div>
     </section>
-  )
-}
-
-function XpMiniStat({
-  label,
-  value,
-}: {
-  label: string
-  value: number
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3">
-      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
-        {label}
-      </p>
-
-      <p className="mt-1 text-lg font-black text-emerald-300">
-        +{value} XP
-      </p>
-    </div>
   )
 }
