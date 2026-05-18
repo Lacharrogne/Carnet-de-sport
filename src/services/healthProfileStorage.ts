@@ -1,9 +1,5 @@
-import type {
-  ActivityLevel,
-  FitnessGoal,
-  HealthProfile,
-} from '../types/health'
 import { supabase } from './supabaseClient'
+import type { HealthProfile } from '../types/health'
 
 export const DEFAULT_HEALTH_PROFILE: HealthProfile = {
   height: 175,
@@ -18,8 +14,9 @@ type HealthProfileRow = {
   height_cm: number | null
   weight_kg: number | null
   age: number | null
-  main_goal: FitnessGoal | null
-  activity_level: ActivityLevel | null
+  activity_level: HealthProfile['activityLevel'] | null
+  main_goal: HealthProfile['goal'] | null
+  updated_at: string
 }
 
 function mapHealthProfileRowToHealthProfile(
@@ -27,21 +24,25 @@ function mapHealthProfileRowToHealthProfile(
 ): HealthProfile {
   return {
     height: row.height_cm ?? DEFAULT_HEALTH_PROFILE.height,
-    weight: row.weight_kg ?? DEFAULT_HEALTH_PROFILE.weight,
+    weight: Number(row.weight_kg ?? DEFAULT_HEALTH_PROFILE.weight),
     age: row.age ?? DEFAULT_HEALTH_PROFILE.age,
+    activityLevel:
+      row.activity_level ?? DEFAULT_HEALTH_PROFILE.activityLevel,
     goal: row.main_goal ?? DEFAULT_HEALTH_PROFILE.goal,
-    activityLevel: row.activity_level ?? DEFAULT_HEALTH_PROFILE.activityLevel,
   }
 }
 
-function mapHealthProfileToUpsert(profile: HealthProfile, userId: string) {
+function mapHealthProfileToUpsert(
+  profile: HealthProfile,
+  userId: string,
+): HealthProfileRow {
   return {
     user_id: userId,
     height_cm: profile.height,
     weight_kg: profile.weight,
     age: profile.age,
-    main_goal: profile.goal,
     activity_level: profile.activityLevel,
+    main_goal: profile.goal,
     updated_at: new Date().toISOString(),
   }
 }
@@ -49,11 +50,12 @@ function mapHealthProfileToUpsert(profile: HealthProfile, userId: string) {
 export async function getRemoteHealthProfile(userId: string) {
   const { data, error } = await supabase
     .from('health_profiles')
-    .select('user_id, height_cm, weight_kg, age, main_goal, activity_level')
+    .select('*')
     .eq('user_id', userId)
     .maybeSingle()
 
   if (error) {
+    console.error('Erreur récupération profil santé Supabase :', error)
     throw error
   }
 
@@ -68,13 +70,14 @@ export async function saveRemoteHealthProfile(
   profile: HealthProfile,
   userId: string,
 ) {
+  const row = mapHealthProfileToUpsert(profile, userId)
+
   const { error } = await supabase
     .from('health_profiles')
-    .upsert(mapHealthProfileToUpsert(profile, userId), {
-      onConflict: 'user_id',
-    })
+    .upsert(row, { onConflict: 'user_id' })
 
   if (error) {
+    console.error('Erreur sauvegarde profil santé Supabase :', error)
     throw error
   }
 }

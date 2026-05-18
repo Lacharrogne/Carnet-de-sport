@@ -9,6 +9,76 @@ type ChallengesPageProps = {
   weeklyGoal: WeeklyGoal
 }
 
+type Challenge = ReturnType<typeof getChallenges>[number]
+
+function getProgressPercent(progress: number, target: number) {
+  if (target <= 0) {
+    return 0
+  }
+
+  return Math.min(Math.round((progress / target) * 100), 100)
+}
+
+function ChallengeCard({ challenge }: { challenge: Challenge }) {
+  const progressPercent = getProgressPercent(
+    challenge.progress,
+    challenge.target,
+  )
+
+  return (
+    <article
+      className={`rounded-[2rem] border p-6 transition ${
+        challenge.unlocked
+          ? 'border-emerald-400/20 bg-emerald-400/10 shadow-2xl shadow-emerald-400/5'
+          : 'border-white/10 bg-white/[0.04] opacity-70'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <p className="text-4xl">{challenge.icon}</p>
+
+        <span
+          className={`rounded-full px-3 py-1 text-xs font-black ${
+            challenge.unlocked
+              ? 'bg-emerald-400 text-slate-950'
+              : 'bg-white/10 text-slate-300'
+          }`}
+        >
+          {challenge.unlocked ? 'Débloqué' : 'En cours'}
+        </span>
+      </div>
+
+      <h2 className="mt-6 text-2xl font-black text-white">
+        {challenge.title}
+      </h2>
+
+      <p className="mt-3 min-h-12 text-sm leading-6 text-slate-400">
+        {challenge.description}
+      </p>
+
+      <div className="mt-6">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm font-bold text-slate-300">
+            {challenge.progress} / {challenge.target} {challenge.unit}
+          </p>
+
+          <p className="text-sm font-black text-emerald-300">
+            +{challenge.xp} XP
+          </p>
+        </div>
+
+        <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-950">
+          <div
+            className="h-full rounded-full bg-emerald-400 transition-all"
+            style={{
+              width: `${progressPercent}%`,
+            }}
+          />
+        </div>
+      </div>
+    </article>
+  )
+}
+
 export default function ChallengesPage({
   workouts,
   plannedWorkouts,
@@ -43,7 +113,8 @@ export default function ChallengesPage({
               </h1>
 
               <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Les défis donnent des objectifs courts, visibles et motivants pour te pousser à bouger régulièrement.
+                Les défis donnent des objectifs courts, visibles et motivants
+                pour te pousser à bouger régulièrement.
               </p>
             </div>
 
@@ -65,62 +136,7 @@ export default function ChallengesPage({
 
         <section className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {challenges.map((challenge) => (
-            <article
-              key={challenge.id}
-              className={`rounded-[2rem] border p-6 transition ${
-                challenge.unlocked
-                  ? 'border-emerald-400/20 bg-emerald-400/10 shadow-2xl shadow-emerald-400/5'
-                  : 'border-white/10 bg-white/[0.04] opacity-70'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <p className="text-4xl">{challenge.icon}</p>
-
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-black ${
-                    challenge.unlocked
-                      ? 'bg-emerald-400 text-slate-950'
-                      : 'bg-white/10 text-slate-300'
-                  }`}
-                >
-                  {challenge.unlocked ? 'Débloqué' : 'En cours'}
-                </span>
-              </div>
-
-              <h2 className="mt-6 text-2xl font-black text-white">
-                {challenge.title}
-              </h2>
-
-              <p className="mt-3 min-h-12 text-sm leading-6 text-slate-400">
-                {challenge.description}
-              </p>
-
-              <div className="mt-6">
-                <div className="flex items-center justify-between gap-4">
-                  <p className="text-sm font-bold text-slate-300">
-                    {challenge.progress} / {challenge.target} {challenge.unit}
-                  </p>
-
-                  <p className="text-sm font-black text-emerald-300">
-                    +{challenge.xp} XP
-                  </p>
-                </div>
-
-                <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-950">
-                  <div
-                    className="h-full rounded-full bg-emerald-400 transition-all"
-                    style={{
-                      width: `${Math.min(
-                        Math.round(
-                          (challenge.progress / challenge.target) * 100
-                        ),
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-            </article>
+            <ChallengeCard key={challenge.id} challenge={challenge} />
           ))}
         </section>
       </section>
