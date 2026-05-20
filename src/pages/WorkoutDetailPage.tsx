@@ -101,7 +101,7 @@ export default function WorkoutDetailPage({
           <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl" />
           <div className="absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-sky-400/10 blur-3xl" />
 
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_420px]">
+          <div className="relative grid gap-8 xl:grid-cols-[1fr_420px]">
             <div>
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex h-20 w-20 items-center justify-center rounded-[1.75rem] border border-white/10 bg-white/10 text-4xl">
@@ -150,7 +150,7 @@ export default function WorkoutDetailPage({
           </div>
         </section>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_420px]">
+        <div className="mt-8 grid gap-8 xl:grid-cols-[minmax(0,1fr)_420px]">
           <div className="space-y-8">
             {strengthExercises.length > 0 ? (
               <StrengthExercisesSection exercises={strengthExercises} />
@@ -165,7 +165,7 @@ export default function WorkoutDetailPage({
             <OtherDetailsSection workout={workout} />
           </div>
 
-          <aside className="space-y-6">
+          <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
             <PerformanceSummaryPanel
               workout={workout}
               exercises={strengthExercises}
@@ -173,6 +173,11 @@ export default function WorkoutDetailPage({
             />
           </aside>
         </div>
+
+        <WorkoutAnalysisSection
+          workout={workout}
+          exercises={strengthExercises}
+        />
       </section>
     </main>
   )
@@ -201,9 +206,7 @@ function PerformanceSummaryPanel({
 
       <div className="mt-5 grid grid-cols-2 gap-3">
         <StatCard label="Durée" value={`${workout.duration} min`} />
-
         <StatCard label="Exercices" value={`${exercises.length}`} />
-
         <StatCard label="Séries" value={`${totalSets}`} />
 
         <StatCard
@@ -213,11 +216,7 @@ function PerformanceSummaryPanel({
 
         <StatCard
           label="Charge max"
-          value={
-            heaviestExercise
-              ? formatWeight(heaviestExercise.weight)
-              : '—'
-          }
+          value={heaviestExercise ? formatWeight(heaviestExercise.weight) : '—'}
         />
 
         <StatCard
@@ -247,6 +246,68 @@ function PerformanceSummaryPanel({
       >
         <span>{trend.icon}</span>
         <span>{trend.label}</span>
+      </div>
+    </section>
+  )
+}
+
+function WorkoutAnalysisSection({
+  workout,
+  exercises,
+}: {
+  workout: Workout
+  exercises: StrengthExercise[]
+}) {
+  const totalVolume = getTotalVolume(exercises)
+  const totalSets = getTotalSets(exercises)
+  const heaviestExercise = getHeaviestExercise(exercises)
+  const bestVolumeExercise = getBestVolumeExercise(exercises)
+
+  const analysisItems = getWorkoutAnalysisItems({
+    workout,
+    totalVolume,
+    totalSets,
+    heaviestExercise,
+    bestVolumeExercise,
+    exercisesCount: exercises.length,
+  })
+
+  return (
+    <section className="mt-8 rounded-[2.5rem] border border-sky-400/15 bg-gradient-to-br from-sky-400/10 via-white/[0.04] to-emerald-400/5 p-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-sky-300">
+            Analyse de séance
+          </p>
+
+          <h2 className="mt-2 text-3xl font-black text-white">
+            Ce que cette séance montre
+          </h2>
+        </div>
+
+        <p className="max-w-xl text-sm leading-6 text-slate-400">
+          Analyse automatique basée sur la durée, le volume, les charges et les
+          exercices enregistrés.
+        </p>
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {analysisItems.map((item) => (
+          <article
+            key={item.title}
+            className="rounded-3xl border border-white/10 bg-slate-950/35 p-5"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-2xl">
+              {item.icon}
+            </div>
+
+            <h3 className="mt-4 font-black text-white">{item.title}</h3>
+
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              {item.text}
+            </p>
+          </article>
+        ))}
       </div>
     </section>
   )
@@ -282,16 +343,16 @@ function StrengthExercisesSection({
         </div>
       </div>
 
-<div className="hidden overflow-x-auto rounded-[2rem] border border-white/10 md:block">
-  <table className="w-full min-w-[780px] border-collapse">
+      <div className="hidden rounded-[2rem] border border-white/10 md:block">
+  <table className="w-full table-fixed border-collapse">
     <thead className="bg-white/[0.08]">
-      <tr className="text-left text-xs font-black uppercase tracking-[0.22em] text-slate-500">
-        <th className="px-5 py-4">Exercice</th>
-        <th className="px-5 py-4">Séries</th>
-        <th className="px-5 py-4">Reps</th>
-        <th className="px-5 py-4">Charge</th>
-        <th className="px-5 py-4">Repos</th>
-        <th className="px-5 py-4">Volume</th>
+      <tr className="text-left text-[0.68rem] font-black uppercase tracking-[0.18em] text-slate-500">
+        <th className="w-[30%] px-4 py-4">Exercice</th>
+        <th className="w-[12%] px-3 py-4 text-center">Séries</th>
+        <th className="w-[12%] px-3 py-4 text-center">Reps</th>
+        <th className="w-[16%] px-3 py-4 text-center">Charge</th>
+        <th className="w-[14%] px-3 py-4 text-center">Repos</th>
+        <th className="w-[16%] px-3 py-4 text-center">Volume</th>
       </tr>
     </thead>
 
@@ -304,35 +365,35 @@ function StrengthExercisesSection({
             key={exercise.id}
             className="border-t border-white/10 transition hover:bg-white/[0.04]"
           >
-            <td className="px-5 py-4">
-              <p className="font-black text-white">
+            <td className="px-4 py-4 align-middle">
+              <p className="break-words font-black text-white">
                 {exercise.name || 'Exercice sans nom'}
               </p>
 
               {exercise.notes ? (
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 break-words text-sm leading-5 text-slate-500">
                   {exercise.notes}
                 </p>
               ) : null}
             </td>
 
-            <td className="px-5 py-4 font-black text-sky-100">
+            <td className="px-3 py-4 text-center font-black text-sky-100">
               {exercise.sets || '—'}
             </td>
 
-            <td className="px-5 py-4 font-black text-sky-100">
+            <td className="px-3 py-4 text-center font-black text-sky-100">
               {exercise.reps || '—'}
             </td>
 
-            <td className="px-5 py-4 font-black text-sky-100">
+            <td className="px-3 py-4 text-center font-black text-sky-100">
               {formatWeight(exercise.weight)}
             </td>
 
-            <td className="px-5 py-4 font-black text-sky-100">
+            <td className="px-3 py-4 text-center font-black text-sky-100">
               {formatRest(exercise.rest)}
             </td>
 
-            <td className="px-5 py-4 font-black text-emerald-200">
+            <td className="px-3 py-4 text-center font-black text-emerald-200">
               {exerciseVolume > 0
                 ? `${formatNumber(exerciseVolume)} kg`
                 : '—'}
@@ -344,58 +405,46 @@ function StrengthExercisesSection({
   </table>
 </div>
 
-<div className="space-y-3 md:hidden">
-  {exercises.map((exercise) => {
-    const exerciseVolume = getExerciseVolume(exercise)
+      <div className="space-y-3 md:hidden">
+        {exercises.map((exercise) => {
+          const exerciseVolume = getExerciseVolume(exercise)
 
-    return (
-      <article
-        key={exercise.id}
-        className="rounded-3xl border border-white/10 bg-slate-950/35 p-4"
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h3 className="text-lg font-black text-white">
-              {exercise.name || 'Exercice sans nom'}
-            </h3>
+          return (
+            <article
+              key={exercise.id}
+              className="rounded-3xl border border-white/10 bg-slate-950/35 p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-black text-white">
+                    {exercise.name || 'Exercice sans nom'}
+                  </h3>
 
-            {exercise.notes ? (
-              <p className="mt-1 text-sm leading-6 text-slate-500">
-                {exercise.notes}
-              </p>
-            ) : null}
-          </div>
+                  {exercise.notes ? (
+                    <p className="mt-1 text-sm leading-6 text-slate-500">
+                      {exercise.notes}
+                    </p>
+                  ) : null}
+                </div>
 
-          <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200">
-            {exerciseVolume > 0
-              ? `${formatNumber(exerciseVolume)} kg`
-              : '—'}
-          </div>
-        </div>
+                <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200">
+                  {exerciseVolume > 0
+                    ? `${formatNumber(exerciseVolume)} kg`
+                    : '—'}
+                </div>
+              </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <MiniStat label="Séries" value={exercise.sets || '—'} />
-          <MiniStat label="Reps" value={exercise.reps || '—'} />
-          <MiniStat label="Charge" value={formatWeight(exercise.weight)} />
-          <MiniStat label="Repos" value={formatRest(exercise.rest)} />
-        </div>
-      </article>
-    )
-  })}
-</div>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <MiniStat label="Séries" value={formatDisplayValue(exercise.sets)} />
+                <MiniStat label="Reps" value={formatDisplayValue(exercise.reps)} />
+                <MiniStat label="Charge" value={formatWeight(exercise.weight)} />
+                <MiniStat label="Repos" value={formatRest(exercise.rest)} />
+              </div>
+            </article>
+          )
+        })}
+      </div>
     </section>
-  )
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-      <p className="text-[0.65rem] font-black uppercase tracking-[0.16em] text-slate-500">
-        {label}
-      </p>
-
-      <p className="mt-1 font-black text-sky-100">{value}</p>
-    </div>
   )
 }
 
@@ -533,6 +582,18 @@ function StatCard({ label, value }: { label: string; value: string }) {
   )
 }
 
+function MiniStat({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+      <p className="text-[0.65rem] font-black uppercase tracking-[0.16em] text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 font-black text-sky-100">{value}</p>
+    </div>
+  )
+}
+
 function getTotalVolume(exercises: StrengthExercise[]): number {
   return exercises.reduce((total, exercise) => {
     return total + getExerciseVolume(exercise)
@@ -601,6 +662,115 @@ function getAverageReps(exercises: StrengthExercise[]): number {
   return Math.round(totalReps / exercises.length)
 }
 
+function getWorkoutAnalysisItems({
+  workout,
+  totalVolume,
+  totalSets,
+  heaviestExercise,
+  bestVolumeExercise,
+  exercisesCount,
+}: {
+  workout: Workout
+  totalVolume: number
+  totalSets: number
+  heaviestExercise: StrengthExercise | null
+  bestVolumeExercise: StrengthExercise | null
+  exercisesCount: number
+}) {
+  const items: Array<{
+    icon: string
+    title: string
+    text: string
+  }> = []
+
+  if (workout.duration < 30) {
+    items.push({
+      icon: '⚡',
+      title: 'Séance courte',
+      text: 'Format rapide : parfait pour garder le rythme même quand tu as peu de temps.',
+    })
+  } else if (workout.duration >= 60) {
+    items.push({
+      icon: '🔥',
+      title: 'Séance complète',
+      text: 'Grosse séance : tu as pris le temps de travailler en profondeur.',
+    })
+  } else {
+    items.push({
+      icon: '✅',
+      title: 'Séance équilibrée',
+      text: 'Durée correcte : bon compromis entre efficacité et régularité.',
+    })
+  }
+
+  if (exercisesCount > 0) {
+    items.push({
+      icon: '🏋️',
+      title: 'Volume de travail',
+      text:
+        totalVolume > 0
+          ? `Tu as réalisé environ ${formatNumber(totalVolume)} kg de volume sur ${totalSets} séries.`
+          : `Tu as réalisé ${totalSets} séries sur ${exercisesCount} exercice${
+              exercisesCount > 1 ? 's' : ''
+            }.`,
+    })
+  }
+
+  if (heaviestExercise) {
+    items.push({
+      icon: '💪',
+      title: 'Charge la plus lourde',
+      text: `${heaviestExercise.name || 'Un exercice'} ressort avec la charge la plus élevée : ${formatWeight(
+        heaviestExercise.weight,
+      )}.`,
+    })
+  }
+
+  if (bestVolumeExercise) {
+    items.push({
+      icon: '📊',
+      title: 'Exercice dominant',
+      text: `${
+        bestVolumeExercise.name || 'Un exercice'
+      } représente le plus gros volume de cette séance.`,
+    })
+  }
+
+  if (workout.trend === 'progress') {
+    items.push({
+      icon: '📈',
+      title: 'Bonne dynamique',
+      text: 'La séance est notée en progression : tu peux t’appuyer dessus pour continuer à monter doucement.',
+    })
+  }
+
+  if (workout.trend === 'regress') {
+    items.push({
+      icon: '🧠',
+      title: 'Séance à analyser',
+      text: 'La séance est marquée en régression : fatigue, récupération ou charge trop élevée peuvent expliquer ça.',
+    })
+  }
+
+  if (workout.trend === 'record') {
+    items.push({
+      icon: '🏆',
+      title: 'Record détecté',
+      text: 'Très grosse séance : pense à bien récupérer avant de chercher à refaire mieux.',
+    })
+  }
+
+  if (items.length === 0) {
+    items.push({
+      icon: '📝',
+      title: 'Analyse en attente',
+      text: 'Ajoute plus de détails à ta séance pour obtenir une analyse plus précise.',
+    })
+  }
+
+  return items.slice(0, 4)
+}
+
 function parseSportNumber(value: string | number | null | undefined): number {
   if (value === null || value === undefined) {
     return 0
@@ -614,6 +784,16 @@ function parseSportNumber(value: string | number | null | undefined): number {
   }
 
   return Number(match[0])
+}
+
+function formatDisplayValue(value: string | number | null | undefined): string {
+  if (value === null || value === undefined) {
+    return '—'
+  }
+
+  const trimmedValue = String(value).trim()
+
+  return trimmedValue || '—'
 }
 
 function formatWeight(value: string | number | null | undefined): string {
