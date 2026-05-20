@@ -1,6 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 
-import AdvancedStatsSection from '../components/AdvancedStatsSection'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import { getSportProfileXp } from '../services/xpService'
 import type { PlannedWorkout } from '../types/plannedWorkout'
@@ -14,7 +13,7 @@ type ProgressPageProps = {
   onBack: () => void
 }
 
-type Badge = {
+type Trophy = {
   icon: string
   title: string
   description: string
@@ -108,9 +107,13 @@ export default function ProgressPage({
     }).sort((a, b) => b.count - a.count)
   }, [workouts])
 
-  const favoriteCategory = categoryStats.find((category) => category.count > 0)
+  const visibleCategoryStats = categoryStats.filter((category) => {
+    return category.count > 0
+  })
 
-  const badges: Badge[] = [
+  const favoriteCategory = visibleCategoryStats[0] ?? null
+
+  const trophies: Trophy[] = [
     {
       icon: '🌱',
       title: 'Premier pas',
@@ -149,7 +152,7 @@ export default function ProgressPage({
     },
   ]
 
-  const unlockedBadges = badges.filter((badge) => badge.unlocked).length
+  const unlockedTrophies = trophies.filter((trophy) => trophy.unlocked).length
 
   return (
     <main className="min-h-screen bg-[#050816] text-slate-50">
@@ -157,39 +160,59 @@ export default function ProgressPage({
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
         >
           ← Retour au dashboard
         </button>
 
-        <header className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-black/30">
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <header className="relative overflow-hidden rounded-[2.5rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-8 shadow-2xl shadow-black/30">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+          <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
+
+          <div className="relative grid gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
             <div>
-              <p className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-bold text-emerald-300">
-                Progression
+              <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+                Progression globale
               </p>
 
-              <h1 className="mt-6 text-4xl font-black tracking-tight sm:text-6xl">
-                Ton niveau sportif augmente.
+              <h1 className="mt-4 text-4xl font-black tracking-tight text-white sm:text-6xl">
+                Niveau {sportProfileXp.level}
               </h1>
 
-              <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-                Chaque séance, mission et défi alimente ton XP. Ton niveau est
-                maintenant calculé avec le même système dans toute l’application.
+              <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-300">
+                Ta progression est calculée avec tes séances, ta régularité,
+                tes records, tes défis réussis et tes missions validées.
               </p>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <HeroStat label="XP total" value={sportProfileXp.totalXp} />
+
+                <HeroStat label="Séances" value={totalWorkouts} />
+
+                <HeroStat label="Temps actif" value={`${totalDuration} min`} />
+
+                <HeroStat
+                  label="Trophées"
+                  value={`${unlockedTrophies}/${trophies.length}`}
+                />
+              </div>
             </div>
 
-            <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-6">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-                Niveau actuel
-              </p>
+            <div className="rounded-[2rem] border border-white/10 bg-slate-950/45 p-6">
+              <div className="flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.22em] text-slate-500">
+                    Niveau actuel
+                  </p>
 
-              <div className="mt-4 flex items-end gap-3">
-                <p className="text-7xl font-black">
-                  {sportProfileXp.level}
-                </p>
+                  <p className="mt-3 text-7xl font-black text-white">
+                    {sportProfileXp.level}
+                  </p>
+                </div>
 
-                <p className="pb-3 text-slate-300">niveau</p>
+                <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-300">
+                  ⚡ XP
+                </div>
               </div>
 
               <div className="mt-6 h-4 overflow-hidden rounded-full bg-slate-950">
@@ -201,324 +224,263 @@ export default function ProgressPage({
                 />
               </div>
 
-              <p className="mt-3 text-sm text-slate-300">
+              <p className="mt-3 text-sm leading-6 text-slate-300">
                 {sportProfileXp.currentLevelXp} / {sportProfileXp.xpPerLevel} XP
-                — encore {sportProfileXp.xpToNextLevel} XP pour le niveau
+                — encore {sportProfileXp.xpToNextLevel} XP avant le niveau
                 suivant.
               </p>
             </div>
           </div>
         </header>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-4">
-          <StatCard
-            label="XP total"
-            value={sportProfileXp.totalXp.toString()}
-            icon="⚡"
-          />
+        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_420px]">
+          <div className="space-y-8">
+            <Panel title="Détail de l’XP" accent="emerald">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <XpDetailCard
+                  label="Séances"
+                  value={sportProfileXp.details.workoutXp}
+                  icon="🏃"
+                />
 
-          <StatCard
-            label="Séances"
-            value={totalWorkouts.toString()}
-            icon="🏃"
-          />
+                <XpDetailCard
+                  label="Durée"
+                  value={sportProfileXp.details.durationXp}
+                  icon="⏱️"
+                />
 
-          <StatCard
-            label="Temps actif"
-            value={`${totalDuration} min`}
-            icon="⏱️"
-          />
+                <XpDetailCard
+                  label="Records"
+                  value={sportProfileXp.details.recordXp}
+                  icon="🔥"
+                />
 
-          <StatCard
-            label="Badges"
-            value={`${unlockedBadges}/${badges.length}`}
-            icon="🏅"
-          />
-        </section>
+                <XpDetailCard
+                  label="Progression"
+                  value={sportProfileXp.details.progressXp}
+                  icon="📈"
+                />
 
-        <section className="mt-8 grid gap-4 md:grid-cols-3">
-          <InfoCard
-            title="Cette semaine"
-            value={`${lastSevenDaysDuration} min`}
-            description={`${lastSevenDaysWorkouts.length} séance${
-              lastSevenDaysWorkouts.length > 1 ? 's' : ''
-            } sur les 7 derniers jours.`}
-          />
+                <XpDetailCard
+                  label="Défis réussis"
+                  value={sportProfileXp.details.challengeXp}
+                  icon="🎯"
+                />
 
-          <InfoCard
-            title="Dernière séance"
-            value={lastWorkout ? lastWorkout.title : 'Aucune'}
-            description={
-              lastWorkout
-                ? `${formatDate(lastWorkout.date)} · ${lastWorkout.duration} min`
-                : 'Ajoute une séance pour commencer ton suivi.'
-            }
-          />
-
-          <InfoCard
-            title="Sport dominant"
-            value={
-              favoriteCategory
-                ? `${favoriteCategory.emoji} ${favoriteCategory.label}`
-                : 'Aucun'
-            }
-            description={
-              favoriteCategory
-                ? `${favoriteCategory.count} séance${
-                    favoriteCategory.count > 1 ? 's' : ''
-                  } enregistrée${favoriteCategory.count > 1 ? 's' : ''}.`
-                : 'Aucune donnée pour le moment.'
-            }
-          />
-        </section>
-
-        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-            Détail de l’XP
-          </p>
-
-          <h2 className="mt-2 text-3xl font-black text-white">
-            D’où vient ta progression ?
-          </h2>
-
-          <div className="mt-6 grid gap-4 md:grid-cols-3 xl:grid-cols-6">
-            <XpDetailCard
-              label="Séances"
-              value={sportProfileXp.details.workoutXp}
-              icon="🏃"
-            />
-
-            <XpDetailCard
-              label="Durée"
-              value={sportProfileXp.details.durationXp}
-              icon="⏱️"
-            />
-
-            <XpDetailCard
-              label="Records"
-              value={sportProfileXp.details.recordXp}
-              icon="🔥"
-            />
-
-            <XpDetailCard
-              label="Progression"
-              value={sportProfileXp.details.progressXp}
-              icon="📈"
-            />
-
-            <XpDetailCard
-              label="Défis"
-              value={sportProfileXp.details.challengeXp}
-              icon="🎯"
-            />
-
-            <XpDetailCard
-              label="Missions"
-              value={sportProfileXp.details.missionXp}
-              icon="✅"
-            />
-          </div>
-        </section>
-
-        <AdvancedStatsSection workouts={workouts} />
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-              Avatar sportif
-            </p>
-
-            <div className="mt-6 flex justify-center">
-              <div className="relative flex h-72 w-48 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/5 shadow-2xl shadow-emerald-400/10">
-                <div className="absolute top-8 h-16 w-16 rounded-full border border-white/20 bg-white/10" />
-                <div className="absolute top-24 h-28 w-20 rounded-[2rem] border border-white/20 bg-white/10" />
-                <div className="absolute left-8 top-28 h-24 w-8 rotate-12 rounded-full border border-white/20 bg-white/10" />
-                <div className="absolute right-8 top-28 h-24 w-8 -rotate-12 rounded-full border border-white/20 bg-white/10" />
-                <div className="absolute bottom-8 left-16 h-24 w-8 rounded-full border border-white/20 bg-white/10" />
-                <div className="absolute bottom-8 right-16 h-24 w-8 rounded-full border border-white/20 bg-white/10" />
-
-                <div className="absolute -right-10 top-12 rounded-2xl border border-emerald-400/20 bg-slate-950 px-4 py-3">
-                  <p className="text-xs text-slate-400">Force</p>
-
-                  <p className="font-black text-emerald-300">
-                    Niv. {Math.max(1, progressCount + recordCount + 1)}
-                  </p>
-                </div>
-
-                <div className="absolute -left-10 bottom-12 rounded-2xl border border-sky-400/20 bg-slate-950 px-4 py-3">
-                  <p className="text-xs text-slate-400">Endurance</p>
-
-                  <p className="font-black text-sky-300">
-                    Niv. {Math.max(1, Math.floor(totalDuration / 120) + 1)}
-                  </p>
-                </div>
+                <XpDetailCard
+                  label="Missions validées"
+                  value={sportProfileXp.details.missionXp}
+                  icon="✅"
+                />
               </div>
-            </div>
+            </Panel>
 
-            <p className="mt-6 text-center text-sm leading-6 text-slate-300">
-              Version simple de la future page corps. Plus tard, les zones
-              travaillées pourront s’illuminer selon les sports pratiqués.
-            </p>
-          </div>
+            <Panel title="Répartition par sport">
+              {visibleCategoryStats.length > 0 ? (
+                <div className="space-y-4">
+                  {visibleCategoryStats.map((category) => {
+                    const percent =
+                      totalWorkouts > 0
+                        ? Math.round((category.count / totalWorkouts) * 100)
+                        : 0
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-              Analyse rapide
-            </p>
+                    return (
+                      <div key={category.id}>
+                        <div className="mb-2 flex items-center justify-between gap-4">
+                          <p className="font-black text-white">
+                            {category.emoji} {category.label}
+                          </p>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <InfoCard
-                title="Durée moyenne"
-                value={`${averageDuration} min`}
-                description="Durée moyenne de tes entraînements."
-              />
+                          <p className="text-sm font-bold text-slate-400">
+                            {percent}%
+                          </p>
+                        </div>
 
-              <InfoCard
-                title="Records"
-                value={`${recordCount} 🔥`}
-                description="Séances marquées comme record."
-              />
+                        <div className="h-3 overflow-hidden rounded-full bg-slate-950">
+                          <div
+                            className="h-full rounded-full bg-emerald-400"
+                            style={{
+                              width: `${percent}%`,
+                            }}
+                          />
+                        </div>
 
-              <InfoCard
-                title="Progressions"
-                value={`${progressCount} 📈`}
-                description="Séances où tu estimes avoir progressé."
-              />
-
-              <InfoCard
-                title="Régressions"
-                value={`${regressCount} 📉`}
-                description="Séances plus difficiles ou moins bonnes."
-              />
-            </div>
-
-            <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-              <p className="font-black text-white">Conseil automatique</p>
-
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                {getAutomaticAdvice({
-                  totalWorkouts,
-                  progressCount,
-                  regressCount,
-                })}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mt-8 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-              Répartition par sport
-            </p>
-
-            <div className="mt-6 space-y-4">
-              {categoryStats.map((category) => {
-                const percent =
-                  totalWorkouts > 0
-                    ? Math.round((category.count / totalWorkouts) * 100)
-                    : 0
-
-                return (
-                  <div key={category.id}>
-                    <div className="mb-2 flex items-center justify-between gap-4">
-                      <p className="font-bold text-white">
-                        {category.emoji} {category.label}
-                      </p>
-
-                      <p className="text-sm text-slate-400">
-                        {category.count} séance
-                        {category.count > 1 ? 's' : ''}
-                      </p>
-                    </div>
-
-                    <div className="h-3 overflow-hidden rounded-full bg-slate-950">
-                      <div
-                        className="h-full rounded-full bg-emerald-400"
-                        style={{
-                          width: `${percent}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
-              Badges
-            </p>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {badges.map((badge) => (
-                <div
-                  key={badge.title}
-                  className={[
-                    'rounded-3xl border p-5 transition',
-                    badge.unlocked
-                      ? 'border-emerald-400/20 bg-emerald-400/10'
-                      : 'border-white/10 bg-white/[0.03] opacity-50',
-                  ].join(' ')}
-                >
-                  <p className="text-3xl">{badge.icon}</p>
-
-                  <h3 className="mt-3 font-black text-white">
-                    {badge.title}
-                  </h3>
-
-                  <p className="mt-2 text-sm leading-6 text-slate-300">
-                    {badge.description}
-                  </p>
-
-                  <p className="mt-3 text-sm font-bold text-emerald-300">
-                    {badge.unlocked ? 'Débloqué' : 'Verrouillé'}
-                  </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {category.count} séance
+                          {category.count > 1 ? 's' : ''} ·{' '}
+                          {category.duration} min
+                        </p>
+                      </div>
+                    )
+                  })}
                 </div>
-              ))}
-            </div>
+              ) : (
+                <EmptyText text="Aucune séance enregistrée pour le moment." />
+              )}
+            </Panel>
+
+            <Panel title="Trophées" accent="emerald">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {trophies.map((trophy) => (
+                  <TrophyCard key={trophy.title} trophy={trophy} />
+                ))}
+              </div>
+            </Panel>
           </div>
-        </section>
+
+          <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start">
+            <Panel title="Résumé rapide" accent="emerald">
+              <div className="space-y-3">
+                <InfoCard
+                  title="Cette semaine"
+                  value={`${lastSevenDaysDuration} min`}
+                  description={`${lastSevenDaysWorkouts.length} séance${
+                    lastSevenDaysWorkouts.length > 1 ? 's' : ''
+                  } sur les 7 derniers jours.`}
+                />
+
+                <InfoCard
+                  title="Dernière séance"
+                  value={lastWorkout ? lastWorkout.title : 'Aucune'}
+                  description={
+                    lastWorkout
+                      ? `${formatDate(lastWorkout.date)} · ${lastWorkout.duration} min`
+                      : 'Ajoute une séance pour commencer ton suivi.'
+                  }
+                />
+
+                <InfoCard
+                  title="Sport dominant"
+                  value={
+                    favoriteCategory
+                      ? `${favoriteCategory.emoji} ${favoriteCategory.label}`
+                      : 'Aucun'
+                  }
+                  description={
+                    favoriteCategory
+                      ? `${favoriteCategory.count} séance${
+                          favoriteCategory.count > 1 ? 's' : ''
+                        } enregistrée${favoriteCategory.count > 1 ? 's' : ''}.`
+                      : 'Aucune donnée pour le moment.'
+                  }
+                />
+              </div>
+            </Panel>
+
+            <Panel title="Analyse rapide">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                <CompactStat
+                  label="Durée moyenne"
+                  value={`${averageDuration} min`}
+                />
+
+                <CompactStat label="Records" value={`${recordCount} 🔥`} />
+
+                <CompactStat
+                  label="Progressions"
+                  value={`${progressCount} 📈`}
+                />
+
+                <CompactStat
+                  label="Régressions"
+                  value={`${regressCount} 📉`}
+                />
+              </div>
+
+              <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+                <p className="font-black text-white">Conseil automatique</p>
+
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  {getAutomaticAdvice({
+                    totalWorkouts,
+                    progressCount,
+                    regressCount,
+                  })}
+                </p>
+              </div>
+            </Panel>
+          </aside>
+        </div>
       </section>
     </main>
   )
 }
 
-type StatCardProps = {
-  label: string
-  value: string
-  icon: string
+function Panel({
+  title,
+  children,
+  accent = 'default',
+  className = '',
+}: {
+  title: string
+  children: ReactNode
+  accent?: 'default' | 'emerald' | 'sky'
+  className?: string
+}) {
+  const titleColor =
+    accent === 'emerald'
+      ? 'text-emerald-300'
+      : accent === 'sky'
+        ? 'text-sky-300'
+        : 'text-slate-500'
+
+  return (
+    <section
+      className={`rounded-[2.5rem] border border-white/10 bg-white/[0.04] p-6 ${className}`}
+    >
+      <p
+        className={`text-xs font-black uppercase tracking-[0.25em] ${titleColor}`}
+      >
+        {title}
+      </p>
+
+      <div className="mt-5">{children}</div>
+    </section>
+  )
 }
 
-function StatCard({ label, value, icon }: StatCardProps) {
+function HeroStat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-      <p className="text-3xl">{icon}</p>
+    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+        {label}
+      </p>
 
-      <p className="mt-4 text-sm text-slate-400">{label}</p>
-
-      <p className="mt-2 text-3xl font-black">{value}</p>
+      <p className="mt-2 text-2xl font-black text-white">{value}</p>
     </div>
   )
 }
 
-type InfoCardProps = {
+function InfoCard({
+  title,
+  value,
+  description,
+}: {
   title: string
   value: string
   description: string
-}
-
-function InfoCard({ title, value, description }: InfoCardProps) {
+}) {
   return (
     <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-      <p className="text-sm text-slate-400">{title}</p>
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+        {title}
+      </p>
 
       <p className="mt-2 text-2xl font-black text-white">{value}</p>
 
-      <p className="mt-2 text-sm leading-6 text-slate-300">
-        {description}
+      <p className="mt-2 text-sm leading-6 text-slate-300">{description}</p>
+    </div>
+  )
+}
+
+function CompactStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+        {label}
       </p>
+
+      <p className="mt-2 text-2xl font-black text-white">{value}</p>
     </div>
   )
 }
@@ -536,11 +498,53 @@ function XpDetailCard({
     <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
       <p className="text-2xl">{icon}</p>
 
-      <p className="mt-3 text-sm text-slate-400">{label}</p>
-
-      <p className="mt-1 text-2xl font-black text-white">
-        +{value}
+      <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+        {label}
       </p>
+
+      <p className="mt-2 text-2xl font-black text-white">+{value}</p>
+    </div>
+  )
+}
+
+function TrophyCard({ trophy }: { trophy: Trophy }) {
+  return (
+    <div
+      className={[
+        'rounded-3xl border p-5 transition',
+        trophy.unlocked
+          ? 'border-emerald-400/20 bg-emerald-400/10'
+          : 'border-white/10 bg-slate-950/40 opacity-50',
+      ].join(' ')}
+    >
+      <div className="flex items-start gap-4">
+        <p className="text-3xl">{trophy.icon}</p>
+
+        <div>
+          <h3 className="font-black text-white">{trophy.title}</h3>
+
+          <p className="mt-2 text-sm leading-6 text-slate-300">
+            {trophy.description}
+          </p>
+
+          <p
+            className={[
+              'mt-3 text-sm font-black',
+              trophy.unlocked ? 'text-emerald-300' : 'text-slate-500',
+            ].join(' ')}
+          >
+            {trophy.unlocked ? 'Trophée obtenu' : 'À débloquer'}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function EmptyText({ text }: { text: string }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5 text-sm text-slate-400">
+      {text}
     </div>
   )
 }
