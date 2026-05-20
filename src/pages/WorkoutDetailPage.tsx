@@ -10,13 +10,13 @@ type WorkoutDetailPageProps = {
   onDelete?: (workoutId: string) => void
 }
 
-type TrendDisplay = {
+type TrendConfig = {
   icon: string
   label: string
   className: string
 }
 
-const trendConfig: Record<Workout['trend'], TrendDisplay> = {
+const trendConfig: Record<Workout['trend'], TrendConfig> = {
   progress: {
     icon: '📈',
     label: 'Progression',
@@ -103,8 +103,8 @@ export default function WorkoutDetailPage({
 
           <div className="relative grid gap-8 lg:grid-cols-[1fr_420px]">
             <div>
-              <div className="flex flex-wrap items-center gap-5">
-                <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] border border-white/10 bg-white/10 text-5xl shadow-2xl shadow-black/20">
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex h-20 w-20 items-center justify-center rounded-[1.75rem] border border-white/10 bg-white/10 text-4xl">
                   {category?.emoji ?? '✨'}
                 </div>
 
@@ -113,17 +113,17 @@ export default function WorkoutDetailPage({
                     Séance réalisée
                   </p>
 
-                  <h1 className="mt-2 text-5xl font-black leading-tight text-white md:text-6xl">
+                  <h1 className="mt-2 text-4xl font-black leading-tight text-white md:text-5xl">
                     {workout.title}
                   </h1>
 
-                  <p className="mt-3 text-lg capitalize text-slate-400">
+                  <p className="mt-2 capitalize text-slate-400">
                     {formattedDate}
                   </p>
                 </div>
               </div>
 
-              <div className="mt-10 flex flex-wrap gap-3">
+              <div className="mt-8 flex flex-wrap gap-3">
                 <Badge>{category?.label ?? 'Autre'}</Badge>
                 <Badge>{workout.duration} min</Badge>
                 <Badge>Intensité : {workout.intensity}</Badge>
@@ -131,11 +131,10 @@ export default function WorkoutDetailPage({
               </div>
             </div>
 
-            <aside className="space-y-4">
+            <div className="space-y-5">
               <TextPanel
                 title="Notes"
                 emptyText="Aucune note ajoutée pour cette séance."
-                compact
               >
                 {workout.notes}
               </TextPanel>
@@ -144,11 +143,10 @@ export default function WorkoutDetailPage({
                 title="À améliorer"
                 variant="emerald"
                 emptyText="Aucune idée d'amélioration ajoutée."
-                compact
               >
                 {workout.improvementIdea}
               </TextPanel>
-            </aside>
+            </div>
           </div>
         </section>
 
@@ -167,7 +165,7 @@ export default function WorkoutDetailPage({
             <OtherDetailsSection workout={workout} />
           </div>
 
-          <aside className="space-y-6 lg:sticky lg:top-28 lg:self-start">
+          <aside className="space-y-6">
             <PerformanceSummaryPanel
               workout={workout}
               exercises={strengthExercises}
@@ -187,7 +185,7 @@ function PerformanceSummaryPanel({
 }: {
   workout: Workout
   exercises: StrengthExercise[]
-  trend: TrendDisplay
+  trend: TrendConfig
 }) {
   const totalVolume = getTotalVolume(exercises)
   const totalSets = getTotalSets(exercises)
@@ -196,14 +194,16 @@ function PerformanceSummaryPanel({
   const averageReps = getAverageReps(exercises)
 
   return (
-    <section className="rounded-[2.5rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
+    <section className="rounded-[2.5rem] border border-white/10 bg-white/[0.04] p-6">
       <p className="text-xs font-black uppercase tracking-[0.25em] text-slate-500">
         Résumé de performance
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
+      <div className="mt-5 grid grid-cols-2 gap-3">
         <StatCard label="Durée" value={`${workout.duration} min`} />
+
         <StatCard label="Exercices" value={`${exercises.length}`} />
+
         <StatCard label="Séries" value={`${totalSets}`} />
 
         <StatCard
@@ -214,7 +214,9 @@ function PerformanceSummaryPanel({
         <StatCard
           label="Charge max"
           value={
-            heaviestExercise ? formatWeight(heaviestExercise.weight) : '—'
+            heaviestExercise
+              ? formatWeight(heaviestExercise.weight)
+              : '—'
           }
         />
 
@@ -230,7 +232,7 @@ function PerformanceSummaryPanel({
             Meilleur volume
           </p>
 
-          <p className="mt-2 text-xl font-black text-white">
+          <p className="mt-2 text-lg font-black text-white">
             {bestVolumeExercise.name || 'Exercice sans nom'}
           </p>
 
@@ -241,7 +243,7 @@ function PerformanceSummaryPanel({
       ) : null}
 
       <div
-        className={`mt-6 inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-black ${trend.className}`}
+        className={`mt-5 inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-black ${trend.className}`}
       >
         <span>{trend.icon}</span>
         <span>{trend.label}</span>
@@ -265,11 +267,11 @@ function StrengthExercisesSection({
             Exercices réalisés
           </p>
 
-          <h2 className="mt-2 text-4xl font-black text-white">
+          <h2 className="mt-2 text-3xl font-black text-white">
             Détail musculation
           </h2>
 
-          <p className="mt-2 text-lg text-slate-400">
+          <p className="mt-2 text-slate-400">
             {exercises.length} exercice{exercises.length > 1 ? 's' : ''}{' '}
             enregistré{exercises.length > 1 ? 's' : ''}.
           </p>
@@ -280,68 +282,120 @@ function StrengthExercisesSection({
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-[2rem] border border-white/10">
-        <table className="w-full min-w-[780px] border-collapse">
-          <thead className="bg-white/[0.08]">
-            <tr className="text-left text-xs font-black uppercase tracking-[0.22em] text-slate-500">
-              <th className="px-5 py-4">Exercice</th>
-              <th className="px-5 py-4">Séries</th>
-              <th className="px-5 py-4">Reps</th>
-              <th className="px-5 py-4">Charge</th>
-              <th className="px-5 py-4">Repos</th>
-              <th className="px-5 py-4">Volume</th>
-            </tr>
-          </thead>
+<div className="hidden overflow-x-auto rounded-[2rem] border border-white/10 md:block">
+  <table className="w-full min-w-[780px] border-collapse">
+    <thead className="bg-white/[0.08]">
+      <tr className="text-left text-xs font-black uppercase tracking-[0.22em] text-slate-500">
+        <th className="px-5 py-4">Exercice</th>
+        <th className="px-5 py-4">Séries</th>
+        <th className="px-5 py-4">Reps</th>
+        <th className="px-5 py-4">Charge</th>
+        <th className="px-5 py-4">Repos</th>
+        <th className="px-5 py-4">Volume</th>
+      </tr>
+    </thead>
 
-          <tbody>
-            {exercises.map((exercise) => {
-              const exerciseVolume = getExerciseVolume(exercise)
+    <tbody>
+      {exercises.map((exercise) => {
+        const exerciseVolume = getExerciseVolume(exercise)
 
-              return (
-                <tr
-                  key={exercise.id}
-                  className="border-t border-white/10 transition hover:bg-white/[0.04]"
-                >
-                  <td className="px-5 py-5">
-                    <p className="font-black text-white">
-                      {exercise.name || 'Exercice sans nom'}
-                    </p>
+        return (
+          <tr
+            key={exercise.id}
+            className="border-t border-white/10 transition hover:bg-white/[0.04]"
+          >
+            <td className="px-5 py-4">
+              <p className="font-black text-white">
+                {exercise.name || 'Exercice sans nom'}
+              </p>
 
-                    {exercise.notes ? (
-                      <p className="mt-1 text-sm text-slate-500">
-                        {exercise.notes}
-                      </p>
-                    ) : null}
-                  </td>
+              {exercise.notes ? (
+                <p className="mt-1 text-sm text-slate-500">
+                  {exercise.notes}
+                </p>
+              ) : null}
+            </td>
 
-                  <td className="px-5 py-5 font-black text-sky-100">
-                    {exercise.sets || '—'}
-                  </td>
+            <td className="px-5 py-4 font-black text-sky-100">
+              {exercise.sets || '—'}
+            </td>
 
-                  <td className="px-5 py-5 font-black text-sky-100">
-                    {exercise.reps || '—'}
-                  </td>
+            <td className="px-5 py-4 font-black text-sky-100">
+              {exercise.reps || '—'}
+            </td>
 
-                  <td className="px-5 py-5 font-black text-sky-100">
-                    {formatWeight(exercise.weight)}
-                  </td>
+            <td className="px-5 py-4 font-black text-sky-100">
+              {formatWeight(exercise.weight)}
+            </td>
 
-                  <td className="px-5 py-5 font-black text-sky-100">
-                    {formatRest(exercise.rest)}
-                  </td>
+            <td className="px-5 py-4 font-black text-sky-100">
+              {formatRest(exercise.rest)}
+            </td>
 
-                  <td className="px-5 py-5 font-black text-emerald-200">
-                    {exerciseVolume > 0
-                      ? `${formatNumber(exerciseVolume)} kg`
-                      : '—'}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      </div>
+            <td className="px-5 py-4 font-black text-emerald-200">
+              {exerciseVolume > 0
+                ? `${formatNumber(exerciseVolume)} kg`
+                : '—'}
+            </td>
+          </tr>
+        )
+      })}
+    </tbody>
+  </table>
+</div>
+
+<div className="space-y-3 md:hidden">
+  {exercises.map((exercise) => {
+    const exerciseVolume = getExerciseVolume(exercise)
+
+    return (
+      <article
+        key={exercise.id}
+        className="rounded-3xl border border-white/10 bg-slate-950/35 p-4"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-black text-white">
+              {exercise.name || 'Exercice sans nom'}
+            </h3>
+
+            {exercise.notes ? (
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                {exercise.notes}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200">
+            {exerciseVolume > 0
+              ? `${formatNumber(exerciseVolume)} kg`
+              : '—'}
+          </div>
+        </div>
+
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <MiniStat label="Séries" value={exercise.sets || '—'} />
+          <MiniStat label="Reps" value={exercise.reps || '—'} />
+          <MiniStat label="Charge" value={formatWeight(exercise.weight)} />
+          <MiniStat label="Repos" value={formatRest(exercise.rest)} />
+        </div>
+      </article>
+    )
+  })}
+</div>
     </section>
+  )
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+      <p className="text-[0.65rem] font-black uppercase tracking-[0.16em] text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 font-black text-sky-100">{value}</p>
+    </div>
   )
 }
 
@@ -406,26 +460,24 @@ function TextPanel({
   children,
   emptyText,
   variant = 'default',
-  compact = false,
 }: {
   title: string
   children?: ReactNode
   emptyText: string
   variant?: 'default' | 'emerald'
-  compact?: boolean
 }) {
   const className =
     variant === 'emerald'
       ? 'border-emerald-400/15 bg-emerald-400/5'
-      : 'border-white/10 bg-slate-950/35'
+      : 'border-white/10 bg-white/[0.04]'
 
   const hasContent =
-    typeof children === 'string' ? children.trim().length > 0 : Boolean(children)
+    typeof children === 'string'
+      ? children.trim().length > 0
+      : Boolean(children)
 
   return (
-    <section
-      className={`rounded-[2rem] border ${compact ? 'p-5' : 'p-6'} ${className}`}
-    >
+    <section className={`rounded-[2rem] border p-6 ${className}`}>
       <p
         className={`text-xs font-black uppercase tracking-[0.25em] ${
           variant === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
@@ -434,7 +486,7 @@ function TextPanel({
         {title}
       </p>
 
-      <p className="mt-4 leading-8 text-slate-200">
+      <p className="mt-5 leading-8 text-slate-200">
         {hasContent ? children : emptyText}
       </p>
     </section>
@@ -463,7 +515,7 @@ function EmptyPanel({
 
 function Badge({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/10 px-5 py-2 text-sm font-black text-slate-100">
+    <span className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-black text-slate-100">
       {children}
     </span>
   )
@@ -476,7 +528,7 @@ function StatCard({ label, value }: { label: string; value: string }) {
         {label}
       </p>
 
-      <p className="mt-2 text-2xl font-black text-white">{value}</p>
+      <p className="mt-2 text-xl font-black text-white">{value}</p>
     </div>
   )
 }
@@ -508,37 +560,33 @@ function getTotalSets(exercises: StrengthExercise[]): number {
 function getHeaviestExercise(
   exercises: StrengthExercise[],
 ): StrengthExercise | null {
-  let heaviestExercise: StrengthExercise | null = null
-  let heaviestWeight = 0
+  return exercises.reduce<StrengthExercise | null>((bestExercise, exercise) => {
+    const currentWeight = parseSportNumber(exercise.weight)
+    const bestWeight = bestExercise
+      ? parseSportNumber(bestExercise.weight)
+      : 0
 
-  exercises.forEach((exercise) => {
-    const weight = parseSportNumber(exercise.weight)
-
-    if (weight > heaviestWeight) {
-      heaviestWeight = weight
-      heaviestExercise = exercise
+    if (currentWeight > bestWeight) {
+      return exercise
     }
-  })
 
-  return heaviestExercise
+    return bestExercise
+  }, null)
 }
 
 function getBestVolumeExercise(
   exercises: StrengthExercise[],
 ): StrengthExercise | null {
-  let bestExercise: StrengthExercise | null = null
-  let bestVolume = 0
+  return exercises.reduce<StrengthExercise | null>((bestExercise, exercise) => {
+    const currentVolume = getExerciseVolume(exercise)
+    const bestVolume = bestExercise ? getExerciseVolume(bestExercise) : 0
 
-  exercises.forEach((exercise) => {
-    const volume = getExerciseVolume(exercise)
-
-    if (volume > bestVolume) {
-      bestVolume = volume
-      bestExercise = exercise
+    if (currentVolume > bestVolume) {
+      return exercise
     }
-  })
 
-  return bestExercise
+    return bestExercise
+  }, null)
 }
 
 function getAverageReps(exercises: StrengthExercise[]): number {
