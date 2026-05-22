@@ -1,4 +1,4 @@
-import type { SportCategoryId } from './workout'
+import type { SportCategoryId, Workout } from './workout'
 
 export type PlannedWorkout = {
   id: string
@@ -6,5 +6,8 @@ export type PlannedWorkout = {
   category: SportCategoryId
   date: string
   duration: number
-  objective: string
+  objective?: string
+  notes?: string
+  improvementIdea?: string
+  details?: Workout['details']
 }

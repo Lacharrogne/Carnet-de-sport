@@ -8,7 +8,10 @@ type PlannedWorkoutRow = {
   category: PlannedWorkout['category']
   date: string
   duration: number
-  objective: string
+  objective: string | null
+  notes: string | null
+  improvement_idea: string | null
+  details: PlannedWorkout['details'] | null
   created_at?: string
 }
 
@@ -21,7 +24,10 @@ function mapPlannedWorkoutRowToPlannedWorkout(
     category: row.category,
     date: row.date,
     duration: row.duration,
-    objective: row.objective,
+    objective: row.objective ?? '',
+    notes: row.notes ?? '',
+    improvementIdea: row.improvement_idea ?? '',
+    details: row.details ?? undefined,
   }
 }
 
@@ -36,7 +42,10 @@ function mapPlannedWorkoutToInsert(
     category: plannedWorkout.category,
     date: plannedWorkout.date,
     duration: plannedWorkout.duration,
-    objective: plannedWorkout.objective,
+    objective: plannedWorkout.objective ?? '',
+    notes: plannedWorkout.notes ?? '',
+    improvement_idea: plannedWorkout.improvementIdea ?? '',
+    details: plannedWorkout.details ?? null,
   }
 }
 

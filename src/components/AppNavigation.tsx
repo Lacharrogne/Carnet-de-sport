@@ -2,361 +2,698 @@ import { useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 
-import { ECOSYSTEM_LINKS } from '../data/ecosystemLinks'
-
 type AppNavigationProps = {
   user: User | null
   isAuthLoading: boolean
-  onSignOut: () => Promise<void>
+  onSignOut: () => void | Promise<void>
 }
 
-type NavItem = {
-  label: string
-  path: string
-  icon: string
-  end?: boolean
+type UserMetadata = {
+  display_name?: string
+  full_name?: string
+  name?: string
+  avatar_url?: string
+  picture?: string
 }
 
-const suiviItems: NavItem[] = [
-  { label: 'Progression', path: '/progress', icon: '📈' },
-  { label: 'Défis', path: '/challenges', icon: '🎯' },
+type DesktopMenu = 'tools' | 'profile' | null
+
+const toolsLinks = [
+  {
+    to: '/planning',
+    label: 'Planning',
+    description: 'Préparer tes prochaines séances',
+    icon: '📅',
+  },
+  {
+    to: '/progress',
+    label: 'Progression',
+    description: 'Voir ton niveau, ton XP et tes badges',
+    icon: '📊',
+  },
 ]
 
-const carnetItems: NavItem[] = [
-  { label: 'Planning', path: '/planning', icon: '🗓️' },
-  { label: 'Séances', path: '/workouts', icon: '🏋️' },
+const profileLinks = [
+  {
+    to: '/profile',
+    label: 'Mon profil',
+    description: 'Photo, pseudo et identité sportive',
+    icon: '🙂',
+  },
+  {
+    to: '/body',
+    label: 'Profil physique',
+    description: 'Corps, santé et informations sportives',
+    icon: '🧍',
+  },
+  {
+    to: '/challenges',
+    label: 'Défis',
+    description: 'Objectifs, badges et motivation',
+    icon: '🎯',
+  },
 ]
-
-function isPathActive(pathname: string, path: string) {
-  if (path === '/') {
-    return pathname === '/'
-  }
-
-  return pathname === path || pathname.startsWith(`${path}/`)
-}
-
-function pillClass(isActive: boolean) {
-  return [
-    'flex min-w-fit items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-black transition',
-    isActive
-      ? 'border-emerald-400 bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/20'
-      : 'border-white/10 bg-white/[0.06] text-white hover:border-emerald-400/40 hover:bg-white/[0.1]',
-  ].join(' ')
-}
-
-function DesktopDropdown({
-  label,
-  icon,
-  items,
-}: {
-  label: string
-  icon: string
-  items: NavItem[]
-}) {
-  const location = useLocation()
-  const isActive = items.some((item) =>
-    isPathActive(location.pathname, item.path),
-  )
-
-  return (
-    <div className="group relative">
-      <button type="button" className={pillClass(isActive)}>
-        <span>{icon}</span>
-        <span>{label}</span>
-        <span className="text-[10px] opacity-70">▾</span>
-      </button>
-
-      <div className="pointer-events-none absolute left-1/2 top-full z-50 w-[360px] -translate-x-1/2 pt-3 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
-        <div className="rounded-[1.5rem] border border-white/10 bg-[#10131f] p-4 shadow-2xl shadow-black/40">
-          <p className="mb-3 text-xs font-black uppercase tracking-[0.22em] text-emerald-300">
-            {label}
-          </p>
-
-          <div className="grid grid-cols-2 gap-3">
-            {items.map((item) => (
-              <NavLink
-                key={item.path}
-                to={item.path}
-                className={({ isActive }) =>
-                  [
-                    'rounded-2xl border p-4 transition',
-                    isActive
-                      ? 'border-emerald-400/60 bg-emerald-400/15'
-                      : 'border-white/10 bg-white/[0.04] hover:border-emerald-400/40 hover:bg-white/[0.08]',
-                  ].join(' ')
-                }
-              >
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-xl">
-                  {item.icon}
-                </div>
-
-                <p className="text-base font-black text-white">
-                  {item.label}
-                </p>
-
-                <p className="mt-1 text-xs font-semibold text-slate-400">
-                  Ouvrir la page
-                </p>
-              </NavLink>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function MobileNavLink({
-  item,
-  onClick,
-}: {
-  item: NavItem
-  onClick: () => void
-}) {
-  return (
-    <NavLink
-      to={item.path}
-      end={item.end}
-      onClick={onClick}
-      className={({ isActive }) =>
-        [
-          'flex items-center justify-between rounded-2xl border px-4 py-4 text-base font-black transition',
-          isActive
-            ? 'border-emerald-400 bg-emerald-400 text-slate-950'
-            : 'border-white/10 bg-white/[0.04] text-white',
-        ].join(' ')
-      }
-    >
-      <span className="flex items-center gap-3">
-        <span>{item.icon}</span>
-        <span>{item.label}</span>
-      </span>
-
-      <span>→</span>
-    </NavLink>
-  )
-}
 
 export default function AppNavigation({
   user,
   isAuthLoading,
   onSignOut,
 }: AppNavigationProps) {
+  const location = useLocation()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const userEmail = user?.email ?? ''
-  const recipeApp = ECOSYSTEM_LINKS.recipes
+  const [desktopMenu, setDesktopMenu] = useState<DesktopMenu>(null)
+
+  const isToolsActive =
+    location.pathname === '/planning' || location.pathname === '/progress'
+
+  const isProfileActive =
+    location.pathname === '/profile' ||
+    location.pathname === '/body' ||
+    location.pathname === '/challenges'
 
   const closeMenu = () => {
     setIsMenuOpen(false)
   }
 
-  const toggleMenu = () => {
-    setIsMenuOpen((current) => !current)
+  const closeDesktopMenu = () => {
+    setDesktopMenu(null)
   }
 
-  const handleSignOut = () => {
+  const closeAllMenus = () => {
     closeMenu()
-    void onSignOut()
+    closeDesktopMenu()
   }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#070a16]/95 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-[1500px] items-center justify-between gap-3 px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050816]/90 text-slate-50 shadow-2xl shadow-black/20 backdrop-blur-xl">
+      <nav className="mx-auto flex w-full max-w-[1380px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
         <Link
           to="/"
-          onClick={closeMenu}
-          className="flex min-w-0 items-center gap-3"
+          onClick={closeAllMenus}
+          className="group flex min-w-0 items-center gap-3"
         >
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-400/10 text-2xl">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-sky-400/10 text-2xl shadow-lg shadow-emerald-400/5 transition group-hover:scale-105">
             ⚡
           </div>
 
           <div className="min-w-0">
-            <p className="truncate text-xl font-black leading-tight text-white">
+            <p className="truncate text-lg font-black leading-tight text-white">
               Carnet de sport
             </p>
 
-            <p className="truncate text-xs font-semibold text-slate-400">
-              Sport · santé · progression
+            <p className="truncate text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
+              Suivi sportif & motivation
             </p>
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-2 2xl:flex">
-          <NavLink
-            to="/"
-            end
-            className={({ isActive }) => pillClass(isActive)}
-          >
-            <span>🏠</span>
-            <span>Dashboard</span>
-          </NavLink>
+        <div
+          onMouseEnter={closeDesktopMenu}
+          className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1.5 shadow-xl shadow-black/20 lg:flex"
+        >
+          <NavigationLink to="/" label="Accueil" end onClick={closeDesktopMenu} />
 
-          <NavLink
-            to="/body"
-            className={({ isActive }) => pillClass(isActive)}
-          >
-            <span>🧬</span>
-            <span>Mon corps</span>
-          </NavLink>
+          <NavigationLink
+            to="/workouts"
+            label="Séances"
+            onClick={closeDesktopMenu}
+          />
 
-          <DesktopDropdown label="Suivi" icon="📊" items={suiviItems} />
-          <DesktopDropdown label="Carnet" icon="📒" items={carnetItems} />
+          <ToolsDropdown
+            isActive={isToolsActive}
+            isOpen={desktopMenu === 'tools'}
+            onOpen={() => setDesktopMenu('tools')}
+            onClose={closeDesktopMenu}
+            onLinkClick={closeDesktopMenu}
+          />
+        </div>
 
-          <NavLink
+        <div className="hidden items-center gap-3 lg:flex">
+          <Link
             to="/workouts/new"
-            className={({ isActive }) =>
-              [
-                'flex min-w-fit items-center gap-2 rounded-full border px-5 py-2.5 text-sm font-black transition hover:scale-105',
-                isActive
-                  ? 'border-emerald-300 bg-emerald-300 text-slate-950'
-                  : 'border-emerald-400 bg-emerald-400 text-slate-950',
-              ].join(' ')
-            }
+            onClick={closeDesktopMenu}
+            className="inline-flex items-center gap-3 rounded-full border border-emerald-400/20 bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-emerald-400/10 transition hover:bg-emerald-300"
           >
-            <span>+</span>
-            <span>Ajouter</span>
-          </NavLink>
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-emerald-300">
+              +
+            </span>
+            Ajouter une séance
+          </Link>
 
-          <a
-            href={recipeApp.url}
-            target="_blank"
-            rel="noreferrer"
-            className="flex min-w-fit items-center gap-2 rounded-full border border-orange-300/25 bg-orange-400/10 px-5 py-2.5 text-sm font-black text-orange-100 transition hover:bg-orange-400/20"
-          >
-            <span>{recipeApp.emoji}</span>
-            <span>{recipeApp.shortName}</span>
-          </a>
-        </nav>
-
-        <div className="hidden min-w-fit items-center gap-2 2xl:flex">
-          {isAuthLoading ? (
-            <div className="rounded-full border border-sky-400/30 bg-sky-400/10 px-5 py-2.5 text-sm font-black text-sky-100">
-              Chargement...
-            </div>
-          ) : user ? (
-            <div className="flex items-center gap-2 rounded-full border border-sky-400/30 bg-sky-400/10 px-3 py-2">
-              <span className="max-w-[150px] truncate text-xs font-bold text-sky-100">
-                {userEmail}
-              </span>
-
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="rounded-full bg-sky-300 px-4 py-2 text-xs font-black text-slate-950 transition hover:scale-105"
-              >
-                Déconnexion
-              </button>
-            </div>
-          ) : (
-            <Link
-              to="/auth"
-              className="rounded-full border border-sky-400/40 bg-sky-400/10 px-5 py-2.5 text-sm font-black text-sky-100 transition hover:bg-sky-400/20"
-            >
-              Connexion
-            </Link>
-          )}
+          <ProfileDropdown
+            user={user}
+            isAuthLoading={isAuthLoading}
+            isActive={isProfileActive}
+            isOpen={desktopMenu === 'profile'}
+            onOpen={() => setDesktopMenu('profile')}
+            onClose={closeDesktopMenu}
+            onLinkClick={closeDesktopMenu}
+            onSignOut={onSignOut}
+          />
         </div>
 
         <button
           type="button"
-          onClick={toggleMenu}
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.08] text-2xl font-black text-white 2xl:hidden"
+          onClick={() => {
+            closeDesktopMenu()
+            setIsMenuOpen((currentValue) => !currentValue)
+          }}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-xl transition hover:bg-white/[0.1] lg:hidden"
           aria-label={isMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
         >
-          {isMenuOpen ? '×' : '☰'}
+          {isMenuOpen ? '✕' : '☰'}
         </button>
-      </div>
+      </nav>
 
-      {isMenuOpen && (
-        <div className="border-t border-white/10 bg-[#070a16] px-4 py-5 sm:px-6 2xl:hidden">
-          <div className="mx-auto flex max-w-[900px] flex-col gap-5">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <MobileNavLink
-                item={{ label: 'Dashboard', path: '/', icon: '🏠', end: true }}
-                onClick={closeMenu}
-              />
+      {isMenuOpen ? (
+        <div className="border-t border-white/10 bg-[#050816]/95 px-4 py-4 backdrop-blur-xl lg:hidden">
+          <div className="mx-auto grid w-full max-w-[1380px] gap-2">
+            <MobileNavLink to="/" label="Accueil" onClick={closeMenu} end />
 
-              <MobileNavLink
-                item={{ label: 'Mon corps', path: '/body', icon: '🧬' }}
-                onClick={closeMenu}
-              />
+            <MobileNavLink
+              to="/workouts"
+              label="Séances"
+              onClick={closeMenu}
+            />
 
-              <MobileNavLink
-                item={{ label: 'Progression', path: '/progress', icon: '📈' }}
-                onClick={closeMenu}
-              />
+            <div className="mt-2 rounded-3xl border border-white/10 bg-white/[0.04] p-3">
+              <p className="px-2 text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
+                Outils
+              </p>
 
-              <MobileNavLink
-                item={{ label: 'Planning', path: '/planning', icon: '🗓️' }}
-                onClick={closeMenu}
-              />
-
-              <MobileNavLink
-                item={{ label: 'Défis', path: '/challenges', icon: '🎯' }}
-                onClick={closeMenu}
-              />
-
-              <MobileNavLink
-                item={{ label: 'Séances', path: '/workouts', icon: '🏋️' }}
-                onClick={closeMenu}
-              />
+              <div className="mt-3 grid gap-2">
+                {toolsLinks.map((link) => (
+                  <MobileMenuItem
+                    key={link.to}
+                    to={link.to}
+                    icon={link.icon}
+                    label={link.label}
+                    description={link.description}
+                    onClick={closeMenu}
+                  />
+                ))}
+              </div>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              <NavLink
-                to="/workouts/new"
-                onClick={closeMenu}
-                className="flex items-center justify-center gap-2 rounded-2xl border border-emerald-400 bg-emerald-400 px-6 py-4 text-base font-black text-slate-950"
-              >
-                <span>+</span>
-                <span>Ajouter une séance</span>
-              </NavLink>
+            <Link
+              to="/workouts/new"
+              onClick={closeMenu}
+              className="mt-2 inline-flex items-center justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            >
+              + Ajouter une séance
+            </Link>
 
-              <a
-                href={recipeApp.url}
-                target="_blank"
-                rel="noreferrer"
-                onClick={closeMenu}
-                className="flex items-center justify-center gap-2 rounded-2xl border border-orange-300/25 bg-orange-400/10 px-6 py-4 text-base font-black text-orange-100"
-              >
-                <span>{recipeApp.emoji}</span>
-                <span>{recipeApp.shortName}</span>
-              </a>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
-              {isAuthLoading ? (
-                <p className="font-black text-sky-100">
-                  Chargement...
-                </p>
-              ) : user ? (
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="truncate font-bold text-sky-100">
-                    {userEmail}
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="rounded-full bg-sky-300 px-5 py-3 font-black text-slate-950"
-                  >
-                    Déconnexion
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  to="/auth"
-                  onClick={closeMenu}
-                  className="flex items-center justify-center rounded-full border border-sky-400/40 bg-sky-400/10 px-6 py-4 font-black text-sky-100"
-                >
-                  Connexion
-                </Link>
-              )}
+            <div className="mt-2 rounded-3xl border border-white/10 bg-white/[0.04] p-3">
+              <MobileProfileBlock
+                user={user}
+                isAuthLoading={isAuthLoading}
+                onSignOut={async () => {
+                  await onSignOut()
+                  closeMenu()
+                }}
+                onClose={closeMenu}
+              />
             </div>
           </div>
         </div>
-      )}
+      ) : null}
     </header>
   )
+}
+
+function NavigationLink({
+  to,
+  label,
+  end,
+  onClick,
+}: {
+  to: string
+  label: string
+  end?: boolean
+  onClick?: () => void
+}) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      onClick={onClick}
+      className={({ isActive }) =>
+        [
+          'rounded-full px-5 py-3 text-sm font-black transition',
+          isActive
+            ? 'bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/10'
+            : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
+        ].join(' ')
+      }
+    >
+      {label}
+    </NavLink>
+  )
+}
+
+function ToolsDropdown({
+  isActive,
+  isOpen,
+  onOpen,
+  onClose,
+  onLinkClick,
+}: {
+  isActive: boolean
+  isOpen: boolean
+  onOpen: () => void
+  onClose: () => void
+  onLinkClick: () => void
+}) {
+  return (
+    <div
+      className="relative"
+      onMouseEnter={onOpen}
+      onMouseLeave={onClose}
+      onFocus={onOpen}
+    >
+      <button
+        type="button"
+        className={[
+          'inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black transition',
+          isActive
+            ? 'bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/10'
+            : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
+        ].join(' ')}
+      >
+        Outils
+        <span
+          className={[
+            'text-xs transition',
+            isOpen ? 'rotate-180' : '',
+          ].join(' ')}
+        >
+          ⌄
+        </span>
+      </button>
+
+      <div className="absolute left-0 top-full h-4 w-full" />
+
+      <div
+        className={[
+          'absolute left-1/2 top-[calc(100%+0.75rem)] z-50 w-[420px] -translate-x-1/2 rounded-[2rem] border border-white/10 bg-[#07111f] p-5 shadow-2xl shadow-black/40 transition duration-150',
+          isOpen
+            ? 'visible translate-y-0 opacity-100'
+            : 'invisible translate-y-2 opacity-0',
+        ].join(' ')}
+      >
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-300">
+          Outils du carnet
+        </p>
+
+        <p className="mt-1 text-sm font-bold text-slate-400">
+          Planning, progression et suivi
+        </p>
+
+        <div className="mt-5 grid gap-3">
+          {toolsLinks.map((link) => (
+            <DropdownItem
+              key={link.to}
+              to={link.to}
+              icon={link.icon}
+              label={link.label}
+              description={link.description}
+              onClick={onLinkClick}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ProfileDropdown({
+  user,
+  isAuthLoading,
+  isActive,
+  isOpen,
+  onOpen,
+  onClose,
+  onLinkClick,
+  onSignOut,
+}: {
+  user: User | null
+  isAuthLoading: boolean
+  isActive: boolean
+  isOpen: boolean
+  onOpen: () => void
+  onClose: () => void
+  onLinkClick: () => void
+  onSignOut: () => void | Promise<void>
+}) {
+  if (isAuthLoading) {
+    return (
+      <div className="rounded-full border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-black text-slate-400">
+        Connexion...
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <Link
+        to="/auth"
+        onClick={onLinkClick}
+        className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-black text-slate-100 transition hover:bg-white/[0.1]"
+      >
+        Se connecter
+      </Link>
+    )
+  }
+
+  const displayName = getUserDisplayName(user)
+  const avatarUrl = getUserAvatarUrl(user)
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={onOpen}
+      onMouseLeave={onClose}
+      onFocus={onOpen}
+    >
+      <button
+        type="button"
+        className={[
+          'inline-flex max-w-[270px] items-center gap-3 rounded-full border px-4 py-2.5 transition',
+          isActive
+            ? 'border-emerald-400/30 bg-emerald-400/15'
+            : 'border-white/10 bg-white/[0.05] hover:bg-white/[0.1]',
+        ].join(' ')}
+      >
+        <Avatar avatarUrl={avatarUrl} displayName={displayName} />
+
+        <span className="min-w-0 truncate text-sm font-black text-white">
+          {displayName}
+        </span>
+
+        <span
+          className={[
+            'text-xs text-slate-400 transition',
+            isOpen ? 'rotate-180' : '',
+          ].join(' ')}
+        >
+          ⌄
+        </span>
+      </button>
+
+      <div className="absolute left-0 top-full h-4 w-full" />
+
+      <div
+        className={[
+          'absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[430px] rounded-[2rem] border border-white/10 bg-[#07111f] p-5 shadow-2xl shadow-black/40 transition duration-150',
+          isOpen
+            ? 'visible translate-y-0 opacity-100'
+            : 'invisible translate-y-2 opacity-0',
+        ].join(' ')}
+      >
+        <div className="rounded-[1.5rem] border border-emerald-400/20 bg-emerald-400/10 p-4">
+          <div className="flex items-center gap-4">
+            <Avatar avatarUrl={avatarUrl} displayName={displayName} large />
+
+            <div className="min-w-0">
+              <p className="truncate text-lg font-black text-white">
+                {displayName}
+              </p>
+
+              <p className="truncate text-sm font-bold text-slate-400">
+                {user.email}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3">
+          {profileLinks.map((link) => (
+            <DropdownItem
+              key={link.to}
+              to={link.to}
+              icon={link.icon}
+              label={link.label}
+              description={link.description}
+              onClick={onLinkClick}
+            />
+          ))}
+
+          <button
+            type="button"
+            onClick={async () => {
+              onLinkClick()
+              await onSignOut()
+            }}
+            className="rounded-[1.5rem] border border-red-400/20 bg-red-400/10 p-4 text-left transition hover:bg-red-400/20"
+          >
+            <div className="flex items-center gap-4">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-400/15 text-2xl">
+                🚪
+              </span>
+
+              <div>
+                <p className="font-black text-red-200">Déconnexion</p>
+
+                <p className="mt-1 text-sm font-bold text-red-100/70">
+                  Quitter ton compte
+                </p>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DropdownItem({
+  to,
+  icon,
+  label,
+  description,
+  onClick,
+}: {
+  to: string
+  icon: string
+  label: string
+  description: string
+  onClick: () => void
+}) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className="rounded-[1.5rem] border border-transparent p-4 transition hover:border-white/10 hover:bg-white/[0.06]"
+    >
+      <div className="flex items-center gap-4">
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.06] text-2xl">
+          {icon}
+        </span>
+
+        <div>
+          <p className="font-black text-white">{label}</p>
+
+          <p className="mt-1 text-sm font-bold text-slate-400">
+            {description}
+          </p>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function MobileNavLink({
+  to,
+  label,
+  onClick,
+  end,
+}: {
+  to: string
+  label: string
+  onClick: () => void
+  end?: boolean
+}) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      onClick={onClick}
+      className={({ isActive }) =>
+        [
+          'rounded-3xl px-5 py-3 text-sm font-black transition',
+          isActive
+            ? 'bg-emerald-400 text-slate-950'
+            : 'border border-white/10 bg-white/[0.04] text-slate-200 hover:bg-white/[0.08]',
+        ].join(' ')
+      }
+    >
+      {label}
+    </NavLink>
+  )
+}
+
+function MobileMenuItem({
+  to,
+  icon,
+  label,
+  description,
+  onClick,
+}: {
+  to: string
+  icon: string
+  label: string
+  description: string
+  onClick: () => void
+}) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 transition hover:bg-white/[0.06]"
+    >
+      <div className="flex items-center gap-4">
+        <span className="text-2xl">{icon}</span>
+
+        <div>
+          <p className="font-black text-white">{label}</p>
+          <p className="mt-1 text-sm text-slate-400">{description}</p>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+function MobileProfileBlock({
+  user,
+  isAuthLoading,
+  onSignOut,
+  onClose,
+}: {
+  user: User | null
+  isAuthLoading: boolean
+  onSignOut: () => void | Promise<void>
+  onClose: () => void
+}) {
+  if (isAuthLoading) {
+    return (
+      <p className="px-2 py-3 text-sm font-black text-slate-400">
+        Connexion...
+      </p>
+    )
+  }
+
+  if (!user) {
+    return (
+      <Link
+        to="/auth"
+        onClick={onClose}
+        className="inline-flex w-full justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950"
+      >
+        Se connecter
+      </Link>
+    )
+  }
+
+  const displayName = getUserDisplayName(user)
+  const avatarUrl = getUserAvatarUrl(user)
+
+  return (
+    <div>
+      <div className="flex items-center gap-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4">
+        <Avatar avatarUrl={avatarUrl} displayName={displayName} large />
+
+        <div className="min-w-0">
+          <p className="truncate font-black text-white">{displayName}</p>
+          <p className="truncate text-sm font-bold text-slate-400">
+            {user.email}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 grid gap-2">
+        {profileLinks.map((link) => (
+          <MobileMenuItem
+            key={link.to}
+            to={link.to}
+            icon={link.icon}
+            label={link.label}
+            description={link.description}
+            onClick={onClose}
+          />
+        ))}
+
+        <button
+          type="button"
+          onClick={async () => {
+            await onSignOut()
+            onClose()
+          }}
+          className="rounded-2xl border border-red-400/20 bg-red-400/10 p-4 text-left font-black text-red-200"
+        >
+          🚪 Déconnexion
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function Avatar({
+  avatarUrl,
+  displayName,
+  large = false,
+}: {
+  avatarUrl: string
+  displayName: string
+  large?: boolean
+}) {
+  const sizeClass = large ? 'h-14 w-14 text-xl' : 'h-10 w-10 text-base'
+
+  if (avatarUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={displayName}
+        className={`${sizeClass} shrink-0 rounded-full border border-white/10 object-cover`}
+      />
+    )
+  }
+
+  return (
+    <span
+      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/15 font-black text-emerald-200`}
+    >
+      {getInitials(displayName)}
+    </span>
+  )
+}
+
+function getUserMetadata(user: User | null): UserMetadata {
+  return (user?.user_metadata ?? {}) as UserMetadata
+}
+
+function getUserDisplayName(user: User | null) {
+  const metadata = getUserMetadata(user)
+
+  return (
+    metadata.display_name ||
+    metadata.full_name ||
+    metadata.name ||
+    user?.email?.split('@')[0] ||
+    'Sportif'
+  )
+}
+
+function getUserAvatarUrl(user: User | null) {
+  const metadata = getUserMetadata(user)
+
+  return metadata.avatar_url || metadata.picture || ''
+}
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase()
 }

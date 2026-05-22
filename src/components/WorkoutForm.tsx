@@ -18,6 +18,15 @@ type WorkoutFormProps = {
   onCancel: () => void
 }
 
+type DetailMode =
+  | 'strength'
+  | 'endurance'
+  | 'bike'
+  | 'swim'
+  | 'mobility'
+  | 'climb'
+  | 'simple'
+
 const intensityOptions: WorkoutIntensity[] = ['Facile', 'Moyenne', 'Difficile']
 
 const feelingOptions: WorkoutFeeling[] = [
@@ -35,6 +44,39 @@ const trendOptions: { value: WorkoutTrend; label: string; emoji: string }[] = [
   { value: 'regress', label: 'Régression', emoji: '📉' },
   { value: 'record', label: 'Record', emoji: '🔥' },
 ]
+
+function getDetailMode(category: SportCategoryId): DetailMode {
+  if (category === 'musculation') {
+    return 'strength'
+  }
+
+  if (
+    category === 'course' ||
+    category === 'trail' ||
+    category === 'marche' ||
+    category === 'randonnee'
+  ) {
+    return 'endurance'
+  }
+
+  if (category === 'velo' || category === 'vtt') {
+    return 'bike'
+  }
+
+  if (category === 'natation') {
+    return 'swim'
+  }
+
+  if (category === 'hiit' || category === 'yoga') {
+    return 'mobility'
+  }
+
+  if (category === 'escalade') {
+    return 'climb'
+  }
+
+  return 'simple'
+}
 
 function createId() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -75,6 +117,7 @@ function getInitialDetails(initialValues?: WorkoutFormValues): WorkoutDetails {
     hasOldStrengthDetails
   ) {
     return {
+      bodyZones: details.bodyZones,
       strengthExercises: [
         {
           id: createId(),
@@ -181,7 +224,7 @@ export default function WorkoutForm({
           <input
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            placeholder="Ex : Séance PUSH"
+            placeholder="Ex : Séance PUSH, footing, sortie vélo..."
             className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
           />
         </label>
@@ -353,6 +396,8 @@ function SportSpecificFields({
   details,
   onChange,
 }: SportSpecificFieldsProps) {
+  const detailMode = getDetailMode(category)
+
   return (
     <section className="rounded-[2rem] border border-emerald-400/10 bg-emerald-400/5 p-5">
       <p className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">
@@ -363,18 +408,38 @@ function SportSpecificFields({
         Ces champs changent selon le sport choisi.
       </p>
 
-      {category === 'musculation' ? (
-        <StrengthExercisesEditor
-          exercises={details.strengthExercises ?? []}
-          onChange={(exercises) => onChange('strengthExercises', exercises)}
-        />
+      {detailMode === 'strength' ? (
+        <div className="mt-5 space-y-5">
+          <TextField
+            label="Zones travaillées"
+            value={details.bodyZones ?? ''}
+            placeholder="Ex : pectoraux, triceps, épaules"
+            onChange={(value) => onChange('bodyZones', value)}
+          />
+
+          <StrengthExercisesEditor
+            exercises={details.strengthExercises ?? []}
+            onChange={(exercises) => onChange('strengthExercises', exercises)}
+          />
+        </div>
       ) : null}
 
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        {category === 'course' || category === 'marche' ? (
-          <>
+      {detailMode === 'endurance' ? (
+        <div className="mt-5 space-y-5">
+          <TextAreaField
+            label="Programme prévu"
+            value={details.exercises ?? ''}
+            placeholder="Ex : échauffement, fractionné, retour au calme..."
+            onChange={(value) => onChange('exercises', value)}
+          />
+
+          <div className="grid gap-5 md:grid-cols-2">
             <NumberDetailField
-              label="Distance en km"
+              label={
+                category === 'marche' || category === 'randonnee'
+                  ? 'Distance en km'
+                  : 'Distance en km'
+              }
               value={details.distance}
               placeholder="Ex : 5"
               onChange={(value) => onChange('distance', value)}
@@ -383,14 +448,78 @@ function SportSpecificFields({
             <TextField
               label="Allure"
               value={details.pace ?? ''}
-              placeholder="Ex : 6:20 / km"
+              placeholder="Ex : 6:20/km"
               onChange={(value) => onChange('pace', value)}
             />
-          </>
-        ) : null}
 
-        {category === 'natation' ? (
-          <>
+            <NumberDetailField
+              label="Dénivelé en mètres"
+              value={details.elevation}
+              placeholder="Ex : 250"
+              onChange={(value) => onChange('elevation', value)}
+            />
+
+            <TextField
+              label="Zones travaillées"
+              value={details.bodyZones ?? ''}
+              placeholder="Ex : jambes, cardio"
+              onChange={(value) => onChange('bodyZones', value)}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {detailMode === 'bike' ? (
+        <div className="mt-5 space-y-5">
+          <TextAreaField
+            label="Programme prévu"
+            value={details.exercises ?? ''}
+            placeholder="Ex : sortie endurance, travail en côte, vélocité..."
+            onChange={(value) => onChange('exercises', value)}
+          />
+
+          <div className="grid gap-5 md:grid-cols-2">
+            <NumberDetailField
+              label="Distance en km"
+              value={details.distance}
+              placeholder="Ex : 40"
+              onChange={(value) => onChange('distance', value)}
+            />
+
+            <TextField
+              label="Vitesse / rythme"
+              value={details.pace ?? ''}
+              placeholder="Ex : 25 km/h"
+              onChange={(value) => onChange('pace', value)}
+            />
+
+            <NumberDetailField
+              label="Dénivelé en mètres"
+              value={details.elevation}
+              placeholder="Ex : 500"
+              onChange={(value) => onChange('elevation', value)}
+            />
+
+            <TextField
+              label="Zones travaillées"
+              value={details.bodyZones ?? ''}
+              placeholder="Ex : jambes, cardio"
+              onChange={(value) => onChange('bodyZones', value)}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {detailMode === 'swim' ? (
+        <div className="mt-5 space-y-5">
+          <TextAreaField
+            label="Programme prévu"
+            value={details.exercises ?? ''}
+            placeholder="Ex : échauffement, séries, récupération..."
+            onChange={(value) => onChange('exercises', value)}
+          />
+
+          <div className="grid gap-5 md:grid-cols-2">
             <NumberDetailField
               label="Distance en mètres"
               value={details.distance}
@@ -404,70 +533,86 @@ function SportSpecificFields({
               placeholder="Ex : crawl, brasse, dos"
               onChange={(value) => onChange('swimmingStyle', value)}
             />
-          </>
-        ) : null}
 
-        {category === 'football' ? (
-          <>
             <TextField
-              label="Poste joué"
-              value={details.position ?? ''}
-              placeholder="Ex : ailier, défenseur, gardien"
-              onChange={(value) => onChange('position', value)}
+              label="Allure / rythme"
+              value={details.pace ?? ''}
+              placeholder="Ex : 2:00/100m"
+              onChange={(value) => onChange('pace', value)}
             />
 
-            <NumberDetailField
-              label="Buts"
-              value={details.goals}
-              placeholder="Ex : 2"
-              onChange={(value) => onChange('goals', value)}
+            <TextField
+              label="Zones travaillées"
+              value={details.bodyZones ?? ''}
+              placeholder="Ex : épaules, dos, cardio"
+              onChange={(value) => onChange('bodyZones', value)}
             />
+          </div>
+        </div>
+      ) : null}
 
-            <NumberDetailField
-              label="Passes décisives"
-              value={details.assists}
-              placeholder="Ex : 1"
-              onChange={(value) => onChange('assists', value)}
-            />
-          </>
-        ) : null}
+      {detailMode === 'mobility' ? (
+        <div className="mt-5 space-y-5">
+          <TextAreaField
+            label="Programme prévu"
+            value={details.exercises ?? ''}
+            placeholder="Ex : mobilité hanches, gainage, étirements..."
+            onChange={(value) => onChange('exercises', value)}
+          />
 
-        {category === 'velo' ? (
-          <>
-            <NumberDetailField
-              label="Distance en km"
-              value={details.distance}
-              placeholder="Ex : 25"
-              onChange={(value) => onChange('distance', value)}
-            />
+          <TextField
+            label="Zones travaillées"
+            value={details.bodyZones ?? ''}
+            placeholder="Ex : dos, hanches, épaules"
+            onChange={(value) => onChange('bodyZones', value)}
+          />
+        </div>
+      ) : null}
 
+      {detailMode === 'climb' ? (
+        <div className="mt-5 space-y-5">
+          <TextAreaField
+            label="Programme prévu"
+            value={details.exercises ?? ''}
+            placeholder="Ex : bloc, voies, travail de doigts, gainage..."
+            onChange={(value) => onChange('exercises', value)}
+          />
+
+          <div className="grid gap-5 md:grid-cols-2">
             <NumberDetailField
-              label="Dénivelé en mètres"
+              label="Volume / dénivelé"
               value={details.elevation}
               placeholder="Ex : 300"
               onChange={(value) => onChange('elevation', value)}
             />
-          </>
-        ) : null}
 
-        {category === 'mobilite' ? (
+            <TextField
+              label="Zones travaillées"
+              value={details.bodyZones ?? ''}
+              placeholder="Ex : avant-bras, dos, gainage"
+              onChange={(value) => onChange('bodyZones', value)}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {detailMode === 'simple' ? (
+        <div className="mt-5 space-y-5">
+          <TextAreaField
+            label="Détails de la séance"
+            value={details.exercises ?? ''}
+            placeholder="Ex : type d’activité, objectif, sensations..."
+            onChange={(value) => onChange('exercises', value)}
+          />
+
           <TextField
             label="Zones travaillées"
             value={details.bodyZones ?? ''}
-            placeholder="Ex : hanches, épaules, dos"
+            placeholder="Ex : cardio, jambes, haut du corps"
             onChange={(value) => onChange('bodyZones', value)}
           />
-        ) : null}
-
-        {category === 'autre' ? (
-          <TextField
-            label="Détails de la séance"
-            value={details.exercises ?? ''}
-            placeholder="Ex : type d’activité, sensations, objectif"
-            onChange={(value) => onChange('exercises', value)}
-          />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </section>
   )
 }
@@ -554,7 +699,7 @@ function StrengthExercisesEditor({
     field: StrengthExerciseField,
     value: string,
   ) => {
-    const nextExercises = exercises.map((exercise: StrengthExercise) => {
+    const nextExercises = exercises.map((exercise) => {
       if (exercise.id !== exerciseId) {
         return exercise
       }
@@ -591,7 +736,7 @@ function StrengthExercisesEditor({
   }
 
   return (
-    <div className="mt-8">
+    <div>
       <div>
         <h3 className="text-2xl font-black text-white">
           Exercices de musculation
@@ -626,7 +771,7 @@ function StrengthExercisesEditor({
         </div>
       ) : (
         <div className="mt-6 space-y-5">
-          {exercises.map((exercise: StrengthExercise, index: number) => (
+          {exercises.map((exercise, index) => (
             <article
               key={exercise.id}
               className="rounded-[2rem] border border-white/10 bg-slate-950/45 p-6"
@@ -831,6 +976,34 @@ function TextField({ label, value, placeholder, onChange }: TextFieldProps) {
   )
 }
 
+type TextAreaFieldProps = {
+  label: string
+  value: string
+  placeholder: string
+  onChange: (value: string) => void
+}
+
+function TextAreaField({
+  label,
+  value,
+  placeholder,
+  onChange,
+}: TextAreaFieldProps) {
+  return (
+    <label className="block space-y-2">
+      <span className="text-sm font-bold text-slate-200">{label}</span>
+
+      <textarea
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        rows={4}
+        placeholder={placeholder}
+        className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+      />
+    </label>
+  )
+}
+
 type NumberDetailFieldProps = {
   label: string
   value?: number
@@ -868,9 +1041,19 @@ function cleanWorkoutDetails(
   category: SportCategoryId,
   details: WorkoutDetails,
 ): WorkoutDetails | undefined {
+  const detailMode = getDetailMode(category)
   const cleanedDetails: WorkoutDetails = {}
 
-  if (category === 'musculation') {
+  const cleanedExercises = details.exercises?.trim()
+  const cleanedPace = details.pace?.trim()
+  const cleanedSwimmingStyle = details.swimmingStyle?.trim()
+  const cleanedBodyZones = details.bodyZones?.trim()
+
+  if (detailMode === 'strength') {
+    if (cleanedBodyZones) {
+      cleanedDetails.bodyZones = cleanedBodyZones
+    }
+
     const cleanedStrengthExercises = (details.strengthExercises ?? [])
       .map((exercise) => ({
         ...exercise,
@@ -896,56 +1079,63 @@ function cleanWorkoutDetails(
       cleanedDetails.strengthExercises = cleanedStrengthExercises
     }
 
-    return Object.keys(cleanedDetails).length > 0 ? cleanedDetails : undefined
+    return hasWorkoutDetails(cleanedDetails) ? cleanedDetails : undefined
   }
 
-  if (details.exercises?.trim()) {
-    cleanedDetails.exercises = details.exercises.trim()
+  if (detailMode === 'endurance' || detailMode === 'bike') {
+    if (cleanedExercises) cleanedDetails.exercises = cleanedExercises
+    if (typeof details.distance === 'number' && details.distance > 0) {
+      cleanedDetails.distance = details.distance
+    }
+    if (cleanedPace) cleanedDetails.pace = cleanedPace
+    if (typeof details.elevation === 'number' && details.elevation > 0) {
+      cleanedDetails.elevation = details.elevation
+    }
+    if (cleanedBodyZones) cleanedDetails.bodyZones = cleanedBodyZones
+
+    return hasWorkoutDetails(cleanedDetails) ? cleanedDetails : undefined
   }
 
-  if (typeof details.sets === 'number' && details.sets > 0) {
-    cleanedDetails.sets = details.sets
+  if (detailMode === 'swim') {
+    if (cleanedExercises) cleanedDetails.exercises = cleanedExercises
+    if (typeof details.distance === 'number' && details.distance > 0) {
+      cleanedDetails.distance = details.distance
+    }
+    if (cleanedSwimmingStyle) {
+      cleanedDetails.swimmingStyle = cleanedSwimmingStyle
+    }
+    if (cleanedPace) cleanedDetails.pace = cleanedPace
+    if (cleanedBodyZones) cleanedDetails.bodyZones = cleanedBodyZones
+
+    return hasWorkoutDetails(cleanedDetails) ? cleanedDetails : undefined
   }
 
-  if (typeof details.reps === 'number' && details.reps > 0) {
-    cleanedDetails.reps = details.reps
+  if (detailMode === 'mobility' || detailMode === 'simple') {
+    if (cleanedExercises) cleanedDetails.exercises = cleanedExercises
+    if (cleanedBodyZones) cleanedDetails.bodyZones = cleanedBodyZones
+
+    return hasWorkoutDetails(cleanedDetails) ? cleanedDetails : undefined
   }
 
-  if (typeof details.weight === 'number' && details.weight > 0) {
-    cleanedDetails.weight = details.weight
+  if (detailMode === 'climb') {
+    if (cleanedExercises) cleanedDetails.exercises = cleanedExercises
+    if (typeof details.elevation === 'number' && details.elevation > 0) {
+      cleanedDetails.elevation = details.elevation
+    }
+    if (cleanedBodyZones) cleanedDetails.bodyZones = cleanedBodyZones
+
+    return hasWorkoutDetails(cleanedDetails) ? cleanedDetails : undefined
   }
 
-  if (typeof details.distance === 'number' && details.distance > 0) {
-    cleanedDetails.distance = details.distance
-  }
+  return hasWorkoutDetails(cleanedDetails) ? cleanedDetails : undefined
+}
 
-  if (details.pace?.trim()) {
-    cleanedDetails.pace = details.pace.trim()
-  }
+function hasWorkoutDetails(details: WorkoutDetails) {
+  return Object.values(details).some((value) => {
+    if (Array.isArray(value)) {
+      return value.length > 0
+    }
 
-  if (details.swimmingStyle?.trim()) {
-    cleanedDetails.swimmingStyle = details.swimmingStyle.trim()
-  }
-
-  if (details.position?.trim()) {
-    cleanedDetails.position = details.position.trim()
-  }
-
-  if (typeof details.goals === 'number') {
-    cleanedDetails.goals = details.goals
-  }
-
-  if (typeof details.assists === 'number') {
-    cleanedDetails.assists = details.assists
-  }
-
-  if (typeof details.elevation === 'number' && details.elevation > 0) {
-    cleanedDetails.elevation = details.elevation
-  }
-
-  if (details.bodyZones?.trim()) {
-    cleanedDetails.bodyZones = details.bodyZones.trim()
-  }
-
-  return Object.keys(cleanedDetails).length > 0 ? cleanedDetails : undefined
+    return value !== undefined && value !== null && value !== ''
+  })
 }

@@ -5,6 +5,7 @@ import type { StrengthExercise, Workout } from '../types/workout'
 
 type WorkoutCardProps = {
   workout: Workout
+  variant?: 'default' | 'compact'
   onOpen?: (workoutId: string) => void
   onEdit?: (workoutId: string) => void
   onDelete?: (workoutId: string) => void | Promise<void>
@@ -47,20 +48,22 @@ const trendConfig: Record<
 
 export default function WorkoutCard({
   workout,
+  variant = 'default',
   onOpen,
   onEdit,
   onDelete,
 }: WorkoutCardProps) {
+  const isCompact = variant === 'compact'
+
   const category = SPORT_CATEGORIES.find((item) => {
     return item.id === workout.category
   })
 
-  const trend = trendConfig[workout.trend]
+  const trend = trendConfig[workout.trend] ?? trendConfig.stable
 
   const formattedDate = new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'long',
     day: '2-digit',
-    month: 'long',
+    month: 'short',
     year: 'numeric',
   }).format(new Date(`${workout.date}T00:00:00`))
 
@@ -76,27 +79,34 @@ export default function WorkoutCard({
 
   return (
     <article
-      className={`group relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 transition hover:-translate-y-1 hover:border-emerald-400/25 hover:bg-white/[0.07] ${
-        onOpen ? 'cursor-pointer' : ''
-      }`}
+      className={[
+        'group relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 transition hover:-translate-y-1 hover:border-emerald-400/25 hover:bg-white/[0.07]',
+        isCompact ? 'p-4 sm:p-5' : 'p-5',
+        onOpen ? 'cursor-pointer' : '',
+      ].join(' ')}
       onClick={handleOpen}
     >
-      <div className="absolute -right-14 -top-14 h-36 w-36 rounded-full bg-emerald-400/10 opacity-0 blur-3xl transition group-hover:opacity-100" />
+      <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-emerald-400/10 opacity-0 blur-3xl transition group-hover:opacity-100" />
 
       <div className="relative flex h-full flex-col">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-sm font-bold capitalize text-slate-400">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
               {formattedDate}
             </p>
 
-            <h3 className="mt-2 break-words text-2xl font-black leading-tight text-white">
+            <h3
+              className={[
+                'mt-2 line-clamp-2 break-words font-black leading-tight text-white',
+                isCompact ? 'text-xl' : 'text-xl sm:text-2xl',
+              ].join(' ')}
+            >
               {workout.title}
             </h3>
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            {hasActions ? (
+            {!isCompact && hasActions ? (
               <div
                 className="flex items-center gap-2"
                 onClick={(event) => event.stopPropagation()}
@@ -133,63 +143,48 @@ export default function WorkoutCard({
           </div>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           <InfoPill>{category?.label ?? 'Autre'}</InfoPill>
-          <InfoPill>{workout.duration} min</InfoPill>
-          <InfoPill>Intensité : {formatLabel(workout.intensity)}</InfoPill>
-          <InfoPill>Ressenti : {formatLabel(workout.feeling)}</InfoPill>
-        </div>
+          <InfoPill>{formatDuration(workout.duration)}</InfoPill>
+          <InfoPill>Intensité {formatLabel(workout.intensity)}</InfoPill>
 
-        <WorkoutDetailsList workout={workout} />
-
-        <div
-          className={`mt-5 inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-black ${trend.className}`}
-        >
-          <span>{trend.icon}</span>
-          <span>{trend.label}</span>
-        </div>
-
-        <div className="mt-5 flex flex-1 flex-col gap-4">
-          {workout.notes ? (
-            <div className="rounded-3xl border border-white/10 bg-slate-950/35 p-4">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-                Notes
-              </p>
-
-              <p className="mt-2 line-clamp-4 text-sm leading-7 text-slate-300">
-                {workout.notes}
-              </p>
-            </div>
+          {!isCompact ? (
+            <InfoPill>Ressenti {formatLabel(workout.feeling)}</InfoPill>
           ) : null}
+        </div>
 
-          {workout.improvementIdea ? (
-            <div className="rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
-              <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
-                À améliorer
-              </p>
+        <WorkoutDetailsList workout={workout} compact={isCompact} />
 
-              <p className="mt-2 line-clamp-4 text-sm leading-7 text-slate-200">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div
+            className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-2 text-xs font-black ${trend.className}`}
+          >
+            <span>{trend.icon}</span>
+            <span>{trend.label}</span>
+          </div>
+        </div>
+
+        {!isCompact && (workout.notes || workout.improvementIdea) ? (
+          <div className="mt-4 grid gap-3">
+            {workout.notes ? (
+              <PreviewTextCard title="Notes">{workout.notes}</PreviewTextCard>
+            ) : null}
+
+            {workout.improvementIdea ? (
+              <PreviewTextCard title="À améliorer" variant="emerald">
                 {workout.improvementIdea}
-              </p>
-            </div>
-          ) : null}
+              </PreviewTextCard>
+            ) : null}
+          </div>
+        ) : null}
 
-          {!workout.notes && !workout.improvementIdea ? (
-            <div className="rounded-3xl border border-white/10 bg-slate-950/25 p-4">
-              <p className="text-sm leading-6 text-slate-500">
-                Aucune note ajoutée pour cette séance.
-              </p>
+        {onOpen ? (
+          <div className="mt-auto pt-5">
+            <div className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-sm font-black text-slate-300 transition group-hover:border-emerald-400/25 group-hover:text-emerald-200">
+              Voir le détail →
             </div>
-          ) : null}
-
-          {onOpen ? (
-            <div className="mt-auto pt-1">
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm font-black text-slate-300 transition group-hover:border-emerald-400/25 group-hover:text-emerald-200">
-                Voir le détail de la séance →
-              </div>
-            </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
       </div>
     </article>
   )
@@ -197,13 +192,51 @@ export default function WorkoutCard({
 
 function InfoPill({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-sm font-bold text-slate-200">
+    <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-black text-slate-100">
       {children}
     </span>
   )
 }
 
-function WorkoutDetailsList({ workout }: { workout: Workout }) {
+function PreviewTextCard({
+  title,
+  children,
+  variant = 'default',
+}: {
+  title: string
+  children: ReactNode
+  variant?: 'default' | 'emerald'
+}) {
+  const className =
+    variant === 'emerald'
+      ? 'border-emerald-400/15 bg-emerald-400/5'
+      : 'border-white/10 bg-slate-950/35'
+
+  const titleClassName =
+    variant === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
+
+  return (
+    <div className={`rounded-3xl border p-4 ${className}`}>
+      <p
+        className={`text-xs font-black uppercase tracking-[0.18em] ${titleClassName}`}
+      >
+        {title}
+      </p>
+
+      <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-300">
+        {children}
+      </p>
+    </div>
+  )
+}
+
+function WorkoutDetailsList({
+  workout,
+  compact,
+}: {
+  workout: Workout
+  compact: boolean
+}) {
   const details = workout.details
 
   if (!details) {
@@ -213,13 +246,19 @@ function WorkoutDetailsList({ workout }: { workout: Workout }) {
   const strengthExercises = details.strengthExercises ?? []
   const hasStrengthExercises = strengthExercises.length > 0
 
+  if (hasStrengthExercises) {
+    return (
+      <div className="mt-4">
+        <StrengthExercisesPreview exercises={strengthExercises} compact={compact} />
+      </div>
+    )
+  }
+
   const items = [
-    !hasStrengthExercises && details.exercises
-      ? `Exercices : ${details.exercises}`
-      : null,
-    !hasStrengthExercises && details.sets ? `${details.sets} séries` : null,
-    !hasStrengthExercises && details.reps ? `${details.reps} reps` : null,
-    !hasStrengthExercises && details.weight ? `${details.weight} kg` : null,
+    details.exercises ? `Exercices : ${details.exercises}` : null,
+    details.sets ? `${details.sets} séries` : null,
+    details.reps ? `${details.reps} reps` : null,
+    details.weight ? `Charge : ${formatWeight(details.weight)}` : null,
     details.distance
       ? `Distance : ${details.distance} ${
           workout.category === 'natation' ? 'm' : 'km'
@@ -234,27 +273,28 @@ function WorkoutDetailsList({ workout }: { workout: Workout }) {
     details.bodyZones ? `Zones : ${details.bodyZones}` : null,
   ].filter((item): item is string => Boolean(item))
 
-  if (items.length === 0 && !hasStrengthExercises) {
+  if (items.length === 0) {
     return null
   }
 
-  return (
-    <div className="mt-5 space-y-4">
-      {items.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          {items.map((item) => (
-            <span
-              key={item}
-              className="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1.5 text-xs font-bold text-sky-200"
-            >
-              {item}
-            </span>
-          ))}
-        </div>
-      ) : null}
+  const visibleItems = compact ? items.slice(0, 3) : items
+  const hiddenItemsCount = items.length - visibleItems.length
 
-      {hasStrengthExercises ? (
-        <StrengthExercisesPreview exercises={strengthExercises} />
+  return (
+    <div className="mt-4 flex flex-wrap gap-2">
+      {visibleItems.map((item) => (
+        <span
+          key={item}
+          className="rounded-full border border-sky-400/20 bg-sky-400/10 px-3 py-1.5 text-xs font-bold text-sky-200"
+        >
+          {item}
+        </span>
+      ))}
+
+      {hiddenItemsCount > 0 ? (
+        <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-slate-300">
+          + {hiddenItemsCount} infos
+        </span>
       ) : null}
     </div>
   )
@@ -262,21 +302,48 @@ function WorkoutDetailsList({ workout }: { workout: Workout }) {
 
 function StrengthExercisesPreview({
   exercises,
+  compact,
 }: {
   exercises: StrengthExercise[]
+  compact: boolean
 }) {
-  const visibleExercises = exercises.slice(0, 4)
-  const hiddenExercisesCount = exercises.length - visibleExercises.length
   const totalVolume = exercises.reduce((total, exercise) => {
     return total + getExerciseVolume(exercise)
   }, 0)
+
+  if (compact) {
+    return (
+      <section className="rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
+              Musculation
+            </p>
+
+            <p className="mt-1 text-sm text-slate-400">
+              {exercises.length} exercice{exercises.length > 1 ? 's' : ''}
+            </p>
+          </div>
+
+          {totalVolume > 0 ? (
+            <div className="rounded-full border border-emerald-400/20 bg-slate-950/60 px-3 py-1.5 text-xs font-black text-emerald-200">
+              {formatNumber(totalVolume)} kg
+            </div>
+          ) : null}
+        </div>
+      </section>
+    )
+  }
+
+  const visibleExercises = exercises.slice(0, 2)
+  const hiddenExercisesCount = exercises.length - visibleExercises.length
 
   return (
     <section className="rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
-            Détail musculation
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
+            Musculation
           </p>
 
           <p className="mt-1 text-sm text-slate-400">
@@ -291,7 +358,7 @@ function StrengthExercisesPreview({
         ) : null}
       </div>
 
-      <div className="mt-4 space-y-3">
+      <div className="mt-3 space-y-2">
         {visibleExercises.map((exercise) => (
           <StrengthExercisePreviewItem
             key={exercise.id}
@@ -302,8 +369,7 @@ function StrengthExercisesPreview({
 
       {hiddenExercisesCount > 0 ? (
         <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/35 px-4 py-3 text-center text-sm font-black text-slate-300">
-          + {hiddenExercisesCount} autre
-          {hiddenExercisesCount > 1 ? 's' : ''} exercice
+          + {hiddenExercisesCount} exercice
           {hiddenExercisesCount > 1 ? 's' : ''}
         </div>
       ) : null}
@@ -342,11 +408,11 @@ function StrengthExercisePreviewItem({
 
       <div className="mt-3 flex flex-wrap gap-2">
         {exercise.sets ? (
-          <MiniStat label="Séries" value={exercise.sets} />
+          <MiniStat label="Séries" value={formatDisplayValue(exercise.sets)} />
         ) : null}
 
         {exercise.reps ? (
-          <MiniStat label="Reps" value={exercise.reps} />
+          <MiniStat label="Reps" value={formatDisplayValue(exercise.reps)} />
         ) : null}
 
         {exercise.weight ? (
@@ -381,23 +447,54 @@ function getExerciseVolume(exercise: StrengthExercise) {
   return sets * reps * weight
 }
 
-function parseStrengthNumber(value: string) {
-  const cleanedValue = value
-    .replace(',', '.')
-    .replace(/[^\d.-]/g, '')
-    .trim()
-
-  const number = Number(cleanedValue)
-
-  if (Number.isNaN(number)) {
+function parseStrengthNumber(
+  value: string | number | null | undefined,
+): number {
+  if (value === null || value === undefined) {
     return 0
   }
 
-  return number
+  const normalizedValue = String(value).trim().replace(',', '.')
+  const match = normalizedValue.match(/\d+(\.\d+)?/)
+
+  if (!match) {
+    return 0
+  }
+
+  return Number(match[0])
 }
 
-function formatWeight(value: string) {
-  const trimmedValue = value.trim()
+function formatDisplayValue(value: string | number | null | undefined) {
+  if (value === null || value === undefined) {
+    return '—'
+  }
+
+  const trimmedValue = String(value).trim()
+
+  return trimmedValue || '—'
+}
+
+function formatDuration(minutes: number) {
+  if (minutes < 60) {
+    return `${minutes} min`
+  }
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+
+  if (remainingMinutes === 0) {
+    return `${hours} h`
+  }
+
+  return `${hours} h ${remainingMinutes} min`
+}
+
+function formatWeight(value: string | number | null | undefined) {
+  if (value === null || value === undefined) {
+    return '—'
+  }
+
+  const trimmedValue = String(value).trim()
 
   if (!trimmedValue) {
     return '—'
@@ -416,8 +513,12 @@ function formatWeight(value: string) {
   return `${trimmedValue} kg`
 }
 
-function formatRest(value: string) {
-  const trimmedValue = value.trim()
+function formatRest(value: string | number | null | undefined) {
+  if (value === null || value === undefined) {
+    return '—'
+  }
+
+  const trimmedValue = String(value).trim()
 
   if (!trimmedValue) {
     return '—'
@@ -437,12 +538,24 @@ function formatRest(value: string) {
 }
 
 function formatNumber(value: number) {
-  return new Intl.NumberFormat('fr-FR').format(value)
+  return new Intl.NumberFormat('fr-FR', {
+    maximumFractionDigits: 0,
+  }).format(value)
 }
 
-function formatLabel(value: string) {
-  return value
+function formatLabel(value: string | number | null | undefined) {
+  if (value === null || value === undefined) {
+    return '—'
+  }
+
+  const formattedValue = String(value)
     .replaceAll('-', ' ')
     .replaceAll('_', ' ')
-    .replace(/^\p{L}/u, (letter) => letter.toUpperCase())
+    .trim()
+
+  if (!formattedValue) {
+    return '—'
+  }
+
+  return formattedValue.replace(/^\p{L}/u, (letter) => letter.toUpperCase())
 }

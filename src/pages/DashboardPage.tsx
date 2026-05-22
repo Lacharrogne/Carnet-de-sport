@@ -1,12 +1,12 @@
 import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import NextPlannedWorkoutCard from '../components/NextPlannedWorkoutCard'
 import WeeklyGoalCard from '../components/WeeklyGoalCard'
-import { SPORT_CATEGORIES } from '../data/sportOptions'
+import WorkoutCard from '../components/WorkoutCard'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 import type { WeeklyGoal } from '../types/weeklyGoal'
-import type { StrengthExercise, Workout } from '../types/workout'
+import type { Workout } from '../types/workout'
 
 type DashboardPageProps = {
   workouts: Workout[]
@@ -16,41 +16,6 @@ type DashboardPageProps = {
   onAddWorkoutClick: () => void
 }
 
-const trendConfig: Record<
-  Workout['trend'],
-  {
-    icon: string
-    label: string
-    className: string
-  }
-> = {
-  progress: {
-    icon: '📈',
-    label: 'Progression',
-    className: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300',
-  },
-  stable: {
-    icon: '⚖️',
-    label: 'Stable',
-    className: 'border-sky-400/20 bg-sky-400/10 text-sky-300',
-  },
-  regress: {
-    icon: '📉',
-    label: 'Régression',
-    className: 'border-orange-400/20 bg-orange-400/10 text-orange-300',
-  },
-  record: {
-    icon: '🔥',
-    label: 'Record',
-    className: 'border-red-400/20 bg-red-400/10 text-red-300',
-  },
-  first: {
-    icon: '🌱',
-    label: 'Première séance',
-    className: 'border-lime-400/20 bg-lime-400/10 text-lime-300',
-  },
-}
-
 export default function DashboardPage({
   workouts,
   plannedWorkouts,
@@ -58,6 +23,8 @@ export default function DashboardPage({
   onWeeklyGoalChange,
   onAddWorkoutClick,
 }: DashboardPageProps) {
+  const navigate = useNavigate()
+
   const today = getTodayDate()
   const startOfWeek = getStartOfWeek()
   const endOfWeek = getEndOfWeek()
@@ -110,9 +77,13 @@ export default function DashboardPage({
         )
       : 0
 
+  const handleOpenWorkout = (workoutId: string) => {
+    navigate(`/workouts/${workoutId}`)
+  }
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
+      <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <DashboardHero
           totalWorkouts={totalWorkouts}
           totalDuration={totalDuration}
@@ -123,8 +94,8 @@ export default function DashboardPage({
           onAddWorkoutClick={onAddWorkoutClick}
         />
 
-        <div className="mt-8 grid gap-8 xl:grid-cols-[1fr_420px]">
-          <div className="space-y-8">
+        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="space-y-6">
             <WeeklyGoalCard
               workouts={workouts}
               weeklyGoal={weeklyGoal}
@@ -134,10 +105,11 @@ export default function DashboardPage({
             <RecentWorkoutsSection
               workouts={latestWorkouts}
               onAddWorkoutClick={onAddWorkoutClick}
+              onOpenWorkout={handleOpenWorkout}
             />
           </div>
 
-          <aside className="space-y-6 xl:sticky xl:top-28 xl:self-start">
+          <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
             <NextPlannedWorkoutCard plannedWorkouts={plannedWorkouts} />
 
             <QuickActions onAddWorkoutClick={onAddWorkoutClick} />
@@ -175,43 +147,44 @@ function DashboardHero({
   onAddWorkoutClick: () => void
 }) {
   return (
-    <header className="relative overflow-hidden rounded-[2.5rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-6 shadow-2xl shadow-black/30 sm:p-8 lg:p-10">
+    <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
       <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
-      <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
+      <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
-      <div className="relative grid gap-8 xl:grid-cols-[1fr_420px] xl:items-center">
+      <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
             Carnet de sport
           </p>
 
-          <h1 className="mt-5 max-w-3xl text-4xl font-black leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-            Ta progression commence ici.
+          <h1 className="mt-4 max-w-3xl text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+            Ton suivi sportif, simple et motivant.
           </h1>
 
-          <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-            Ajoute tes séances, garde un œil sur ton objectif de la semaine et
-            prépare ton prochain entraînement.
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+            Ajoute tes séances, suis ton objectif de la semaine et prépare ton
+            prochain entraînement sans transformer ton dashboard en tableau de
+            bord compliqué.
           </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
               onClick={onAddWorkoutClick}
-              className="rounded-full bg-emerald-400 px-7 py-4 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+              className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
             >
               + Ajouter une séance
             </button>
 
             <Link
               to="/planning"
-              className="rounded-full border border-white/10 bg-white/5 px-7 py-4 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
+              className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
             >
               Voir le planning
             </Link>
           </div>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
             <HeroStat
               label="Séances"
               value={totalWorkouts}
@@ -227,7 +200,9 @@ function DashboardHero({
             <HeroStat
               label="À venir"
               value={upcomingCount}
-              description="séance prévue"
+              description={
+                upcomingCount > 1 ? 'séances prévues' : 'séance prévue'
+              }
             />
           </div>
         </div>
@@ -252,22 +227,22 @@ function WeekFocusCard({
   progress: number
 }) {
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-slate-950/45 p-6">
+    <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.22em] text-slate-500">
+          <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
             Objectif semaine
           </p>
 
-          <p className="mt-3 text-5xl font-black text-white">{progress}%</p>
+          <p className="mt-3 text-4xl font-black text-white">{progress}%</p>
         </div>
 
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-300">
+        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300">
           🎯 Focus
         </div>
       </div>
 
-      <div className="mt-6 h-4 overflow-hidden rounded-full bg-slate-950">
+      <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-950">
         <div
           className="h-full rounded-full bg-emerald-400"
           style={{
@@ -277,8 +252,14 @@ function WeekFocusCard({
       </div>
 
       <p className="mt-4 text-sm leading-6 text-slate-300">
-        {formatDuration(weeklyDuration)} réalisés sur{' '}
-        {formatDuration(targetMinutes)} prévus cette semaine.
+        {targetMinutes > 0 ? (
+          <>
+            {formatDuration(weeklyDuration)} réalisés sur{' '}
+            {formatDuration(targetMinutes)} prévus.
+          </>
+        ) : (
+          <>Définis un objectif pour mieux suivre ta semaine.</>
+        )}
       </p>
 
       <Link
@@ -294,19 +275,21 @@ function WeekFocusCard({
 function RecentWorkoutsSection({
   workouts,
   onAddWorkoutClick,
+  onOpenWorkout,
 }: {
   workouts: Workout[]
   onAddWorkoutClick: () => void
+  onOpenWorkout: (workoutId: string) => void
 }) {
   return (
     <Panel>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
             Dernières séances
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-white">
+          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
             Ton historique récent
           </h2>
         </div>
@@ -320,87 +303,26 @@ function RecentWorkoutsSection({
       </div>
 
       {workouts.length > 0 ? (
-        <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+        <div
+          className={
+            workouts.length === 1
+              ? 'max-w-md'
+              : 'grid gap-4 lg:grid-cols-2 2xl:grid-cols-3'
+          }
+        >
           {workouts.map((workout) => (
-            <CompactWorkoutCard key={workout.id} workout={workout} />
+            <WorkoutCard
+              key={workout.id}
+              workout={workout}
+              onOpen={onOpenWorkout}
+              variant="compact"
+            />
           ))}
         </div>
       ) : (
         <EmptyState onAddWorkoutClick={onAddWorkoutClick} />
       )}
     </Panel>
-  )
-}
-
-function CompactWorkoutCard({ workout }: { workout: Workout }) {
-  const category = SPORT_CATEGORIES.find((item) => {
-    return item.id === workout.category
-  })
-
-  const trend = trendConfig[workout.trend] ?? trendConfig.stable
-  const strengthExercises = workout.details?.strengthExercises ?? []
-  const totalVolume = getTotalVolume(strengthExercises)
-
-  return (
-    <article className="rounded-[2rem] border border-white/10 bg-slate-950/45 p-5 transition hover:-translate-y-1 hover:border-emerald-400/20 hover:bg-white/[0.05]">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-black text-slate-400">
-            {formatDate(workout.date)}
-          </p>
-
-          <h3 className="mt-2 text-2xl font-black text-white">
-            {workout.title}
-          </h3>
-        </div>
-
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-2xl">
-          {category?.emoji ?? '✨'}
-        </div>
-      </div>
-
-      <div className="mt-5 flex flex-wrap gap-2">
-        <SmallBadge>{category?.label ?? 'Autre'}</SmallBadge>
-        <SmallBadge>{workout.duration} min</SmallBadge>
-        <SmallBadge>Intensité : {workout.intensity}</SmallBadge>
-      </div>
-
-      {strengthExercises.length > 0 ? (
-        <div className="mt-5 rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
-            Musculation
-          </p>
-
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            <MiniInfo
-              label="Exercices"
-              value={`${strengthExercises.length}`}
-            />
-
-            <MiniInfo
-              label="Volume"
-              value={totalVolume > 0 ? `${formatNumber(totalVolume)} kg` : '—'}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-        <div
-          className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-2 text-xs font-black ${trend.className}`}
-        >
-          <span>{trend.icon}</span>
-          <span>{trend.label}</span>
-        </div>
-
-        <Link
-          to={`/workouts/${workout.id}`}
-          className="rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
-        >
-          Voir le détail
-        </Link>
-      </div>
-    </article>
   )
 }
 
@@ -417,9 +339,11 @@ function QuickActions({
           onClick={onAddWorkoutClick}
           className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-5 text-left transition hover:bg-emerald-400/15"
         >
-          <p className="text-lg font-black text-white">+ Ajouter une séance</p>
+          <p className="text-base font-black text-white sm:text-lg">
+            + Ajouter une séance
+          </p>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm leading-6 text-slate-400">
             Note ton entraînement du jour.
           </p>
         </button>
@@ -434,7 +358,7 @@ function QuickActions({
         <ActionLink
           to="/progress"
           title="Progression"
-          text="Voir ton niveau, ton XP et tes trophées."
+          text="Voir ton niveau, ton XP et tes badges."
           icon="📊"
         />
 
@@ -468,6 +392,7 @@ function MiniSummary({
     <Panel title="Résumé express">
       <div className="space-y-3">
         <SummaryLine label="Séances totales" value={`${totalWorkouts}`} />
+
         <SummaryLine label="Temps total" value={formatDuration(totalDuration)} />
 
         <SummaryLine
@@ -478,6 +403,7 @@ function MiniSummary({
         />
 
         <SummaryLine label="Séances à venir" value={`${upcomingCount}`} />
+
         <SummaryLine label="Records" value={`${recordCount} 🔥`} />
       </div>
     </Panel>
@@ -497,10 +423,10 @@ function Panel({
     accent === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
 
   return (
-    <section className="rounded-[2.5rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
+    <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
       {title ? (
         <p
-          className={`text-xs font-black uppercase tracking-[0.25em] ${titleColor}`}
+          className={`text-xs font-black uppercase tracking-[0.24em] ${titleColor}`}
         >
           {title}
         </p>
@@ -528,7 +454,7 @@ function HeroStat({
 
       <p className="mt-2 text-2xl font-black text-white">{value}</p>
 
-      <p className="mt-1 text-xs text-slate-400">{description}</p>
+      <p className="mt-1 text-xs leading-5 text-slate-400">{description}</p>
     </div>
   )
 }
@@ -567,27 +493,7 @@ function SummaryLine({ label, value }: { label: string; value: string }) {
     <div className="flex items-center justify-between gap-4 rounded-3xl border border-white/10 bg-slate-950/50 px-5 py-4">
       <p className="text-sm font-bold text-slate-400">{label}</p>
 
-      <p className="text-sm font-black text-white">{value}</p>
-    </div>
-  )
-}
-
-function SmallBadge({ children }: { children: ReactNode }) {
-  return (
-    <span className="rounded-full border border-white/10 bg-white/10 px-3 py-2 text-xs font-black text-slate-100">
-      {children}
-    </span>
-  )
-}
-
-function MiniInfo({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-3">
-      <p className="text-[0.65rem] font-black uppercase tracking-[0.16em] text-slate-500">
-        {label}
-      </p>
-
-      <p className="mt-1 font-black text-white">{value}</p>
+      <p className="text-right text-sm font-black text-white">{value}</p>
     </div>
   )
 }
@@ -598,14 +504,14 @@ function EmptyState({
   onAddWorkoutClick: () => void
 }) {
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-slate-950/50 p-8 text-center">
+    <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/50 p-8 text-center">
       <p className="text-5xl">🌱</p>
 
       <h3 className="mt-4 text-2xl font-black text-white">
         Aucune séance pour le moment.
       </h3>
 
-      <p className="mx-auto mt-2 max-w-xl text-slate-400">
+      <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-slate-400">
         Ajoute ton premier entraînement pour commencer à construire ton
         historique.
       </p>
@@ -621,43 +527,6 @@ function EmptyState({
   )
 }
 
-function getTotalVolume(exercises: StrengthExercise[] | undefined): number {
-  if (!exercises) {
-    return 0
-  }
-
-  return exercises.reduce((total, exercise) => {
-    return total + getExerciseVolume(exercise)
-  }, 0)
-}
-
-function getExerciseVolume(exercise: StrengthExercise): number {
-  const sets = parseSportNumber(exercise.sets)
-  const reps = parseSportNumber(exercise.reps)
-  const weight = parseSportNumber(exercise.weight)
-
-  if (!sets || !reps || !weight) {
-    return 0
-  }
-
-  return sets * reps * weight
-}
-
-function parseSportNumber(value: string | number | null | undefined) {
-  if (value === null || value === undefined) {
-    return 0
-  }
-
-  const normalizedValue = String(value).trim().replace(',', '.')
-  const match = normalizedValue.match(/\d+(\.\d+)?/)
-
-  if (!match) {
-    return 0
-  }
-
-  return Number(match[0])
-}
-
 function formatDuration(minutes: number) {
   if (minutes < 60) {
     return `${minutes} min`
@@ -670,22 +539,7 @@ function formatDuration(minutes: number) {
     return `${hours} h`
   }
 
-  return `${hours} h ${remainingMinutes}`
-}
-
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(`${date}T00:00:00`))
-}
-
-function formatNumber(value: number) {
-  return new Intl.NumberFormat('fr-FR', {
-    maximumFractionDigits: 0,
-  }).format(value)
+  return `${hours} h ${remainingMinutes} min`
 }
 
 function getTodayDate() {

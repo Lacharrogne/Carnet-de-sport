@@ -17,9 +17,13 @@ export type Challenge = {
 
 const CARDIO_CATEGORIES: Workout['category'][] = [
   'course',
+  'trail',
   'marche',
+  'randonnee',
   'velo',
+  'vtt',
   'natation',
+  'hiit',
 ]
 
 type GetChallengesParams = {
@@ -35,6 +39,7 @@ export function getChallenges({
 }: GetChallengesParams): Challenge[] {
   const weeklyWorkouts = getCurrentWeekWorkouts(workouts)
   const upcomingPlannedWorkouts = getUpcomingPlannedWorkouts(plannedWorkouts)
+  const streakStats = getStreakStats(workouts)
 
   const weeklyMinutes = weeklyWorkouts.reduce((total, workout) => {
     return total + workout.duration
@@ -45,7 +50,15 @@ export function getChallenges({
   }, 0)
 
   const weeklySports = new Set(
-    weeklyWorkouts.map((workout) => workout.category),
+    weeklyWorkouts.map((workout) => {
+      return workout.category
+    }),
+  )
+
+  const allSports = new Set(
+    workouts.map((workout) => {
+      return workout.category
+    }),
   )
 
   const strengthWorkouts = workouts.filter((workout) => {
@@ -65,7 +78,14 @@ export function getChallenges({
   })
 
   const hasCardio = cardioWorkouts.length > 0
-  const streakStats = getStreakStats(workouts)
+
+  const hasWeeklyGoal = weeklyGoal.targetMinutes > 0
+  const weeklyGoalProgress = hasWeeklyGoal
+    ? clampProgress(weeklyMinutes, weeklyGoal.targetMinutes)
+    : 0
+
+  const weeklyGoalUnlocked =
+    hasWeeklyGoal && weeklyMinutes >= weeklyGoal.targetMinutes
 
   return [
     {
@@ -94,23 +114,36 @@ export function getChallenges({
       id: 'weekly-goal',
       icon: '⚡',
       title: 'Objectif hebdo',
-      description: 'Atteins ton objectif hebdomadaire.',
-      progress: clampProgress(weeklyMinutes, weeklyGoal.targetMinutes),
-      target: weeklyGoal.targetMinutes,
-      unit: 'min',
+      description: hasWeeklyGoal
+        ? 'Atteins ton objectif hebdomadaire.'
+        : 'Définis un objectif hebdomadaire puis atteins-le.',
+      progress: weeklyGoalProgress,
+      target: hasWeeklyGoal ? weeklyGoal.targetMinutes : 1,
+      unit: hasWeeklyGoal ? 'min' : 'objectif',
       xp: 200,
-      unlocked: weeklyMinutes >= weeklyGoal.targetMinutes,
+      unlocked: weeklyGoalUnlocked,
     },
     {
-      id: 'two-sports',
+      id: 'two-sports-week',
       icon: '🔁',
-      title: 'Variation',
+      title: 'Semaine variée',
       description: 'Pratique au moins 2 sports différents cette semaine.',
       progress: clampProgress(weeklySports.size, 2),
       target: 2,
       unit: 'sports',
       xp: 100,
       unlocked: weeklySports.size >= 2,
+    },
+    {
+      id: 'three-sports-total',
+      icon: '🧭',
+      title: 'Explorateur',
+      description: 'Pratique au moins 3 sports différents au total.',
+      progress: clampProgress(allSports.size, 3),
+      target: 3,
+      unit: 'sports',
+      xp: 180,
+      unlocked: allSports.size >= 3,
     },
     {
       id: 'record',
@@ -138,7 +171,7 @@ export function getChallenges({
       id: 'cardio',
       icon: '🫀',
       title: 'Cardio lancé',
-      description: 'Ajoute une séance de course, marche, vélo ou natation.',
+      description: 'Ajoute une séance cardio : course, vélo, marche, natation ou HIIT.',
       progress: hasCardio ? 1 : 0,
       target: 1,
       unit: 'séance',
@@ -188,17 +221,6 @@ export function getChallenges({
       unit: 'min',
       xp: 300,
       unlocked: totalMinutes >= 500,
-    },
-    {
-      id: 'thousand-minutes',
-      icon: '🚀',
-      title: 'Monstre de régularité',
-      description: 'Atteins 1000 minutes de sport enregistrées.',
-      progress: clampProgress(totalMinutes, 1000),
-      target: 1000,
-      unit: 'min',
-      xp: 600,
-      unlocked: totalMinutes >= 1000,
     },
     {
       id: 'five-strength',
@@ -270,6 +292,10 @@ export function getChallenges({
 }
 
 function clampProgress(progress: number, target: number) {
+  if (target <= 0) {
+    return 0
+  }
+
   return Math.min(progress, target)
 }
 

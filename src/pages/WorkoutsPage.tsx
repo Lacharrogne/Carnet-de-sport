@@ -40,28 +40,14 @@ export default function WorkoutsPage({
   }, [])
 
   const filteredWorkouts = useMemo(() => {
-    const cleanedSearch = searchTerm.trim().toLowerCase()
+    const cleanedSearch = normalizeText(searchTerm)
 
     return [...workouts]
       .filter((workout) => {
-        const category = categoryById.get(workout.category)
-
         const matchesCategory =
           categoryFilter === 'all' || workout.category === categoryFilter
 
-        const searchableText = [
-          workout.title,
-          workout.notes,
-          workout.improvementIdea,
-          category?.label,
-          workout.intensity,
-          workout.feeling,
-          workout.trend,
-        ]
-          .filter(Boolean)
-          .join(' ')
-          .toLowerCase()
-
+        const searchableText = getWorkoutSearchText(workout, categoryById)
         const matchesSearch =
           cleanedSearch.length === 0 || searchableText.includes(cleanedSearch)
 
@@ -82,9 +68,8 @@ export default function WorkoutsPage({
     }).length
   }, [workouts])
 
-  const averageDuration = workouts.length > 0
-    ? Math.round(totalDuration / workouts.length)
-    : 0
+  const averageDuration =
+    workouts.length > 0 ? Math.round(totalDuration / workouts.length) : 0
 
   const hasActiveFilters =
     searchTerm.trim() !== '' ||
@@ -98,31 +83,31 @@ export default function WorkoutsPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
+      <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
         >
           ← Retour au dashboard
         </button>
 
-        <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 sm:p-8 lg:p-10">
-          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-emerald-400/10 blur-3xl" />
-          <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
+        <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+          <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
-          <div className="relative flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+          <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-300">
-                Mes entraînements
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+                Carnet de séances
               </p>
 
-              <h1 className="mt-6 max-w-3xl text-4xl font-black leading-tight tracking-tight sm:text-5xl">
+              <h1 className="mt-4 max-w-3xl text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
                 Tout ton historique sportif.
               </h1>
 
-              <p className="mt-4 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
                 Retrouve tes séances, filtre par sport, trie ton historique et
                 garde une trace claire de ta progression.
               </p>
@@ -131,14 +116,14 @@ export default function WorkoutsPage({
             <button
               type="button"
               onClick={onAddWorkoutClick}
-              className="rounded-full bg-emerald-400 px-6 py-4 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+              className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
             >
               + Ajouter une séance
             </button>
           </div>
         </header>
 
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             label="Séances affichées"
             value={String(filteredWorkouts.length)}
@@ -147,13 +132,13 @@ export default function WorkoutsPage({
 
           <StatCard
             label="Temps total"
-            value={`${totalDuration} min`}
+            value={formatDuration(totalDuration)}
             detail="activité enregistrée"
           />
 
           <StatCard
             label="Durée moyenne"
-            value={`${averageDuration} min`}
+            value={formatDuration(averageDuration)}
             detail="par séance"
           />
 
@@ -165,23 +150,23 @@ export default function WorkoutsPage({
           />
         </section>
 
-        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20">
-          <div className="grid gap-4 xl:grid-cols-[1fr_240px_240px_auto]">
+        <section className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px_220px_auto]">
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-300">
+              <span className="mb-2 block text-sm font-black text-slate-300">
                 Recherche
               </span>
 
               <input
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Rechercher une séance, une note, une intensité..."
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                placeholder="Rechercher une séance, une note, un exercice..."
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
               />
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-300">
+              <span className="mb-2 block text-sm font-black text-slate-300">
                 Sport
               </span>
 
@@ -190,7 +175,7 @@ export default function WorkoutsPage({
                 onChange={(event) =>
                   setCategoryFilter(event.target.value as CategoryFilter)
                 }
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-white outline-none transition focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-sm text-white outline-none transition focus:border-emerald-400/60"
               >
                 <option value="all">Tous les sports</option>
 
@@ -203,7 +188,7 @@ export default function WorkoutsPage({
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-bold text-slate-300">
+              <span className="mb-2 block text-sm font-black text-slate-300">
                 Tri
               </span>
 
@@ -212,7 +197,7 @@ export default function WorkoutsPage({
                 onChange={(event) =>
                   setSortOption(event.target.value as SortOption)
                 }
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-white outline-none transition focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-sm text-white outline-none transition focus:border-emerald-400/60"
               >
                 <option value="date-desc">Plus récentes</option>
                 <option value="date-asc">Plus anciennes</option>
@@ -267,16 +252,16 @@ export default function WorkoutsPage({
           </div>
         </section>
 
-        <section className="mt-8">
+        <section className="mt-6">
           {filteredWorkouts.length > 0 ? (
             <>
               <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
                     Historique
                   </p>
 
-                  <h2 className="mt-2 text-3xl font-black text-white">
+                  <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
                     {filteredWorkouts.length} séance
                     {filteredWorkouts.length > 1 ? 's' : ''} trouvée
                     {filteredWorkouts.length > 1 ? 's' : ''}
@@ -287,11 +272,12 @@ export default function WorkoutsPage({
               <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
                 {filteredWorkouts.map((workout) => (
                   <WorkoutCard
-  workout={workout}
-  onOpen={onOpenWorkout}
-  onEdit={onEditWorkout}
-  onDelete={onDeleteWorkout}
-/>
+                    key={workout.id}
+                    workout={workout}
+                    onOpen={onOpenWorkout}
+                    onEdit={onEditWorkout}
+                    onDelete={onDeleteWorkout}
+                  />
                 ))}
               </div>
             </>
@@ -333,7 +319,7 @@ function StatCard({
   return (
     <div
       className={[
-        'rounded-[1.75rem] border p-6 shadow-2xl',
+        'rounded-[1.75rem] border p-5 shadow-2xl',
         highlighted
           ? 'border-orange-400/20 bg-orange-400/10 shadow-orange-400/5'
           : 'border-white/10 bg-white/[0.04] shadow-black/20',
@@ -341,20 +327,16 @@ function StatCard({
     >
       <p
         className={[
-          'text-sm font-bold',
-          highlighted ? 'text-orange-300' : 'text-slate-400',
+          'text-xs font-black uppercase tracking-[0.16em]',
+          highlighted ? 'text-orange-300' : 'text-slate-500',
         ].join(' ')}
       >
         {label}
       </p>
 
-      <p className="mt-3 text-4xl font-black text-white">
-        {value}
-      </p>
+      <p className="mt-3 text-3xl font-black text-white">{value}</p>
 
-      <p className="mt-2 text-sm text-slate-500">
-        {detail}
-      </p>
+      <p className="mt-1 text-sm leading-6 text-slate-500">{detail}</p>
     </div>
   )
 }
@@ -378,9 +360,7 @@ function EmptyState({
     <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center shadow-2xl shadow-black/20">
       <p className="text-5xl">{icon}</p>
 
-      <h2 className="mt-4 text-2xl font-black text-white">
-        {title}
-      </h2>
+      <h2 className="mt-4 text-2xl font-black text-white">{title}</h2>
 
       <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-400">
         {description}
@@ -399,6 +379,57 @@ function EmptyState({
         {actionLabel}
       </button>
     </div>
+  )
+}
+
+function getWorkoutSearchText(
+  workout: Workout,
+  categoryById: Map<SportCategoryId, (typeof SPORT_CATEGORIES)[number]>,
+) {
+  const category = categoryById.get(workout.category)
+  const details = workout.details
+
+  const strengthExerciseText =
+    details?.strengthExercises
+      ?.map((exercise) => {
+        return [
+          exercise.name,
+          exercise.notes,
+          exercise.sets,
+          exercise.reps,
+          exercise.weight,
+          exercise.rest,
+        ]
+          .filter(Boolean)
+          .join(' ')
+      })
+      .join(' ') ?? ''
+
+  return normalizeText(
+    [
+      workout.title,
+      workout.notes,
+      workout.improvementIdea,
+      category?.label,
+      workout.intensity,
+      workout.feeling,
+      workout.trend,
+      details?.exercises,
+      details?.sets,
+      details?.reps,
+      details?.weight,
+      details?.distance,
+      details?.pace,
+      details?.swimmingStyle,
+      details?.position,
+      details?.goals,
+      details?.assists,
+      details?.elevation,
+      details?.bodyZones,
+      strengthExerciseText,
+    ]
+      .filter(Boolean)
+      .join(' '),
   )
 }
 
@@ -441,25 +472,48 @@ function sortWorkouts(a: Workout, b: Workout, sortOption: SortOption) {
 }
 
 function getIntensityScore(intensity: Workout['intensity']) {
+  const normalizedIntensity = normalizeText(String(intensity))
+
   const scores: Record<string, number> = {
     faible: 1,
     basse: 1,
     leger: 1,
-    légère: 1,
+    legere: 1,
     facile: 1,
 
     moyenne: 2,
     moyen: 2,
     moderee: 2,
-    modérée: 2,
     normal: 2,
 
     forte: 3,
     elevee: 3,
-    élevée: 3,
     intense: 3,
     difficile: 3,
   }
 
-  return scores[String(intensity)] ?? 0
+  return scores[normalizedIntensity] ?? 0
+}
+
+function normalizeText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+}
+
+function formatDuration(minutes: number) {
+  if (minutes < 60) {
+    return `${minutes} min`
+  }
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+
+  if (remainingMinutes === 0) {
+    return `${hours} h`
+  }
+
+  return `${hours} h ${remainingMinutes} min`
 }

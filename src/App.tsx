@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
 import {
   BrowserRouter,
   Navigate,
@@ -7,7 +7,6 @@ import {
   useLocation,
   useNavigate,
   useParams,
-  useSearchParams,
 } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 
@@ -25,6 +24,7 @@ import PlanningPage from './pages/PlanningPage'
 import ProgressPage from './pages/ProgressPage'
 import WorkoutDetailPage from './pages/WorkoutDetailPage'
 import WorkoutsPage from './pages/WorkoutsPage'
+import ProfilePage from './pages/ProfilePage'
 
 import {
   getCurrentSession,
@@ -71,11 +71,20 @@ function AppShell() {
   const navigate = useNavigate()
   const location = useLocation()
 
+  useLayoutEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'auto',
+    })
+  }, [location.pathname, location.search])
+
   const [user, setUser] = useState<User | null>(null)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [hasLoadedRemoteData, setHasLoadedRemoteData] = useState(false)
   const [syncError, setSyncError] = useState('')
   const [syncRetryKey, setSyncRetryKey] = useState(0)
+
 
   const [workouts, setWorkouts] = useState<Workout[]>(WORKOUTS)
   const [plannedWorkouts, setPlannedWorkouts] = useState<PlannedWorkout[]>([])
@@ -409,18 +418,36 @@ function AppShell() {
   }
 
   const handleCompletePlannedWorkout = async (
-    plannedWorkoutId: string,
-    values: WorkoutFormValues,
+    plannedWorkout: PlannedWorkout,
   ) => {
+    const confirmed = window.confirm(
+      `Marquer la séance "${plannedWorkout.title}" comme réalisée ?`,
+    )
+
+    if (!confirmed) {
+      return
+    }
+
     const completedWorkout: Workout = {
       id: crypto.randomUUID(),
-      ...values,
+      title: plannedWorkout.title,
+      category: plannedWorkout.category,
+      date: getTodayDateKey(),
+      duration: plannedWorkout.duration,
+      intensity: 'Moyenne',
+      feeling: 'Bon',
+      notes: plannedWorkout.objective
+        ? `Objectif prévu : ${plannedWorkout.objective}`
+        : '',
+      improvementIdea: '',
+      trend: 'stable',
+      details: plannedWorkout.details,
     }
 
     const nextWorkouts = [completedWorkout, ...workouts]
 
-    const nextPlannedWorkouts = plannedWorkouts.filter((plannedWorkout) => {
-      return plannedWorkout.id !== plannedWorkoutId
+    const nextPlannedWorkouts = plannedWorkouts.filter((item) => {
+      return item.id !== plannedWorkout.id
     })
 
     if (!user) {
@@ -442,12 +469,12 @@ function AppShell() {
       navigate('/workouts')
     } catch (error) {
       console.error(
-        'Erreur lors de la transformation de la séance prévue en séance réalisée :',
+        'Erreur lors de la validation de la séance prévue :',
         error,
       )
 
       window.alert(
-        "La séance prévue n'a pas pu être transformée en séance réalisée. Regarde la console pour voir l'erreur exacte.",
+        "La séance prévue n'a pas pu être validée. Regarde la console pour voir l'erreur exacte.",
       )
     }
   }
@@ -555,15 +582,10 @@ function AppShell() {
               path="/workouts/new"
               element={
                 <NewWorkoutRoute
-                  plannedWorkouts={plannedWorkouts}
                   onSubmit={(values) => {
                     void handleAddWorkout(values)
                   }}
-                  onSubmitPlannedWorkout={(plannedWorkoutId, values) => {
-                    void handleCompletePlannedWorkout(plannedWorkoutId, values)
-                  }}
                   onCancel={() => navigate('/workouts')}
-                  onCancelPlannedWorkout={() => navigate('/planning')}
                 />
               }
             />
@@ -638,11 +660,22 @@ function AppShell() {
                     void handleDeletePlannedWorkout(plannedWorkoutId)
                   }}
                   onCompletePlannedWorkout={(plannedWorkout) => {
-                    navigate(`/workouts/new?plannedWorkoutId=${plannedWorkout.id}`)
+                    void handleCompletePlannedWorkout(plannedWorkout)
                   }}
                 />
               }
             />
+
+            <Route
+  path="/profile"
+  element={
+    <ProfilePage
+      user={user}
+      onUserUpdate={setUser}
+      onBack={() => navigate('/')}
+    />
+  }
+/>
 
             <Route
               path="/challenges"
@@ -664,96 +697,12 @@ function AppShell() {
 }
 
 type NewWorkoutRouteProps = {
-  plannedWorkouts: PlannedWorkout[]
   onSubmit: (values: WorkoutFormValues) => void
-  onSubmitPlannedWorkout: (
-    plannedWorkoutId: string,
-    values: WorkoutFormValues,
-  ) => void
   onCancel: () => void
-  onCancelPlannedWorkout: () => void
 }
 
-function NewWorkoutRoute({
-  plannedWorkouts,
-  onSubmit,
-  onSubmitPlannedWorkout,
-  onCancel,
-  onCancelPlannedWorkout,
-}: NewWorkoutRouteProps) {
-  const [searchParams] = useSearchParams()
-  const plannedWorkoutId = searchParams.get('plannedWorkoutId')
-
-  const plannedWorkout = plannedWorkoutId
-    ? plannedWorkouts.find((item) => {
-        return item.id === plannedWorkoutId
-      })
-    : null
-
-  if (plannedWorkoutId && !plannedWorkout) {
-    return (
-      <main className="min-h-screen bg-[#050816] text-slate-50">
-        <section className="mx-auto max-w-5xl px-6 py-10">
-          <button
-            type="button"
-            onClick={onCancelPlannedWorkout}
-            className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
-          >
-            ← Retour au planning
-          </button>
-
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
-            <p className="text-5xl">🔎</p>
-
-            <h1 className="mt-4 text-3xl font-black">
-              Séance prévue introuvable.
-            </h1>
-
-            <p className="mt-2 text-slate-400">
-              Cette séance a peut-être déjà été réalisée ou supprimée.
-            </p>
-          </div>
-        </section>
-      </main>
-    )
-  }
-
-  const initialValues: WorkoutFormValues | undefined = plannedWorkout
-    ? {
-        title: plannedWorkout.title,
-        category: plannedWorkout.category,
-        date: plannedWorkout.date,
-        duration: plannedWorkout.duration,
-        intensity: 'Moyenne',
-        feeling: 'Bon',
-        notes: plannedWorkout.objective
-          ? `Objectif prévu : ${plannedWorkout.objective}`
-          : '',
-        improvementIdea: '',
-        trend: 'stable',
-        details: {},
-      }
-    : undefined
-
-  return (
-    <NewWorkoutPage
-      initialValues={initialValues}
-      submitLabel={
-        plannedWorkout
-          ? 'Enregistrer la séance réalisée'
-          : 'Enregistrer la séance'
-      }
-      onSubmit={(values) => {
-        if (plannedWorkout) {
-          onSubmitPlannedWorkout(plannedWorkout.id, values)
-          return
-        }
-
-        onSubmit(values)
-      }}
-      onCancel={plannedWorkout ? onCancelPlannedWorkout : onCancel}
-    />
-  )
+function NewWorkoutRoute({ onSubmit, onCancel }: NewWorkoutRouteProps) {
+  return <NewWorkoutPage onSubmit={onSubmit} onCancel={onCancel} />
 }
 
 type EditWorkoutRouteProps = {
@@ -867,6 +816,15 @@ function WorkoutDetailRoute({
       onDelete={onDeleteWorkout}
     />
   )
+}
+
+function getTodayDateKey() {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 
 export default App

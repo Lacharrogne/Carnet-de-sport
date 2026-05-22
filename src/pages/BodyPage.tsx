@@ -56,9 +56,11 @@ export default function BodyPage({
       return cardioCategories.includes(workout.category)
     }).length
 
-    const mobilityWorkouts = workouts.filter((workout) => {
-      return workout.category === 'mobilite'
-    }).length
+const mobilityCategories: Workout['category'][] = ['yoga', 'hiit']
+
+const mobilityWorkouts = workouts.filter((workout) => {
+  return mobilityCategories.includes(workout.category)
+}).length
 
     const totalDuration = workouts.reduce((total, workout) => {
       return total + workout.duration
