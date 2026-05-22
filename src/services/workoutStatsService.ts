@@ -9,8 +9,6 @@ export type AdvancedWorkoutStats = {
   swimmingDistanceM: number
   totalSets: number
   maxWeight: number
-  footballGoals: number
-  footballAssists: number
   totalElevation: number
   activeSportsCount: number
   favoriteSportLabel: string
@@ -69,22 +67,6 @@ export function getAdvancedWorkoutStats(
     return Math.max(max, getNumber(workout.details?.weight))
   }, 0)
 
-  const footballGoals = workouts.reduce((total, workout) => {
-    if (workout.category === 'football') {
-      return total + getNumber(workout.details?.goals)
-    }
-
-    return total
-  }, 0)
-
-  const footballAssists = workouts.reduce((total, workout) => {
-    if (workout.category === 'football') {
-      return total + getNumber(workout.details?.assists)
-    }
-
-    return total
-  }, 0)
-
   const totalElevation = workouts.reduce((total, workout) => {
     if (workout.category === 'velo') {
       return total + getNumber(workout.details?.elevation)
@@ -115,8 +97,6 @@ export function getAdvancedWorkoutStats(
     swimmingDistanceM,
     totalSets,
     maxWeight,
-    footballGoals,
-    footballAssists,
     totalElevation,
     activeSportsCount: activeSports.length,
     favoriteSportLabel: favoriteSport?.label ?? 'Aucun sport',

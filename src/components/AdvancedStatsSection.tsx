@@ -136,20 +136,6 @@ export default function AdvancedStatsSection({
           value={`${advancedStats.maxWeight} kg`}
           description="Charge principale la plus élevée."
         />
-
-        <AdvancedStatCard
-          icon="⚽"
-          label="Buts football"
-          value={advancedStats.footballGoals.toString()}
-          description="Buts enregistrés."
-        />
-
-        <AdvancedStatCard
-          icon="🎯"
-          label="Passes décisives"
-          value={advancedStats.footballAssists.toString()}
-          description="Passes enregistrées."
-        />
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-3">

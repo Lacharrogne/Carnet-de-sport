@@ -16,7 +16,7 @@ export const WORKOUTS: Workout[] = [
   {
     id: '2',
     title: 'Foot entre amis',
-    category: 'football',
+    category: 'course',
     date: '2026-05-13',
     duration: 90,
     intensity: 'Moyenne',
