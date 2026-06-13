@@ -83,31 +83,28 @@ export default function WorkoutsPage({
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      <section className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
+          className="mb-6 rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
         >
           ← Retour au dashboard
         </button>
 
-        <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
-
+        <header className="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm sm:p-7 lg:p-8">
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
                 Carnet de séances
               </p>
 
-              <h1 className="mt-4 max-w-3xl text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 Tout ton historique sportif.
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
                 Retrouve tes séances, filtre par sport, trie ton historique et
                 garde une trace claire de ta progression.
               </p>
@@ -116,7 +113,7 @@ export default function WorkoutsPage({
             <button
               type="button"
               onClick={onAddWorkoutClick}
-              className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+              className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
             >
               + Ajouter une séance
             </button>
@@ -150,10 +147,10 @@ export default function WorkoutsPage({
           />
         </section>
 
-        <section className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
+        <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px_220px_auto]">
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-300">
+              <span className="mb-2 block text-sm font-bold text-slate-600">
                 Recherche
               </span>
 
@@ -161,12 +158,12 @@ export default function WorkoutsPage({
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Rechercher une séance, une note, un exercice..."
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-300">
+              <span className="mb-2 block text-sm font-bold text-slate-600">
                 Sport
               </span>
 
@@ -175,7 +172,7 @@ export default function WorkoutsPage({
                 onChange={(event) =>
                   setCategoryFilter(event.target.value as CategoryFilter)
                 }
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-sm text-white outline-none transition focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               >
                 <option value="all">Tous les sports</option>
 
@@ -188,7 +185,7 @@ export default function WorkoutsPage({
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-black text-slate-300">
+              <span className="mb-2 block text-sm font-bold text-slate-600">
                 Tri
               </span>
 
@@ -197,7 +194,7 @@ export default function WorkoutsPage({
                 onChange={(event) =>
                   setSortOption(event.target.value as SortOption)
                 }
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-sm text-white outline-none transition focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               >
                 <option value="date-desc">Plus récentes</option>
                 <option value="date-asc">Plus anciennes</option>
@@ -213,7 +210,7 @@ export default function WorkoutsPage({
                 type="button"
                 onClick={resetFilters}
                 disabled={!hasActiveFilters}
-                className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm font-black text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-5 py-4 text-sm font-bold text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Réinitialiser
               </button>
@@ -225,10 +222,10 @@ export default function WorkoutsPage({
               type="button"
               onClick={() => setCategoryFilter('all')}
               className={[
-                'rounded-full border px-4 py-2 text-xs font-black transition',
+                'rounded-full border px-4 py-2 text-xs font-bold transition',
                 categoryFilter === 'all'
-                  ? 'border-emerald-400 bg-emerald-400 text-slate-950'
-                  : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10',
+                  ? 'border-emerald-600 bg-emerald-600 text-white'
+                  : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100',
               ].join(' ')}
             >
               Tous
@@ -240,10 +237,10 @@ export default function WorkoutsPage({
                 type="button"
                 onClick={() => setCategoryFilter(category.id)}
                 className={[
-                  'rounded-full border px-4 py-2 text-xs font-black transition',
+                  'rounded-full border px-4 py-2 text-xs font-bold transition',
                   categoryFilter === category.id
-                    ? 'border-emerald-400 bg-emerald-400 text-slate-950'
-                    : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10',
+                    ? 'border-emerald-600 bg-emerald-600 text-white'
+                    : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100',
                 ].join(' ')}
               >
                 {category.emoji} {category.label}
@@ -257,11 +254,11 @@ export default function WorkoutsPage({
             <>
               <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
                     Historique
                   </p>
 
-                  <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
                     {filteredWorkouts.length} séance
                     {filteredWorkouts.length > 1 ? 's' : ''} trouvée
                     {filteredWorkouts.length > 1 ? 's' : ''}
@@ -319,24 +316,24 @@ function StatCard({
   return (
     <div
       className={[
-        'rounded-[1.75rem] border p-5 shadow-2xl',
+        'rounded-2xl border p-5 shadow-sm',
         highlighted
-          ? 'border-orange-400/20 bg-orange-400/10 shadow-orange-400/5'
-          : 'border-white/10 bg-white/[0.04] shadow-black/20',
+          ? 'border-amber-200 bg-amber-50'
+          : 'border-slate-200 bg-white',
       ].join(' ')}
     >
       <p
         className={[
-          'text-xs font-black uppercase tracking-[0.16em]',
-          highlighted ? 'text-orange-300' : 'text-slate-500',
+          'text-xs font-bold uppercase tracking-wide',
+          highlighted ? 'text-amber-600' : 'text-slate-400',
         ].join(' ')}
       >
         {label}
       </p>
 
-      <p className="mt-3 text-3xl font-black text-white">{value}</p>
+      <p className="mt-3 text-3xl font-bold text-slate-900">{value}</p>
 
-      <p className="mt-1 text-sm leading-6 text-slate-500">{detail}</p>
+      <p className="mt-1 text-sm leading-6 text-slate-400">{detail}</p>
     </div>
   )
 }
@@ -357,12 +354,12 @@ function EmptyState({
   secondary?: boolean
 }) {
   return (
-    <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center shadow-2xl shadow-black/20">
+    <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
       <p className="text-5xl">{icon}</p>
 
-      <h2 className="mt-4 text-2xl font-black text-white">{title}</h2>
+      <h2 className="mt-4 text-2xl font-bold text-slate-900">{title}</h2>
 
-      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-400">
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-500">
         {description}
       </p>
 
@@ -370,10 +367,10 @@ function EmptyState({
         type="button"
         onClick={onAction}
         className={[
-          'mt-6 rounded-full px-6 py-3 text-sm font-black transition',
+          'mt-6 rounded-full px-6 py-3 text-sm font-bold transition',
           secondary
-            ? 'border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10'
-            : 'bg-emerald-400 text-slate-950 hover:bg-emerald-300',
+            ? 'border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+            : 'bg-emerald-600 text-white hover:bg-emerald-700',
         ].join(' ')}
       >
         {actionLabel}

@@ -240,31 +240,28 @@ export default function ProgressPage({
   const unlockedBadges = badges.filter((badge) => badge.unlocked).length
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      <section className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
+          className="mb-6 rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
         >
           ← Retour au dashboard
         </button>
 
-        <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
-
+        <header className="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm sm:p-7 lg:p-8">
           <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
                 Progression globale
               </p>
 
-              <h1 className="mt-4 text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
+              <h1 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
                 Niveau {sportProfileXp.level}
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
                 Suis ton XP, tes séances, tes sports les plus pratiqués, tes
                 distances, ton volume d’entraînement et les badges débloqués.
               </p>
@@ -493,10 +490,10 @@ export default function ProgressPage({
                 />
               </div>
 
-              <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-                <p className="font-black text-white">Conseil automatique</p>
+              <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-100 p-5">
+                <p className="font-bold text-slate-900">Conseil automatique</p>
 
-                <p className="mt-2 text-sm leading-6 text-slate-300">
+                <p className="mt-2 text-sm leading-6 text-slate-600">
                   {getAutomaticAdvice({
                     totalWorkouts,
                     progressCount,
@@ -520,33 +517,33 @@ function LevelCard({
   sportProfileXp: ReturnType<typeof getSportProfileXp>
 }) {
   return (
-    <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-5">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
             Niveau actuel
           </p>
 
-          <p className="mt-3 text-6xl font-black text-white">
+          <p className="mt-3 text-6xl font-bold text-slate-900">
             {sportProfileXp.level}
           </p>
         </div>
 
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300">
+        <div className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-600">
           ⚡ XP
         </div>
       </div>
 
-      <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-950">
+      <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-100">
         <div
-          className="h-full rounded-full bg-emerald-400"
+          className="h-full rounded-full bg-emerald-500"
           style={{
             width: `${sportProfileXp.levelProgressPercent}%`,
           }}
         />
       </div>
 
-      <p className="mt-4 text-sm leading-6 text-slate-300">
+      <p className="mt-4 text-sm leading-6 text-slate-600">
         {sportProfileXp.currentLevelXp} / {sportProfileXp.xpPerLevel} XP ·
         encore {sportProfileXp.xpToNextLevel} XP avant le niveau suivant.
       </p>
@@ -564,12 +561,12 @@ function Panel({
   accent?: 'default' | 'emerald'
 }) {
   const titleColor =
-    accent === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
+    accent === 'emerald' ? 'text-emerald-600' : 'text-slate-400'
 
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       <p
-        className={`text-xs font-black uppercase tracking-[0.24em] ${titleColor}`}
+        className={`text-xs font-bold uppercase tracking-wide ${titleColor}`}
       >
         {title}
       </p>
@@ -581,12 +578,12 @@ function Panel({
 
 function HeroStat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
         {label}
       </p>
 
-      <p className="mt-2 break-words text-2xl font-black text-white">
+      <p className="mt-2 break-words text-2xl font-bold text-slate-900">
         {value}
       </p>
     </div>
@@ -603,18 +600,18 @@ function CategoryProgressCard({
   const metaItems = getCategoryMetaItems(category)
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
       <div className="mb-3 flex items-center justify-between gap-4">
-        <p className="font-black text-white">
+        <p className="font-bold text-slate-900">
           {category.emoji} {category.label}
         </p>
 
-        <p className="text-sm font-black text-emerald-300">{percent}%</p>
+        <p className="text-sm font-bold text-emerald-600">{percent}%</p>
       </div>
 
-      <div className="h-3 overflow-hidden rounded-full bg-slate-950">
+      <div className="h-3 overflow-hidden rounded-full bg-slate-100">
         <div
-          className="h-full rounded-full bg-emerald-400"
+          className="h-full rounded-full bg-emerald-500"
           style={{
             width: `${percent}%`,
           }}
@@ -625,7 +622,7 @@ function CategoryProgressCard({
         {metaItems.map((item) => (
           <span
             key={item}
-            className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-bold text-slate-300"
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-bold text-slate-600"
           >
             {item}
           </span>
@@ -645,26 +642,26 @@ function InfoCard({
   description: string
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+    <div className="rounded-3xl border border-slate-200 bg-slate-100 p-5">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
         {title}
       </p>
 
-      <p className="mt-2 line-clamp-2 text-xl font-black text-white">{value}</p>
+      <p className="mt-2 line-clamp-2 text-xl font-bold text-slate-900">{value}</p>
 
-      <p className="mt-2 text-sm leading-6 text-slate-300">{description}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
     </div>
   )
 }
 
 function CompactStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+    <div className="rounded-3xl border border-slate-200 bg-slate-100 p-5">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
         {label}
       </p>
 
-      <p className="mt-2 text-2xl font-black text-white">{value}</p>
+      <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
     </div>
   )
 }
@@ -679,14 +676,14 @@ function XpDetailCard({
   icon: string
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+    <div className="rounded-3xl border border-slate-200 bg-slate-100 p-4">
       <div className="flex items-center justify-between gap-4">
         <p className="text-2xl">{icon}</p>
 
-        <p className="text-xl font-black text-white">+{value}</p>
+        <p className="text-xl font-bold text-slate-900">+{value}</p>
       </div>
 
-      <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+      <p className="mt-3 text-xs font-bold uppercase tracking-wide text-slate-400">
         {label}
       </p>
     </div>
@@ -699,24 +696,24 @@ function BadgeCard({ badge }: { badge: Badge }) {
       className={[
         'rounded-3xl border p-5 transition',
         badge.unlocked
-          ? 'border-emerald-400/20 bg-emerald-400/10'
-          : 'border-white/10 bg-slate-950/40 opacity-50',
+          ? 'border-emerald-200 bg-emerald-50'
+          : 'border-slate-200 bg-slate-50 opacity-50',
       ].join(' ')}
     >
       <div className="flex items-start gap-4">
         <p className="text-3xl">{badge.icon}</p>
 
         <div>
-          <h3 className="font-black text-white">{badge.title}</h3>
+          <h3 className="font-bold text-slate-900">{badge.title}</h3>
 
-          <p className="mt-2 text-sm leading-6 text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             {badge.description}
           </p>
 
           <p
             className={[
-              'mt-3 text-sm font-black',
-              badge.unlocked ? 'text-emerald-300' : 'text-slate-500',
+              'mt-3 text-sm font-bold',
+              badge.unlocked ? 'text-emerald-600' : 'text-slate-400',
             ].join(' ')}
           >
             {badge.unlocked ? 'Badge obtenu' : 'À débloquer'}
@@ -729,7 +726,7 @@ function BadgeCard({ badge }: { badge: Badge }) {
 
 function EmptyText({ text }: { text: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5 text-sm text-slate-400">
+    <div className="rounded-3xl border border-slate-200 bg-slate-100 p-5 text-sm text-slate-500">
       {text}
     </div>
   )

@@ -32,32 +32,32 @@ export default function HealthyRecipeSection({
   const recipeApp = ECOSYSTEM_LINKS.recipes
 
   return (
-    <section className="mt-8 overflow-hidden rounded-[2rem] border border-orange-300/20 bg-gradient-to-br from-orange-400/10 via-white/[0.04] to-emerald-400/10 p-6 shadow-2xl shadow-orange-400/10">
+    <section className="mt-8 overflow-hidden rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-6 shadow-sm">
       <div className="grid gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-center">
         <div>
-          <p className="inline-flex rounded-full border border-orange-300/25 bg-orange-400/10 px-4 py-2 text-sm font-black text-orange-200">
+          <p className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-bold text-amber-600">
             {recipeApp.emoji} Nutrition
           </p>
 
-          <h2 className="mt-5 text-3xl font-black tracking-tight text-white sm:text-4xl">
+          <h2 className="mt-5 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
             Relie ton sport à ton alimentation.
           </h2>
 
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
             Ton objectif actuel est{' '}
-            <span className="font-black text-orange-200">
+            <span className="font-bold text-amber-600">
               {goalLabels[profile.goal]}
             </span>
             . Utilise {recipeApp.name} pour trouver des idées de repas plus
             cohérentes avec ta progression.
           </p>
 
-          <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5">
-            <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-300">
+          <div className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-5">
+            <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
               Conseil rapide
             </p>
 
-            <p className="mt-3 text-sm leading-7 text-slate-300">
+            <p className="mt-3 text-sm leading-7 text-slate-600">
               {goalRecipeAdvice[profile.goal]}
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function HealthyRecipeSection({
               href={recipeApp.url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-orange-300 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-orange-200"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-500 px-6 py-3 text-sm font-bold text-white transition hover:bg-amber-600"
             >
               <span>{recipeApp.emoji}</span>
               <span>Ouvrir {recipeApp.name}</span>
@@ -77,29 +77,29 @@ export default function HealthyRecipeSection({
               href={`${recipeApp.url}/recipes?tag=healthy`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
+              className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-6 py-3 text-sm font-bold text-slate-800 transition hover:bg-slate-100"
             >
               Voir des idées healthy
             </a>
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-white/10 bg-slate-950/50 p-6">
-          <p className="text-sm font-black uppercase tracking-[0.22em] text-orange-200">
+        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
+          <p className="text-sm font-bold uppercase tracking-wide text-amber-600">
             Écosystème
           </p>
 
           <div className="mt-5 flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl border border-orange-300/25 bg-orange-400/10 text-3xl">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl border border-amber-200 bg-amber-50 text-3xl">
               {recipeApp.emoji}
             </div>
 
             <div>
-              <h3 className="text-2xl font-black text-white">
+              <h3 className="text-2xl font-bold text-slate-900">
                 {recipeApp.name}
               </h3>
 
-              <p className="mt-1 text-sm leading-6 text-slate-400">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 {recipeApp.description}
               </p>
             </div>
@@ -140,15 +140,15 @@ function EcosystemPoint({
   text: string
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
+    <div className="rounded-3xl border border-slate-200 bg-white p-4">
       <div className="flex gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-xl">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-xl">
           {icon}
         </div>
 
         <div>
-          <p className="font-black text-white">{title}</p>
-          <p className="mt-1 text-sm leading-6 text-slate-400">{text}</p>
+          <p className="font-bold text-slate-900">{title}</p>
+          <p className="mt-1 text-sm leading-6 text-slate-500">{text}</p>
         </div>
       </div>
     </div>

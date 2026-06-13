@@ -57,22 +57,19 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
   const regularityPercent = Math.round((activeDays / 28) * 100)
 
   return (
-    <section className="relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
-      <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-emerald-400/10 blur-3xl" />
-      <div className="absolute -bottom-24 -left-24 h-52 w-52 rounded-full bg-cyan-400/10 blur-3xl" />
-
+    <section className="relative h-full overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
       <div className="relative flex h-full flex-col gap-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+            <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
               Calendrier d’activité
             </p>
 
-            <h2 className="mt-3 text-3xl font-black leading-tight text-white sm:text-4xl">
+            <h2 className="mt-3 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl">
               Tes 28 derniers jours.
             </h2>
 
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-400">
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-500">
               Chaque case représente une journée. Plus tu ajoutes de séances,
               plus ton mois devient vivant.
             </p>
@@ -85,20 +82,20 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
           </div>
         </div>
 
-        <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/40 p-4 sm:p-5">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-bold text-slate-300">
+              <p className="text-sm font-bold text-slate-600">
                 Régularité
               </p>
 
-              <p className="mt-1 text-sm leading-6 text-slate-500">
+              <p className="mt-1 text-sm leading-6 text-slate-400">
                 {getRegularityMessage(regularityPercent)}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3">
-              <p className="text-sm font-black text-emerald-300">
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+              <p className="text-sm font-bold text-emerald-600">
                 {regularityPercent}%
               </p>
             </div>
@@ -118,15 +115,15 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
                   className={[
                     'group relative flex h-14 flex-col items-center justify-center rounded-2xl border text-center transition hover:-translate-y-1 hover:scale-105',
                     getDayClass(intensity),
-                    isToday ? 'ring-2 ring-emerald-300/70' : '',
+                    isToday ? 'ring-2 ring-emerald-500' : '',
                   ].join(' ')}
                 >
-                  <p className="text-xs font-black">
+                  <p className="text-xs font-bold">
                     {day.date.getDate()}
                   </p>
 
                   {day.workoutCount > 0 ? (
-                    <p className="mt-0.5 text-[11px] font-black">
+                    <p className="mt-0.5 text-[11px] font-bold">
                       {day.workoutCount}x
                     </p>
                   ) : (
@@ -143,21 +140,21 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
             <div className="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-400">
               <span>Repos</span>
 
-              <span className="h-4 w-4 rounded-md border border-white/10 bg-slate-950/60" />
-              <span className="h-4 w-4 rounded-md border border-emerald-400/30 bg-emerald-400/15" />
-              <span className="h-4 w-4 rounded-md border border-emerald-400/50 bg-emerald-400/35" />
-              <span className="h-4 w-4 rounded-md border border-emerald-300/70 bg-emerald-300" />
+              <span className="h-4 w-4 rounded-md border border-slate-200 bg-slate-100" />
+              <span className="h-4 w-4 rounded-md border border-emerald-200 bg-emerald-200" />
+              <span className="h-4 w-4 rounded-md border border-emerald-300 bg-emerald-400" />
+              <span className="h-4 w-4 rounded-md border border-emerald-400 bg-emerald-600" />
 
               <span>Très actif</span>
             </div>
 
             <p className="text-sm font-bold text-slate-400">
               Meilleur jour :{' '}
-              <span className="text-white">
+              <span className="text-slate-900">
                 {bestDay.workoutCount} séance{bestDay.workoutCount > 1 ? 's' : ''}
               </span>
               {' · '}
-              <span className="text-emerald-300">
+              <span className="text-emerald-600">
                 {bestDay.duration} min
               </span>
             </p>
@@ -170,12 +167,12 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
         {label}
       </p>
 
-      <p className="mt-2 text-3xl font-black text-white">
+      <p className="mt-2 text-3xl font-bold text-slate-900">
         {value}
       </p>
     </div>
@@ -221,18 +218,18 @@ function getActivityIntensity(workoutCount: number, duration: number) {
 
 function getDayClass(intensity: number) {
   if (intensity === 3) {
-    return 'border-emerald-300/70 bg-emerald-300 text-slate-950 shadow-lg shadow-emerald-400/20'
+    return 'border-emerald-600 bg-emerald-600 text-white'
   }
 
   if (intensity === 2) {
-    return 'border-emerald-400/50 bg-emerald-400/35 text-white'
+    return 'border-emerald-400 bg-emerald-400 text-white'
   }
 
   if (intensity === 1) {
-    return 'border-emerald-400/30 bg-emerald-400/15 text-emerald-100'
+    return 'border-emerald-200 bg-emerald-200 text-emerald-800'
   }
 
-  return 'border-white/10 bg-slate-950/60 text-slate-500'
+  return 'border-slate-200 bg-slate-100 text-slate-400'
 }
 
 function getDateKey(date: Date) {

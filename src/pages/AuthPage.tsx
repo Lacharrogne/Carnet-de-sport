@@ -120,32 +120,29 @@ export default function AuthPage({
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1180px] px-4 py-8 sm:px-6 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <button
           type="button"
           onClick={handleBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/[0.1]"
+          className="mb-6 rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
         >
           ← Retour à l’accueil
         </button>
 
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
-          <section className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-6 shadow-2xl shadow-black/25 sm:p-8">
-            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
-            <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
-
+          <section className="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm sm:p-8">
             <div className="relative flex h-full flex-col justify-between gap-10">
               <div>
-                <p className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-emerald-300">
+                <p className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-bold uppercase tracking-wide text-emerald-600">
                   Carnet de sport
                 </p>
 
-                <h1 className="mt-6 max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">
+                <h1 className="mt-6 max-w-xl text-4xl font-bold leading-tight text-slate-900 sm:text-5xl">
                   Retrouve ton suivi sportif partout.
                 </h1>
 
-                <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 sm:text-base">
+                <p className="mt-5 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
                   Connecte-toi pour sauvegarder tes séances, ton planning, ta
                   progression, ton profil physique et tes défis.
                 </p>
@@ -162,16 +159,16 @@ export default function AuthPage({
             </div>
           </section>
 
-          <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
-            <div className="mb-6 inline-flex rounded-full border border-white/10 bg-slate-950/50 p-1.5">
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <div className="mb-6 inline-flex rounded-full border border-slate-200 bg-slate-50 p-1.5">
               <button
                 type="button"
                 onClick={() => handleModeChange('sign-in')}
                 className={[
-                  'rounded-full px-5 py-3 text-sm font-black transition',
+                  'rounded-full px-5 py-3 text-sm font-bold transition',
                   isSignIn
-                    ? 'bg-emerald-400 text-slate-950'
-                    : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
+                    ? 'bg-emerald-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                 ].join(' ')}
               >
                 Connexion
@@ -181,10 +178,10 @@ export default function AuthPage({
                 type="button"
                 onClick={() => handleModeChange('sign-up')}
                 className={[
-                  'rounded-full px-5 py-3 text-sm font-black transition',
+                  'rounded-full px-5 py-3 text-sm font-bold transition',
                   !isSignIn
-                    ? 'bg-emerald-400 text-slate-950'
-                    : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
+                    ? 'bg-emerald-600 text-white'
+                    : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
                 ].join(' ')}
               >
                 Inscription
@@ -192,15 +189,15 @@ export default function AuthPage({
             </div>
 
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
                 {isSignIn ? 'Bon retour' : 'Nouveau compte'}
               </p>
 
-              <h2 className="mt-3 text-3xl font-black text-white sm:text-4xl">
+              <h2 className="mt-3 text-3xl font-bold text-slate-900 sm:text-4xl">
                 {isSignIn ? 'Se connecter' : 'Créer ton compte'}
               </h2>
 
-              <p className="mt-3 text-sm leading-7 text-slate-400">
+              <p className="mt-3 text-sm leading-7 text-slate-500">
                 {isSignIn
                   ? 'Entre tes identifiants pour retrouver ton carnet.'
                   : 'Choisis un pseudo et crée ton compte pour commencer à synchroniser tes données.'}
@@ -210,7 +207,7 @@ export default function AuthPage({
             <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
               {!isSignIn ? (
                 <label className="block space-y-2">
-                  <span className="text-sm font-black text-slate-200">
+                  <span className="text-sm font-bold text-slate-700">
                     Pseudo
                   </span>
 
@@ -220,13 +217,13 @@ export default function AuthPage({
                     onChange={(event) => setDisplayName(event.target.value)}
                     placeholder="Ex : Maxime, Lacharrogne, Sportif du dimanche..."
                     autoComplete="nickname"
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-4 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                    className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                   />
                 </label>
               ) : null}
 
               <label className="block space-y-2">
-                <span className="text-sm font-black text-slate-200">
+                <span className="text-sm font-bold text-slate-700">
                   Adresse email
                 </span>
 
@@ -236,16 +233,16 @@ export default function AuthPage({
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="exemple@mail.com"
                   autoComplete="email"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-4 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                  className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
               </label>
 
               <label className="block space-y-2">
-                <span className="text-sm font-black text-slate-200">
+                <span className="text-sm font-bold text-slate-700">
                   Mot de passe
                 </span>
 
-                <div className="flex overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 transition focus-within:border-emerald-400/60">
+                <div className="flex overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 transition focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-100">
                   <input
                     type={isPasswordVisible ? 'text' : 'password'}
                     value={password}
@@ -254,7 +251,7 @@ export default function AuthPage({
                     autoComplete={
                       isSignIn ? 'current-password' : 'new-password'
                     }
-                    className="min-w-0 flex-1 bg-transparent px-4 py-4 text-white outline-none placeholder:text-slate-500"
+                    className="min-w-0 flex-1 bg-transparent px-4 py-4 text-slate-900 outline-none placeholder:text-slate-400"
                   />
 
                   <button
@@ -262,7 +259,7 @@ export default function AuthPage({
                     onClick={() =>
                       setIsPasswordVisible((currentValue) => !currentValue)
                     }
-                    className="px-4 text-sm font-black text-slate-400 transition hover:text-white"
+                    className="px-4 text-sm font-bold text-slate-500 transition hover:text-slate-900"
                   >
                     {isPasswordVisible ? 'Masquer' : 'Voir'}
                   </button>
@@ -270,13 +267,13 @@ export default function AuthPage({
               </label>
 
               {errorMessage ? (
-                <div className="rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm font-bold text-red-200">
+                <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">
                   {errorMessage}
                 </div>
               ) : null}
 
               {message ? (
-                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-200">
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
                   {message}
                 </div>
               ) : null}
@@ -284,7 +281,7 @@ export default function AuthPage({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="mt-2 rounded-full bg-emerald-400 px-6 py-4 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-2 rounded-full bg-emerald-600 px-6 py-4 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isLoading
                   ? isSignIn
@@ -296,15 +293,15 @@ export default function AuthPage({
               </button>
             </form>
 
-            <div className="mt-6 rounded-[1.5rem] border border-white/10 bg-slate-950/35 p-4">
-              <p className="text-sm font-bold leading-6 text-slate-400">
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-sm font-bold leading-6 text-slate-500">
                 {isSignIn ? (
                   <>
                     Pas encore de compte ?{' '}
                     <button
                       type="button"
                       onClick={() => handleModeChange('sign-up')}
-                      className="font-black text-emerald-300 hover:text-emerald-200"
+                      className="font-bold text-emerald-600 hover:text-emerald-700"
                     >
                       Créer un compte
                     </button>
@@ -315,7 +312,7 @@ export default function AuthPage({
                     <button
                       type="button"
                       onClick={() => handleModeChange('sign-in')}
-                      className="font-black text-emerald-300 hover:text-emerald-200"
+                      className="font-bold text-emerald-600 hover:text-emerald-700"
                     >
                       Se connecter
                     </button>
@@ -332,12 +329,12 @@ export default function AuthPage({
 
 function InfoLine({ icon, text }: { icon: string; text: string }) {
   return (
-    <div className="flex items-center gap-4 rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/[0.06] text-2xl">
+    <div className="flex items-center gap-4 rounded-3xl border border-slate-200 bg-slate-50 p-4">
+      <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-2xl">
         {icon}
       </span>
 
-      <p className="text-sm font-bold text-slate-300">{text}</p>
+      <p className="text-sm font-bold text-slate-600">{text}</p>
     </div>
   )
 }

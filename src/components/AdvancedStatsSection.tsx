@@ -34,27 +34,27 @@ export default function AdvancedStatsSection({
   })
 
   return (
-    <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
+    <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+          <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
             Statistiques avancées
           </p>
 
-          <h2 className="mt-2 text-3xl font-black text-white">
+          <h2 className="mt-2 text-3xl font-bold text-slate-900">
             Tes habitudes sportives.
           </h2>
 
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
             Cette section analyse ta régularité, tes meilleures périodes et les
             détails que tu ajoutes dans tes séances.
           </p>
         </div>
 
-        <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4">
-          <p className="text-sm text-emerald-300">Sport dominant</p>
+        <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+          <p className="text-sm text-emerald-600">Sport dominant</p>
 
-          <p className="mt-1 text-2xl font-black text-white">
+          <p className="mt-1 text-2xl font-bold text-slate-900">
             {advancedStats.favoriteSportEmoji} {advancedStats.favoriteSportLabel}
           </p>
         </div>
@@ -184,10 +184,10 @@ export default function AdvancedStatsSection({
         />
       </div>
 
-      <div className="mt-6 rounded-3xl border border-sky-400/10 bg-sky-400/5 p-5">
-        <p className="font-black text-white">Analyse automatique</p>
+      <div className="mt-6 rounded-3xl border border-sky-200 bg-sky-50 p-5">
+        <p className="font-bold text-slate-900">Analyse automatique</p>
 
-        <p className="mt-2 text-sm leading-6 text-slate-300">
+        <p className="mt-2 text-sm leading-6 text-slate-600">
           {getAdvancedSuggestion({
             workouts,
             advancedStats,
@@ -215,14 +215,14 @@ function AdvancedStatCard({
   description,
 }: AdvancedStatCardProps) {
   return (
-    <article className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+    <article className="rounded-3xl border border-slate-200 bg-slate-100 p-5">
       <p className="text-3xl">{icon}</p>
 
-      <p className="mt-4 text-sm text-slate-400">{label}</p>
+      <p className="mt-4 text-sm text-slate-500">{label}</p>
 
-      <p className="mt-2 text-3xl font-black text-white">{value}</p>
+      <p className="mt-2 text-3xl font-bold text-slate-900">{value}</p>
 
-      <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-400">{description}</p>
     </article>
   )
 }
@@ -235,12 +235,12 @@ type InsightCardProps = {
 
 function InsightCard({ title, value, description }: InsightCardProps) {
   return (
-    <article className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-      <p className="text-sm font-semibold text-slate-400">{title}</p>
+    <article className="rounded-3xl border border-slate-200 bg-slate-100 p-5">
+      <p className="text-sm font-semibold text-slate-500">{title}</p>
 
-      <p className="mt-3 text-xl font-black text-white">{value}</p>
+      <p className="mt-3 text-xl font-bold text-slate-900">{value}</p>
 
-      <p className="mt-2 text-sm leading-6 text-slate-400">{description}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-500">{description}</p>
     </article>
   )
 }

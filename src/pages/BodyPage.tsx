@@ -100,31 +100,28 @@ const mobilityWorkouts = workouts.filter((workout) => {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+          className="mb-6 rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
         >
           ← Retour au dashboard
         </button>
 
-        <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 sm:p-8 lg:p-10">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-10 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
-
+        <header className="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm sm:p-8 lg:p-10">
           <div className="relative grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
             <div>
-              <p className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-bold text-emerald-300">
+              <p className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-600">
                 Mon corps
               </p>
 
-              <h1 className="mt-6 max-w-4xl text-4xl font-black leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="mt-6 max-w-4xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
                 Visualise ton corps comme un personnage.
               </h1>
 
-              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
+              <p className="mt-5 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
                 Suis tes informations physiques, tes zones travaillées et ton objectif principal. Les données restent indicatives et ne remplacent pas un avis médical.
               </p>
 
@@ -146,8 +143,8 @@ const mobilityWorkouts = workouts.filter((workout) => {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-6">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+            <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6">
+              <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
                 Profil actuel
               </p>
 
@@ -161,7 +158,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 />
               </div>
 
-              <p className="mt-5 text-sm leading-6 text-slate-300">
+              <p className="mt-5 text-sm leading-6 text-slate-600">
                 Le but est de transformer tes données en repères motivants, pas en pression.
               </p>
             </div>
@@ -184,33 +181,33 @@ const mobilityWorkouts = workouts.filter((workout) => {
         </section>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-          <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+                <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
                   Avatar corporel
                 </p>
 
-                <h2 className="mt-2 text-3xl font-black text-white">
+                <h2 className="mt-2 text-3xl font-bold text-slate-900">
                   Tes zones actives.
                 </h2>
               </div>
 
-              <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4">
-                <p className="text-sm text-emerald-300">
+              <div className="rounded-3xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+                <p className="text-sm text-emerald-600">
                   Score d’équilibre
                 </p>
 
-                <p className="mt-1 text-2xl font-black text-white">
+                <p className="mt-1 text-2xl font-bold text-slate-900">
                   {bodyStats.balanceScore}%
                 </p>
               </div>
             </div>
 
             <div className="mt-8 flex justify-center">
-              <div className="relative flex h-[440px] w-[290px] items-center justify-center rounded-[3rem] border border-emerald-400/20 bg-gradient-to-b from-emerald-400/10 via-white/[0.03] to-sky-400/10 shadow-2xl shadow-emerald-400/10 sm:w-[330px]">
-                <div className="absolute inset-8 rounded-full border border-white/5" />
-                <div className="absolute inset-14 rounded-full border border-white/5" />
+              <div className="relative flex h-[440px] w-[290px] items-center justify-center rounded-[3rem] border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white sm:w-[330px]">
+                <div className="absolute inset-8 rounded-full border border-slate-100" />
+                <div className="absolute inset-14 rounded-full border border-slate-100" />
 
                 <BodyPart
                   className="absolute top-10 h-20 w-20 rounded-full"
@@ -265,18 +262,18 @@ const mobilityWorkouts = workouts.filter((workout) => {
               </div>
             </div>
 
-            <p className="mt-8 text-center text-sm leading-6 text-slate-300">
+            <p className="mt-8 text-center text-sm leading-6 text-slate-600">
               Les zones s’activent selon tes séances : musculation pour la force, cardio pour l’endurance, mobilité pour la récupération.
             </p>
           </section>
 
           <div className="space-y-6">
-            <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
                 Mes informations
               </p>
 
-              <h2 className="mt-2 text-3xl font-black text-white">
+              <h2 className="mt-2 text-3xl font-bold text-slate-900">
                 Ton profil de base.
               </h2>
 
@@ -306,7 +303,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 />
 
                 <label className="space-y-2">
-                  <span className="text-sm font-bold text-slate-200">
+                  <span className="text-sm font-bold text-slate-700">
                     Niveau d’activité
                   </span>
 
@@ -318,7 +315,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                         event.target.value as ActivityLevel,
                       )
                     }
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                   >
                     {Object.entries(activityLabels).map(([value, label]) => (
                       <option key={value} value={value}>
@@ -330,7 +327,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
               </div>
 
               <label className="mt-5 block space-y-2">
-                <span className="text-sm font-bold text-slate-200">
+                <span className="text-sm font-bold text-slate-700">
                   Objectif principal
                 </span>
 
@@ -342,7 +339,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                       event.target.value as FitnessGoal,
                     )
                   }
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 >
                   {Object.entries(goalLabels).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -353,8 +350,8 @@ const mobilityWorkouts = workouts.filter((workout) => {
               </label>
             </section>
 
-            <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
                 Analyse corporelle
               </p>
 
@@ -388,12 +385,12 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 />
               </div>
 
-              <div className="mt-6 rounded-3xl border border-emerald-400/10 bg-emerald-400/5 p-5">
-                <p className="font-black text-white">
+              <div className="mt-6 rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+                <p className="font-bold text-slate-900">
                   Suggestion automatique
                 </p>
 
-                <p className="mt-2 text-sm leading-6 text-slate-300">
+                <p className="mt-2 text-sm leading-6 text-slate-600">
                   {getBodySuggestion(
                     bodyStats.strengthWorkouts,
                     bodyStats.cardioWorkouts,
@@ -402,12 +399,12 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 </p>
               </div>
 
-              <div className="mt-4 rounded-3xl border border-sky-400/10 bg-sky-400/5 p-5">
-                <p className="font-black text-white">
+              <div className="mt-4 rounded-3xl border border-sky-200 bg-sky-50 p-5">
+                <p className="font-bold text-slate-900">
                   Objectif nutrition
                 </p>
 
-                <p className="mt-2 text-sm leading-6 text-slate-300">
+                <p className="mt-2 text-sm leading-6 text-slate-600">
                   {getGoalSuggestion(profile.goal)}
                 </p>
               </div>
@@ -494,18 +491,18 @@ function getGoalSuggestion(goal: FitnessGoal) {
 
 function MiniStatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-      <p className="text-sm font-bold text-slate-400">{label}</p>
-      <p className="mt-1 truncate text-2xl font-black text-white">{value}</p>
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+      <p className="text-sm font-bold text-slate-500">{label}</p>
+      <p className="mt-1 truncate text-2xl font-bold text-slate-900">{value}</p>
     </div>
   )
 }
 
 function HeroMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-      <p className="text-sm text-slate-400">{label}</p>
-      <p className="mt-1 text-2xl font-black text-white">{value}</p>
+    <div className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+      <p className="text-sm text-slate-500">{label}</p>
+      <p className="mt-1 text-2xl font-bold text-slate-900">{value}</p>
     </div>
   )
 }
@@ -518,14 +515,14 @@ type StatCardProps = {
 
 function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/10 transition hover:-translate-y-1 hover:bg-white/[0.07]">
+    <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:bg-slate-50">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-slate-400">{label}</p>
-          <p className="mt-3 text-3xl font-black text-white">{value}</p>
+          <p className="text-sm font-semibold text-slate-500">{label}</p>
+          <p className="mt-3 text-3xl font-bold text-slate-900">{value}</p>
         </div>
 
-        <div className="rounded-2xl bg-white/10 px-3 py-2 text-3xl">
+        <div className="rounded-2xl bg-slate-100 px-3 py-2 text-3xl">
           {icon}
         </div>
       </div>
@@ -541,10 +538,10 @@ type InfoCardProps = {
 
 function InfoCard({ title, value, description }: InfoCardProps) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-      <p className="text-sm text-slate-400">{title}</p>
-      <p className="mt-2 text-2xl font-black text-white">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-300">
+    <div className="rounded-3xl border border-slate-200 bg-slate-100 p-5">
+      <p className="text-sm text-slate-500">{title}</p>
+      <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
+      <p className="mt-2 text-sm leading-6 text-slate-600">
         {description}
       </p>
     </div>
@@ -620,7 +617,7 @@ function NumberField({
 
   return (
     <label className="space-y-2">
-      <span className="text-sm font-bold text-slate-200">
+      <span className="text-sm font-bold text-slate-700">
         {label}
       </span>
 
@@ -631,7 +628,7 @@ function NumberField({
         value={inputValue}
         onChange={handleChange}
         onBlur={handleBlur}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
       />
     </label>
   )
@@ -647,8 +644,8 @@ function BodyPart({ className, active }: BodyPartProps) {
     <div
       className={`${className} border transition ${
         active
-          ? 'border-emerald-300/50 bg-emerald-300/25 shadow-lg shadow-emerald-400/20'
-          : 'border-white/20 bg-white/10'
+          ? 'border-emerald-300 bg-emerald-200'
+          : 'border-slate-200 bg-slate-100'
       }`}
     />
   )
@@ -663,17 +660,17 @@ type FloatingStatProps = {
 
 function FloatingStat({ position, label, value, color }: FloatingStatProps) {
   const colorClasses = {
-    emerald: 'border-emerald-400/20 text-emerald-300',
-    sky: 'border-sky-400/20 text-sky-300',
-    violet: 'border-violet-400/20 text-violet-300',
+    emerald: 'border-emerald-200 text-emerald-600',
+    sky: 'border-sky-200 text-sky-700',
+    violet: 'border-indigo-200 text-indigo-600',
   }
 
   return (
     <div
-      className={`absolute ${position} rounded-2xl border bg-slate-950/95 px-4 py-3 shadow-2xl shadow-black/30 ${colorClasses[color]}`}
+      className={`absolute ${position} rounded-2xl border bg-white px-4 py-3 shadow-sm ${colorClasses[color]}`}
     >
-      <p className="text-xs text-slate-400">{label}</p>
-      <p className="font-black">{value}</p>
+      <p className="text-xs text-slate-500">{label}</p>
+      <p className="font-bold">{value}</p>
     </div>
   )
 }

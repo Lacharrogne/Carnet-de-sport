@@ -217,7 +217,7 @@ export default function WorkoutForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid gap-5 md:grid-cols-2">
         <label className="space-y-2">
-          <span className="text-sm font-bold text-slate-200">
+          <span className="text-sm font-bold text-slate-700">
             Nom de la séance
           </span>
 
@@ -225,19 +225,19 @@ export default function WorkoutForm({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Ex : Séance PUSH, footing, sortie vélo..."
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
           />
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-bold text-slate-200">Catégorie</span>
+          <span className="text-sm font-bold text-slate-700">Catégorie</span>
 
           <select
             value={category}
             onChange={(event) =>
               handleCategoryChange(event.target.value as SportCategoryId)
             }
-            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
           >
             {SPORT_CATEGORIES.map((sportCategory) => (
               <option key={sportCategory.id} value={sportCategory.id}>
@@ -248,18 +248,18 @@ export default function WorkoutForm({
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-bold text-slate-200">Date</span>
+          <span className="text-sm font-bold text-slate-700">Date</span>
 
           <input
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
           />
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-bold text-slate-200">
+          <span className="text-sm font-bold text-slate-700">
             Durée en minutes
           </span>
 
@@ -269,19 +269,19 @@ export default function WorkoutForm({
             value={duration}
             onChange={(event) => setDuration(event.target.value)}
             placeholder="Ex : 45"
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
           />
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-bold text-slate-200">Intensité</span>
+          <span className="text-sm font-bold text-slate-700">Intensité</span>
 
           <select
             value={intensity}
             onChange={(event) =>
               setIntensity(event.target.value as WorkoutIntensity)
             }
-            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
           >
             {intensityOptions.map((option) => (
               <option key={option} value={option}>
@@ -292,14 +292,14 @@ export default function WorkoutForm({
         </label>
 
         <label className="space-y-2">
-          <span className="text-sm font-bold text-slate-200">Ressenti</span>
+          <span className="text-sm font-bold text-slate-700">Ressenti</span>
 
           <select
             value={feeling}
             onChange={(event) =>
               setFeeling(event.target.value as WorkoutFeeling)
             }
-            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
           >
             {feelingOptions.map((option) => (
               <option key={option} value={option}>
@@ -317,14 +317,14 @@ export default function WorkoutForm({
       />
 
       <label className="block space-y-2">
-        <span className="text-sm font-bold text-slate-200">
+        <span className="text-sm font-bold text-slate-700">
           Progression ressentie
         </span>
 
         <select
           value={trend}
           onChange={(event) => setTrend(event.target.value as WorkoutTrend)}
-          className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
         >
           {trendOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -335,7 +335,7 @@ export default function WorkoutForm({
       </label>
 
       <label className="block space-y-2">
-        <span className="text-sm font-bold text-slate-200">
+        <span className="text-sm font-bold text-slate-700">
           Notes sur la séance
         </span>
 
@@ -344,12 +344,12 @@ export default function WorkoutForm({
           onChange={(event) => setNotes(event.target.value)}
           rows={4}
           placeholder="Ex : Bonne séance, mais j’ai manqué d’énergie sur la fin."
-          className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+          className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
         />
       </label>
 
       <label className="block space-y-2">
-        <span className="text-sm font-bold text-slate-200">
+        <span className="text-sm font-bold text-slate-700">
           Idée d’amélioration pour la prochaine fois
         </span>
 
@@ -358,7 +358,7 @@ export default function WorkoutForm({
           onChange={(event) => setImprovementIdea(event.target.value)}
           rows={3}
           placeholder="Ex : Mieux gérer les temps de repos ou ajouter 5 minutes de cardio."
-          className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+          className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
         />
       </label>
 
@@ -366,14 +366,14 @@ export default function WorkoutForm({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-black text-white transition hover:bg-white/10"
+          className="rounded-full border border-slate-200 bg-slate-50 px-6 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
         >
           Annuler
         </button>
 
         <button
           type="submit"
-          className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+          className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
         >
           {submitLabel}
         </button>
@@ -399,12 +399,12 @@ function SportSpecificFields({
   const detailMode = getDetailMode(category)
 
   return (
-    <section className="rounded-[2rem] border border-emerald-400/10 bg-emerald-400/5 p-5">
-      <p className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">
+    <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+      <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
         Détails spécifiques
       </p>
 
-      <p className="mt-2 text-sm text-slate-400">
+      <p className="mt-2 text-sm text-slate-500">
         Ces champs changent selon le sport choisi.
       </p>
 
@@ -738,25 +738,25 @@ function StrengthExercisesEditor({
   return (
     <div>
       <div>
-        <h3 className="text-2xl font-black text-white">
+        <h3 className="text-2xl font-bold text-slate-900">
           Exercices de musculation
         </h3>
 
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
           Ajoute chaque exercice séparément pour garder une séance claire :
           développé couché, développé militaire, dips, extensions triceps...
         </p>
       </div>
 
       {exercises.length === 0 ? (
-        <div className="mt-6 rounded-[2rem] border border-dashed border-white/10 bg-slate-950/40 p-8 text-center">
+        <div className="mt-6 rounded-3xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
           <p className="text-4xl">🏋️</p>
 
-          <p className="mt-4 text-2xl font-black text-white">
+          <p className="mt-4 text-2xl font-bold text-slate-900">
             Aucun exercice ajouté.
           </p>
 
-          <p className="mt-3 text-sm leading-6 text-slate-400">
+          <p className="mt-3 text-sm leading-6 text-slate-500">
             Pour une séance PUSH, ajoute par exemple développé couché,
             développé militaire, dips ou extensions triceps.
           </p>
@@ -764,7 +764,7 @@ function StrengthExercisesEditor({
           <button
             type="button"
             onClick={addExercise}
-            className="mt-6 rounded-full bg-emerald-400 px-7 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="mt-6 rounded-full bg-emerald-600 px-7 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
           >
             + Ajouter mon premier exercice
           </button>
@@ -774,15 +774,15 @@ function StrengthExercisesEditor({
           {exercises.map((exercise, index) => (
             <article
               key={exercise.id}
-              className="rounded-[2rem] border border-white/10 bg-slate-950/45 p-6"
+              className="rounded-3xl border border-slate-200 bg-slate-50 p-6"
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-300">
+                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
                     Exercice {index + 1}
                   </p>
 
-                  <h4 className="mt-2 text-2xl font-black text-white">
+                  <h4 className="mt-2 text-2xl font-bold text-slate-900">
                     {exercise.name.trim() || 'Nouvel exercice'}
                   </h4>
                 </div>
@@ -791,7 +791,7 @@ function StrengthExercisesEditor({
                   <button
                     type="button"
                     onClick={() => duplicateExercise(exercise)}
-                    className="rounded-full border border-sky-400/20 bg-sky-400/10 px-4 py-2 text-sm font-black text-sky-200 transition hover:bg-sky-400/20"
+                    className="rounded-full border border-sky-200 bg-sky-50 px-4 py-2 text-sm font-bold text-sky-700 transition hover:bg-sky-100"
                   >
                     Dupliquer
                   </button>
@@ -799,7 +799,7 @@ function StrengthExercisesEditor({
                   <button
                     type="button"
                     onClick={() => removeExercise(exercise.id)}
-                    className="rounded-full border border-red-400/20 bg-red-400/10 px-4 py-2 text-sm font-black text-red-200 transition hover:bg-red-400/20"
+                    className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-600 transition hover:bg-rose-100"
                   >
                     Supprimer
                   </button>
@@ -906,14 +906,14 @@ function StrengthExercisesEditor({
           <button
             type="button"
             onClick={addExercise}
-            className="w-full rounded-[2rem] border border-dashed border-emerald-400/30 bg-emerald-400/10 px-6 py-5 text-sm font-black text-emerald-200 transition hover:bg-emerald-400/20"
+            className="w-full rounded-3xl border border-dashed border-emerald-200 bg-emerald-50 px-6 py-5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-100"
           >
             + Ajouter un exercice
           </button>
         </div>
       )}
 
-      <p className="mt-4 text-xs leading-5 text-slate-500">
+      <p className="mt-4 text-xs leading-5 text-slate-400">
         Astuce : appuie sur Entrée pour passer au champ suivant. Depuis le
         dernier champ, Entrée ajoute automatiquement un nouvel exercice.
       </p>
@@ -940,7 +940,7 @@ function ExerciseTextField({
 }: ExerciseTextFieldProps) {
   return (
     <label className="space-y-2">
-      <span className="text-sm font-bold text-slate-200">{label}</span>
+      <span className="text-sm font-bold text-slate-700">{label}</span>
 
       <input
         ref={inputRef}
@@ -948,7 +948,7 @@ function ExerciseTextField({
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
       />
     </label>
   )
@@ -964,13 +964,13 @@ type TextFieldProps = {
 function TextField({ label, value, placeholder, onChange }: TextFieldProps) {
   return (
     <label className="space-y-2">
-      <span className="text-sm font-bold text-slate-200">{label}</span>
+      <span className="text-sm font-bold text-slate-700">{label}</span>
 
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
       />
     </label>
   )
@@ -991,14 +991,14 @@ function TextAreaField({
 }: TextAreaFieldProps) {
   return (
     <label className="block space-y-2">
-      <span className="text-sm font-bold text-slate-200">{label}</span>
+      <span className="text-sm font-bold text-slate-700">{label}</span>
 
       <textarea
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={4}
         placeholder={placeholder}
-        className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
       />
     </label>
   )
@@ -1019,7 +1019,7 @@ function NumberDetailField({
 }: NumberDetailFieldProps) {
   return (
     <label className="space-y-2">
-      <span className="text-sm font-bold text-slate-200">{label}</span>
+      <span className="text-sm font-bold text-slate-700">{label}</span>
 
       <input
         type="number"
@@ -1031,7 +1031,7 @@ function NumberDetailField({
           onChange(newValue === '' ? undefined : Number(newValue))
         }}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
       />
     </label>
   )

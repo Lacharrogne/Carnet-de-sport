@@ -493,46 +493,46 @@ function AppShell() {
       />
 
       {isAuthLoading ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
-          <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
+        <main className="min-h-screen bg-slate-50 px-6 py-16 text-slate-900">
+          <section className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
             <p className="text-5xl">⚡</p>
 
-            <h1 className="mt-5 text-4xl font-black">
+            <h1 className="mt-5 text-3xl font-bold">
               Préparation de ton carnet sportif...
             </h1>
 
-            <p className="mt-3 text-slate-400">On vérifie ta session.</p>
+            <p className="mt-3 text-slate-500">On vérifie ta session.</p>
           </section>
         </main>
       ) : isLoadingRemoteData ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
-          <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
+        <main className="min-h-screen bg-slate-50 px-6 py-16 text-slate-900">
+          <section className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-10 text-center shadow-sm">
             <p className="text-5xl">⚡</p>
 
-            <h1 className="mt-5 text-4xl font-black">
+            <h1 className="mt-5 text-3xl font-bold">
               Chargement de ton carnet sportif...
             </h1>
 
-            <p className="mt-3 text-slate-400">
+            <p className="mt-3 text-slate-500">
               On récupère tes séances, ton planning, tes objectifs et ton profil.
             </p>
           </section>
         </main>
       ) : syncError ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
-          <section className="mx-auto max-w-5xl rounded-[2rem] border border-red-400/20 bg-red-400/10 p-10 text-center">
+        <main className="min-h-screen bg-slate-50 px-6 py-16 text-slate-900">
+          <section className="mx-auto max-w-2xl rounded-3xl border border-rose-200 bg-rose-50 p-10 text-center shadow-sm">
             <p className="text-5xl">⚠️</p>
 
-            <h1 className="mt-5 text-4xl font-black">
+            <h1 className="mt-5 text-3xl font-bold text-slate-900">
               Erreur de synchronisation
             </h1>
 
-            <p className="mt-3 text-red-100">{syncError}</p>
+            <p className="mt-3 text-rose-600">{syncError}</p>
 
             <button
               type="button"
               onClick={handleRetrySync}
-              className="mt-6 rounded-full bg-red-300 px-6 py-3 font-black text-slate-950 transition hover:bg-red-200"
+              className="mt-6 rounded-full bg-rose-600 px-6 py-3 font-semibold text-white transition hover:bg-rose-700"
             >
               Réessayer
             </button>
@@ -724,20 +724,20 @@ function EditWorkoutRoute({
 
   if (!workout) {
     return (
-      <main className="min-h-screen bg-[#050816] text-slate-50">
+      <main className="min-h-screen bg-slate-50 text-slate-900">
         <section className="mx-auto max-w-5xl px-6 py-10">
           <button
             type="button"
             onClick={onCancel}
-            className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+            className="mb-6 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             ← Retour aux entraînements
           </button>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
             <p className="text-5xl">🔎</p>
 
-            <h1 className="mt-4 text-3xl font-black">
+            <h1 className="mt-4 text-3xl font-bold">
               Séance introuvable.
             </h1>
 
@@ -782,20 +782,20 @@ function WorkoutDetailRoute({
 
   if (!workout) {
     return (
-      <main className="min-h-screen bg-[#050816] text-slate-50">
+      <main className="min-h-screen bg-slate-50 text-slate-900">
         <section className="mx-auto max-w-5xl px-6 py-10">
           <button
             type="button"
             onClick={onBack}
-            className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+            className="mb-6 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
           >
             ← Retour au carnet
           </button>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
             <p className="text-5xl">🔎</p>
 
-            <h1 className="mt-4 text-3xl font-black">
+            <h1 className="mt-4 text-3xl font-bold">
               Séance introuvable.
             </h1>
 

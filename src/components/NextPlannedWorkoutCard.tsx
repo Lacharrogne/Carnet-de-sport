@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { CalendarDays, Plus } from 'lucide-react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import type { PlannedWorkout } from '../types/plannedWorkout'
@@ -14,29 +15,26 @@ export default function NextPlannedWorkoutCard({
 
   if (!nextPlannedWorkout) {
     return (
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
-        <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-emerald-400/10 blur-3xl" />
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+          Prochaine séance
+        </p>
 
-        <div className="relative">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
-            Prochaine séance
-          </p>
+        <h2 className="mt-2 text-xl font-bold leading-tight text-slate-900">
+          Rien de prévu.
+        </h2>
 
-          <h2 className="mt-3 text-2xl font-black leading-tight text-white">
-            Rien de prévu.
-          </h2>
+        <p className="mt-2 text-sm leading-7 text-slate-500">
+          Planifie ta prochaine séance pour garder une direction claire.
+        </p>
 
-          <p className="mt-3 text-sm leading-7 text-slate-400">
-            Planifie ta prochaine séance pour garder une direction claire.
-          </p>
-
-          <Link
-            to="/planning"
-            className="mt-5 inline-flex w-full justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
-          >
-            Planifier une séance
-          </Link>
-        </div>
+        <Link
+          to="/planning"
+          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        >
+          <CalendarDays className="h-4 w-4" />
+          Planifier une séance
+        </Link>
       </section>
     )
   }
@@ -51,100 +49,88 @@ export default function NextPlannedWorkoutCard({
   return (
     <section
       className={[
-        'relative overflow-hidden rounded-[2rem] border p-5 shadow-2xl sm:p-6',
+        'rounded-3xl border p-5 shadow-sm sm:p-6',
         isLate
-          ? 'border-orange-400/25 bg-orange-400/10 shadow-orange-400/5'
-          : 'border-emerald-400/20 bg-gradient-to-br from-emerald-400/15 via-white/[0.04] to-sky-400/10 shadow-emerald-400/10',
+          ? 'border-amber-200 bg-amber-50'
+          : 'border-emerald-200 bg-emerald-50',
       ].join(' ')}
     >
-      <div className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-emerald-400/10 blur-3xl" />
-      <div className="absolute -bottom-20 -left-20 h-44 w-44 rounded-full bg-sky-400/10 blur-3xl" />
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p
+            className={[
+              'text-xs font-semibold uppercase tracking-wide',
+              isLate ? 'text-amber-600' : 'text-emerald-600',
+            ].join(' ')}
+          >
+            {isLate ? 'Séance à rattraper' : 'Prochaine séance'}
+          </p>
 
-      <div className="relative">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p
-              className={[
-                'text-xs font-black uppercase tracking-[0.24em]',
-                isLate ? 'text-orange-300' : 'text-emerald-300',
-              ].join(' ')}
-            >
-              {isLate ? 'Séance à rattraper' : 'Prochaine séance'}
+          <h2 className="mt-2 line-clamp-2 text-xl font-bold leading-tight text-slate-900">
+            {nextPlannedWorkout.title}
+          </h2>
+        </div>
+
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-2xl">
+          {sportCategory?.emoji ?? '🏃'}
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
+        <InfoPill>{sportCategory?.label ?? nextPlannedWorkout.category}</InfoPill>
+        <InfoPill>{formatDuration(nextPlannedWorkout.duration)}</InfoPill>
+        <InfoPill>{formatDate(nextPlannedWorkout.date)}</InfoPill>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Statut
             </p>
 
-            <h2 className="mt-3 line-clamp-2 text-2xl font-black leading-tight text-white">
-              {nextPlannedWorkout.title}
-            </h2>
+            <p className="mt-0.5 text-lg font-bold text-slate-900">{status}</p>
           </div>
 
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-2xl">
-            {sportCategory?.emoji ?? '🏃'}
-          </div>
+          <p
+            className={[
+              'rounded-full px-3 py-1 text-xs font-semibold',
+              isLate
+                ? 'bg-amber-50 text-amber-700'
+                : 'bg-emerald-50 text-emerald-700',
+            ].join(' ')}
+          >
+            À venir
+          </p>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
-          <InfoPill>
-            {sportCategory?.label ?? nextPlannedWorkout.category}
-          </InfoPill>
+        {nextPlannedWorkout.objective ? (
+          <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">
+            {nextPlannedWorkout.objective}
+          </p>
+        ) : (
+          <p className="mt-3 text-sm leading-6 text-slate-400">
+            Aucun objectif précis ajouté pour le moment.
+          </p>
+        )}
+      </div>
 
-          <InfoPill>{formatDuration(nextPlannedWorkout.duration)}</InfoPill>
-
-          <InfoPill>{formatDate(nextPlannedWorkout.date)}</InfoPill>
-        </div>
-
-        <div
-          className={[
-            'mt-5 rounded-3xl border p-4',
-            isLate
-              ? 'border-orange-400/20 bg-orange-400/10'
-              : 'border-emerald-400/15 bg-emerald-400/5',
-          ].join(' ')}
+      <div className="mt-4 grid gap-2 sm:grid-cols-2">
+        <Link
+          to="/planning"
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p
-                className={[
-                  'text-xs font-black uppercase tracking-[0.18em]',
-                  isLate ? 'text-orange-300' : 'text-emerald-300',
-                ].join(' ')}
-              >
-                Statut
-              </p>
+          <CalendarDays className="h-4 w-4" />
+          Planning
+        </Link>
 
-              <p className="mt-1 text-xl font-black text-white">{status}</p>
-            </div>
-
-            <p className="rounded-full border border-white/10 bg-slate-950/50 px-3 py-1.5 text-xs font-black text-slate-200">
-              🎯 À venir
-            </p>
-          </div>
-
-          {nextPlannedWorkout.objective ? (
-            <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-300">
-              {nextPlannedWorkout.objective}
-            </p>
-          ) : (
-            <p className="mt-4 text-sm leading-6 text-slate-400">
-              Aucun objectif précis ajouté pour le moment.
-            </p>
-          )}
-        </div>
-
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <Link
-            to="/planning"
-            className="inline-flex justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
-          >
-            Voir le planning
-          </Link>
-
-          <Link
-            to="/workouts/new"
-            className="inline-flex justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
-          >
-            Ajouter une séance
-          </Link>
-        </div>
+        <Link
+          to="/workouts/new"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+        >
+          <Plus className="h-4 w-4" />
+          Ajouter
+        </Link>
       </div>
     </section>
   )
@@ -152,7 +138,7 @@ export default function NextPlannedWorkoutCard({
 
 function InfoPill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1.5 text-xs font-black text-slate-100">
+    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
       {children}
     </span>
   )
@@ -163,8 +149,7 @@ function getNextPlannedWorkout(plannedWorkouts: PlannedWorkout[]) {
 
   const sortedPlannedWorkouts = [...plannedWorkouts].sort((a, b) => {
     return (
-      getDateFromString(a.date).getTime() -
-      getDateFromString(b.date).getTime()
+      getDateFromString(a.date).getTime() - getDateFromString(b.date).getTime()
     )
   })
 

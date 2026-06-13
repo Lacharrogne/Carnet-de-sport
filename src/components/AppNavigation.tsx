@@ -1,6 +1,24 @@
 import { useState } from 'react'
+import type { ComponentType } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
+import {
+  CalendarDays,
+  ChevronDown,
+  Dumbbell,
+  HeartPulse,
+  Home,
+  LogIn,
+  LogOut,
+  Menu,
+  NotebookPen,
+  Plus,
+  Target,
+  TrendingUp,
+  UserRound,
+  Wrench,
+  X,
+} from 'lucide-react'
 
 type AppNavigationProps = {
   user: User | null
@@ -18,39 +36,46 @@ type UserMetadata = {
 
 type MobileSection = 'tools' | 'profile' | null
 
-const toolsLinks = [
+type NavLinkItem = {
+  to: string
+  label: string
+  description: string
+  icon: ComponentType<{ className?: string }>
+}
+
+const toolsLinks: NavLinkItem[] = [
   {
     to: '/planning',
     label: 'Planning',
     description: 'Préparer tes prochaines séances',
-    icon: '📅',
+    icon: CalendarDays,
   },
   {
     to: '/progress',
     label: 'Progression',
-    description: 'Voir ton niveau, ton XP et tes badges',
-    icon: '📊',
+    description: 'Ton niveau, ton XP et tes badges',
+    icon: TrendingUp,
   },
 ]
 
-const profileLinks = [
+const profileLinks: NavLinkItem[] = [
   {
     to: '/profile',
     label: 'Mon profil',
     description: 'Photo, pseudo et identité sportive',
-    icon: '🙂',
+    icon: UserRound,
   },
   {
     to: '/body',
     label: 'Profil physique',
-    description: 'Corps, santé et informations sportives',
-    icon: '🧍',
+    description: 'Corps, santé et infos sportives',
+    icon: HeartPulse,
   },
   {
     to: '/challenges',
     label: 'Défis',
     description: 'Objectifs, badges et motivation',
-    icon: '🎯',
+    icon: Target,
   },
 ]
 
@@ -90,35 +115,30 @@ export default function AppNavigation({
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050816]/90 text-slate-50 shadow-2xl shadow-black/20 backdrop-blur-xl">
-        <nav className="mx-auto flex w-full max-w-[1380px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-xl">
+        <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <Link
             to="/"
             onClick={closeAllMenus}
             className="group flex min-w-0 items-center gap-3"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-sky-400/10 text-2xl shadow-lg shadow-emerald-400/5 transition group-hover:scale-105">
-              ⚡
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-sm transition group-hover:scale-105">
+              <Dumbbell className="h-5 w-5" />
             </div>
 
             <div className="min-w-0">
-              <p className="truncate text-lg font-black leading-tight text-white">
+              <p className="truncate text-base font-bold leading-tight text-slate-900">
                 Carnet de sport
               </p>
 
-              <p className="truncate text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
-                Suivi sportif & motivation
+              <p className="truncate text-xs font-semibold text-emerald-600">
+                Suivi & motivation
               </p>
             </div>
           </Link>
 
-          <div className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1.5 shadow-xl shadow-black/20 lg:flex">
-            <DesktopNavLink
-              to="/"
-              label="Accueil"
-              end
-              onClick={closeAllMenus}
-            />
+          <div className="hidden items-center gap-1 lg:flex">
+            <DesktopNavLink to="/" label="Accueil" end onClick={closeAllMenus} />
 
             <DesktopNavLink
               to="/workouts"
@@ -128,8 +148,6 @@ export default function AppNavigation({
 
             <DesktopDropdown
               label="Outils"
-              title="Outils du carnet"
-              subtitle="Planning, progression et suivi"
               links={toolsLinks}
               isActive={isToolsActive}
               isOpen={openDesktopMenu === 'tools'}
@@ -143,11 +161,9 @@ export default function AppNavigation({
             <Link
               to="/workouts/new"
               onClick={closeAllMenus}
-              className="inline-flex items-center gap-3 rounded-full border border-emerald-400/20 bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-emerald-400/10 transition hover:bg-emerald-300"
+              className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-emerald-300">
-                +
-              </span>
+              <Plus className="h-4 w-4" />
               Ajouter une séance
             </Link>
 
@@ -166,10 +182,14 @@ export default function AppNavigation({
           <button
             type="button"
             onClick={toggleMobileMenu}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-xl transition hover:bg-white/[0.1] lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-50 lg:hidden"
             aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
           >
-            {isMobileMenuOpen ? '✕' : '☰'}
+            {isMobileMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </nav>
       </header>
@@ -206,10 +226,10 @@ function DesktopNavLink({
       onClick={onClick}
       className={({ isActive }) =>
         [
-          'rounded-full px-5 py-3 text-sm font-black transition',
+          'rounded-full px-4 py-2 text-sm font-semibold transition',
           isActive
-            ? 'bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/10'
-            : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
+            ? 'bg-emerald-50 text-emerald-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
         ].join(' ')
       }
     >
@@ -220,8 +240,6 @@ function DesktopNavLink({
 
 function DesktopDropdown({
   label,
-  title,
-  subtitle,
   links,
   isActive,
   isOpen,
@@ -230,9 +248,7 @@ function DesktopDropdown({
   onItemClick,
 }: {
   label: string
-  title: string
-  subtitle: string
-  links: typeof toolsLinks
+  links: NavLinkItem[]
   isActive: boolean
   isOpen: boolean
   onOpen: () => void
@@ -240,50 +256,35 @@ function DesktopDropdown({
   onItemClick: () => void
 }) {
   return (
-    <div
-      className="relative"
-      onMouseEnter={onOpen}
-      onMouseLeave={onClose}
-    >
+    <div className="relative" onMouseEnter={onOpen} onMouseLeave={onClose}>
       <button
         type="button"
         className={[
-          'inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black transition',
+          'inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition',
           isActive || isOpen
-            ? 'bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/10'
-            : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
+            ? 'bg-emerald-50 text-emerald-700'
+            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
         ].join(' ')}
       >
         {label}
-        <span
-          className={[
-            'text-xs transition',
-            isOpen ? 'rotate-180' : '',
-          ].join(' ')}
-        >
-          ⌄
-        </span>
+        <ChevronDown
+          className={['h-4 w-4 transition', isOpen ? 'rotate-180' : ''].join(
+            ' ',
+          )}
+        />
       </button>
 
-      <div className="absolute left-0 top-full h-4 w-full" />
+      <div className="absolute left-0 top-full h-3 w-full" />
 
       <div
         className={[
-          'absolute left-1/2 top-[calc(100%+0.75rem)] z-50 w-[420px] -translate-x-1/2 rounded-[2rem] border border-white/10 bg-[#07111f] p-5 shadow-2xl shadow-black/40 transition duration-150',
+          'absolute left-1/2 top-[calc(100%+0.5rem)] z-50 w-[340px] -translate-x-1/2 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg transition duration-150',
           isOpen
             ? 'visible translate-y-0 opacity-100'
             : 'invisible translate-y-2 opacity-0',
         ].join(' ')}
       >
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-300">
-          {title}
-        </p>
-
-        <p className="mt-1 text-sm font-bold text-slate-400">
-          {subtitle}
-        </p>
-
-        <div className="mt-5 grid gap-3">
+        <div className="grid gap-1">
           {links.map((link) => (
             <DropdownItem
               key={link.to}
@@ -321,7 +322,7 @@ function DesktopProfileDropdown({
 }) {
   if (isAuthLoading) {
     return (
-      <div className="rounded-full border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-black text-slate-400">
+      <div className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-400">
         Connexion...
       </div>
     )
@@ -332,8 +333,9 @@ function DesktopProfileDropdown({
       <Link
         to="/auth"
         onClick={onItemClick}
-        className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.05] px-5 py-3 text-sm font-black text-slate-100 transition hover:bg-white/[0.1]"
+        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
       >
+        <LogIn className="h-4 w-4" />
         Se connecter
       </Link>
     )
@@ -348,63 +350,51 @@ function DesktopProfileDropdown({
   }
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={onOpen}
-      onMouseLeave={onClose}
-    >
+    <div className="relative" onMouseEnter={onOpen} onMouseLeave={onClose}>
       <button
         type="button"
         className={[
-          'inline-flex max-w-[270px] items-center gap-3 rounded-full border px-4 py-2.5 transition',
+          'inline-flex max-w-[240px] items-center gap-2.5 rounded-full border px-2 py-1.5 transition',
           isActive || isOpen
-            ? 'border-emerald-400/30 bg-emerald-400/15'
-            : 'border-white/10 bg-white/[0.05] hover:bg-white/[0.1]',
+            ? 'border-emerald-200 bg-emerald-50'
+            : 'border-slate-200 bg-white hover:bg-slate-50',
         ].join(' ')}
       >
         <Avatar avatarUrl={avatarUrl} displayName={displayName} />
 
-        <span className="min-w-0 truncate text-sm font-black text-white">
+        <span className="min-w-0 truncate text-sm font-semibold text-slate-900">
           {displayName}
         </span>
 
-        <span
+        <ChevronDown
           className={[
-            'text-xs text-slate-400 transition',
+            'h-4 w-4 text-slate-400 transition',
             isOpen ? 'rotate-180' : '',
           ].join(' ')}
-        >
-          ⌄
-        </span>
+        />
       </button>
 
-      <div className="absolute left-0 top-full h-4 w-full" />
+      <div className="absolute left-0 top-full h-3 w-full" />
 
       <div
         className={[
-          'absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[430px] rounded-[2rem] border border-white/10 bg-[#07111f] p-5 shadow-2xl shadow-black/40 transition duration-150',
+          'absolute right-0 top-[calc(100%+0.5rem)] z-50 w-[340px] rounded-2xl border border-slate-200 bg-white p-2 shadow-lg transition duration-150',
           isOpen
             ? 'visible translate-y-0 opacity-100'
             : 'invisible translate-y-2 opacity-0',
         ].join(' ')}
       >
-        <div className="rounded-[1.5rem] border border-emerald-400/20 bg-emerald-400/10 p-4">
-          <div className="flex items-center gap-4">
-            <Avatar avatarUrl={avatarUrl} displayName={displayName} large />
+        <div className="flex items-center gap-3 rounded-xl bg-emerald-50 p-3">
+          <Avatar avatarUrl={avatarUrl} displayName={displayName} large />
 
-            <div className="min-w-0">
-              <p className="truncate text-lg font-black text-white">
-                {displayName}
-              </p>
+          <div className="min-w-0">
+            <p className="truncate font-bold text-slate-900">{displayName}</p>
 
-              <p className="truncate text-sm font-bold text-slate-400">
-                {user.email}
-              </p>
-            </div>
+            <p className="truncate text-sm text-slate-500">{user.email}</p>
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3">
+        <div className="mt-2 grid gap-1">
           {profileLinks.map((link) => (
             <DropdownItem
               key={link.to}
@@ -421,20 +411,15 @@ function DesktopProfileDropdown({
             onClick={() => {
               void handleSignOut()
             }}
-            className="rounded-[1.5rem] border border-red-400/20 bg-red-400/10 p-4 text-left transition hover:bg-red-400/20"
+            className="flex items-center gap-3 rounded-xl p-3 text-left transition hover:bg-rose-50"
           >
-            <div className="flex items-center gap-4">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-400/15 text-2xl">
-                🚪
-              </span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+              <LogOut className="h-5 w-5" />
+            </span>
 
-              <div>
-                <p className="font-black text-red-200">Déconnexion</p>
-
-                <p className="mt-1 text-sm font-bold text-red-100/70">
-                  Quitter ton compte
-                </p>
-              </div>
+            <div>
+              <p className="font-semibold text-rose-600">Déconnexion</p>
+              <p className="text-sm text-slate-500">Quitter ton compte</p>
             </div>
           </button>
         </div>
@@ -445,13 +430,13 @@ function DesktopProfileDropdown({
 
 function DropdownItem({
   to,
-  icon,
+  icon: Icon,
   label,
   description,
   onClick,
 }: {
   to: string
-  icon: string
+  icon: ComponentType<{ className?: string }>
   label: string
   description: string
   onClick: () => void
@@ -460,20 +445,15 @@ function DropdownItem({
     <Link
       to={to}
       onClick={onClick}
-      className="rounded-[1.5rem] border border-transparent p-4 transition hover:border-white/10 hover:bg-white/[0.06]"
+      className="flex items-center gap-3 rounded-xl p-3 transition hover:bg-slate-50"
     >
-      <div className="flex items-center gap-4">
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/[0.06] text-2xl">
-          {icon}
-        </span>
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+        <Icon className="h-5 w-5" />
+      </span>
 
-        <div>
-          <p className="font-black text-white">{label}</p>
-
-          <p className="mt-1 text-sm font-bold text-slate-400">
-            {description}
-          </p>
-        </div>
+      <div>
+        <p className="font-semibold text-slate-900">{label}</p>
+        <p className="text-sm text-slate-500">{description}</p>
       </div>
     </Link>
   )
@@ -509,28 +489,28 @@ function MobileMenu({
   return (
     <div className="fixed inset-0 z-[80] lg:hidden">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
         onClick={onClose}
       />
 
-      <aside className="absolute right-0 top-0 h-screen w-full max-w-[430px] overflow-y-auto border-l border-white/10 bg-[#050816] px-5 py-5 text-slate-50 shadow-2xl shadow-black/50">
+      <aside className="absolute right-0 top-0 h-screen w-full max-w-[400px] overflow-y-auto border-l border-slate-200 bg-white px-5 py-5 shadow-xl">
         <div className="flex items-center justify-between gap-4">
           <Link
             to="/"
             onClick={onClose}
             className="flex min-w-0 items-center gap-3"
           >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-sky-400/10 text-2xl">
-              ⚡
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white">
+              <Dumbbell className="h-6 w-6" />
             </div>
 
             <div className="min-w-0">
-              <p className="truncate text-xl font-black text-white">
+              <p className="truncate text-lg font-bold text-slate-900">
                 Carnet de sport
               </p>
 
-              <p className="truncate text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
-                Suivi sportif
+              <p className="truncate text-xs font-semibold text-emerald-600">
+                Suivi & motivation
               </p>
             </div>
           </Link>
@@ -538,25 +518,19 @@ function MobileMenu({
           <button
             type="button"
             onClick={onClose}
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05] text-2xl text-slate-200"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700"
             aria-label="Fermer le menu"
           >
-            ×
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        <div className="mt-8 grid gap-3">
-          <MobileBigLink
-            to="/"
-            icon="🏠"
-            label="Accueil"
-            onClick={onClose}
-            end
-          />
+        <div className="mt-6 grid gap-2">
+          <MobileBigLink to="/" icon={Home} label="Accueil" onClick={onClose} end />
 
           <MobileBigLink
             to="/workouts/new"
-            icon="+"
+            icon={Plus}
             label="Ajouter une séance"
             onClick={onClose}
             variant="primary"
@@ -564,13 +538,13 @@ function MobileMenu({
 
           <MobileBigLink
             to="/workouts"
-            icon="📘"
+            icon={NotebookPen}
             label="Séances"
             onClick={onClose}
           />
 
           <MobileAccordion
-            icon="🧰"
+            icon={<ToolsIcon />}
             label="Outils"
             isOpen={openSection === 'tools'}
             onToggle={() => toggleSection('tools')}
@@ -588,46 +562,40 @@ function MobileMenu({
           </MobileAccordion>
 
           {isAuthLoading ? (
-            <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-5 text-sm font-black text-slate-400">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 text-sm font-semibold text-slate-400">
               Connexion...
             </div>
           ) : !user ? (
             <MobileBigLink
               to="/auth"
-              icon="🔐"
+              icon={LogIn}
               label="Se connecter"
               onClick={onClose}
             />
           ) : (
             <MobileAccordion
               icon={
-                <Avatar
-                  avatarUrl={avatarUrl}
-                  displayName={displayName}
-                  large
-                />
+                <Avatar avatarUrl={avatarUrl} displayName={displayName} large />
               }
               label={displayName}
               isOpen={openSection === 'profile'}
               onToggle={() => toggleSection('profile')}
             >
-              <div className="mb-3 rounded-[1.5rem] border border-emerald-400/20 bg-emerald-400/10 p-4">
-                <div className="flex items-center gap-4">
-                  <Avatar
-                    avatarUrl={avatarUrl}
-                    displayName={displayName}
-                    large
-                  />
+              <div className="mb-2 flex items-center gap-3 rounded-xl bg-emerald-50 p-3">
+                <Avatar
+                  avatarUrl={avatarUrl}
+                  displayName={displayName}
+                  large
+                />
 
-                  <div className="min-w-0">
-                    <p className="truncate font-black text-white">
-                      {displayName}
-                    </p>
+                <div className="min-w-0">
+                  <p className="truncate font-bold text-slate-900">
+                    {displayName}
+                  </p>
 
-                    <p className="truncate text-sm font-bold text-slate-400">
-                      {user.email}
-                    </p>
-                  </div>
+                  <p className="truncate text-sm text-slate-500">
+                    {user.email}
+                  </p>
                 </div>
               </div>
 
@@ -647,19 +615,15 @@ function MobileMenu({
                 onClick={() => {
                   void handleSignOut()
                 }}
-                className="mt-2 w-full rounded-[1.5rem] border border-red-400/20 bg-red-400/10 p-4 text-left transition hover:bg-red-400/20"
+                className="mt-1 flex w-full items-center gap-3 rounded-xl p-3 text-left transition hover:bg-rose-50"
               >
-                <div className="flex items-center gap-4">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-400/15 text-xl">
-                    🚪
-                  </span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-50 text-rose-600">
+                  <LogOut className="h-5 w-5" />
+                </span>
 
-                  <div>
-                    <p className="font-black text-red-200">Déconnexion</p>
-                    <p className="mt-1 text-sm font-bold text-red-100/70">
-                      Quitter ton compte
-                    </p>
-                  </div>
+                <div>
+                  <p className="font-semibold text-rose-600">Déconnexion</p>
+                  <p className="text-sm text-slate-500">Quitter ton compte</p>
                 </div>
               </button>
             </MobileAccordion>
@@ -672,14 +636,14 @@ function MobileMenu({
 
 function MobileBigLink({
   to,
-  icon,
+  icon: Icon,
   label,
   onClick,
   end,
   variant = 'default',
 }: {
   to: string
-  icon: string
+  icon: ComponentType<{ className?: string }>
   label: string
   onClick: () => void
   end?: boolean
@@ -690,17 +654,13 @@ function MobileBigLink({
       <Link
         to={to}
         onClick={onClick}
-        className="flex items-center justify-between gap-4 rounded-[1.75rem] bg-emerald-400 p-5 text-slate-950 shadow-xl shadow-emerald-400/10 transition hover:bg-emerald-300"
+        className="flex items-center gap-3 rounded-2xl bg-emerald-600 p-4 text-white shadow-sm transition hover:bg-emerald-700"
       >
-        <span className="flex items-center gap-4">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-950 text-xl font-black text-emerald-300">
-            {icon}
-          </span>
-
-          <span className="text-lg font-black">{label}</span>
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
+          <Icon className="h-5 w-5" />
         </span>
 
-        <span className="text-xl">→</span>
+        <span className="text-base font-semibold">{label}</span>
       </Link>
     )
   }
@@ -712,19 +672,18 @@ function MobileBigLink({
       onClick={onClick}
       className={({ isActive }) =>
         [
-          'flex items-center justify-between gap-4 rounded-[1.75rem] border p-5 transition',
+          'flex items-center gap-3 rounded-2xl border p-4 transition',
           isActive
-            ? 'border-emerald-400/30 bg-emerald-400/15 text-emerald-200'
-            : 'border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08]',
+            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+            : 'border-slate-200 bg-white text-slate-900 hover:bg-slate-50',
         ].join(' ')
       }
     >
-      <span className="flex items-center gap-4">
-        <span className="text-2xl">{icon}</span>
-        <span className="text-lg font-black">{label}</span>
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+        <Icon className="h-5 w-5" />
       </span>
 
-      <span className="text-xl text-slate-400">→</span>
+      <span className="text-base font-semibold">{label}</span>
     </NavLink>
   )
 }
@@ -736,59 +695,49 @@ function MobileAccordion({
   onToggle,
   children,
 }: {
-  icon: string | React.ReactNode
+  icon: React.ReactNode
   label: string
   isOpen: boolean
   onToggle: () => void
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-4">
+    <div className="rounded-2xl border border-slate-200 bg-white p-2">
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between gap-4 rounded-[1.25rem] px-1 py-1 text-left"
+        className="flex w-full items-center justify-between gap-3 rounded-xl p-2 text-left"
       >
-        <span className="flex min-w-0 items-center gap-4">
-          {typeof icon === 'string' ? (
-            <span className="text-2xl">{icon}</span>
-          ) : (
-            icon
-          )}
+        <span className="flex min-w-0 items-center gap-3">
+          {icon}
 
-          <span className="min-w-0 truncate text-lg font-black text-white">
+          <span className="min-w-0 truncate text-base font-semibold text-slate-900">
             {label}
           </span>
         </span>
 
-        <span
+        <ChevronDown
           className={[
-            'text-sm text-slate-400 transition',
+            'h-4 w-4 text-slate-400 transition',
             isOpen ? 'rotate-180' : '',
           ].join(' ')}
-        >
-          ⌄
-        </span>
+        />
       </button>
 
-      {isOpen ? (
-        <div className="mt-4 grid gap-3">
-          {children}
-        </div>
-      ) : null}
+      {isOpen ? <div className="mt-1 grid gap-1">{children}</div> : null}
     </div>
   )
 }
 
 function MobileSubLink({
   to,
-  icon,
+  icon: Icon,
   label,
   description,
   onClick,
 }: {
   to: string
-  icon: string
+  icon: ComponentType<{ className?: string }>
   label: string
   description: string
   onClick: () => void
@@ -797,20 +746,15 @@ function MobileSubLink({
     <Link
       to={to}
       onClick={onClick}
-      className="rounded-[1.5rem] border border-white/10 bg-slate-950/50 p-4 transition hover:bg-white/[0.06]"
+      className="flex items-center gap-3 rounded-xl p-3 transition hover:bg-slate-50"
     >
-      <div className="flex items-center gap-4">
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/[0.06] text-xl">
-          {icon}
-        </span>
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+        <Icon className="h-5 w-5" />
+      </span>
 
-        <div>
-          <p className="font-black text-white">{label}</p>
-
-          <p className="mt-1 text-sm leading-6 text-slate-400">
-            {description}
-          </p>
-        </div>
+      <div>
+        <p className="font-semibold text-slate-900">{label}</p>
+        <p className="text-sm leading-5 text-slate-500">{description}</p>
       </div>
     </Link>
   )
@@ -826,7 +770,7 @@ function Avatar({
   large?: boolean
 }) {
   const [hasError, setHasError] = useState(false)
-  const sizeClass = large ? 'h-14 w-14 text-xl' : 'h-10 w-10 text-base'
+  const sizeClass = large ? 'h-11 w-11 text-base' : 'h-9 w-9 text-sm'
 
   if (avatarUrl && !hasError) {
     return (
@@ -834,16 +778,24 @@ function Avatar({
         src={avatarUrl}
         alt={displayName}
         onError={() => setHasError(true)}
-        className={`${sizeClass} shrink-0 rounded-full border border-white/10 object-cover`}
+        className={`${sizeClass} shrink-0 rounded-full border border-slate-200 object-cover`}
       />
     )
   }
 
   return (
     <span
-      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/15 font-black text-emerald-200`}
+      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full bg-emerald-100 font-bold text-emerald-700`}
     >
       {getInitials(displayName)}
+    </span>
+  )
+}
+
+function ToolsIcon() {
+  return (
+    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+      <Wrench className="h-5 w-5" />
     </span>
   )
 }

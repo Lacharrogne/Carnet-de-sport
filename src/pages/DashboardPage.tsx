@@ -1,5 +1,14 @@
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import {
+  ArrowRight,
+  CalendarDays,
+  Clock,
+  Plus,
+  Sprout,
+  Target,
+  TrendingUp,
+} from 'lucide-react'
 
 import NextPlannedWorkoutCard from '../components/NextPlannedWorkoutCard'
 import WeeklyGoalCard from '../components/WeeklyGoalCard'
@@ -26,33 +35,17 @@ export default function DashboardPage({
   const navigate = useNavigate()
 
   const today = getTodayDate()
-  const startOfWeek = getStartOfWeek()
-  const endOfWeek = getEndOfWeek()
 
   const sortedWorkouts = [...workouts].sort((a, b) => {
     return (
-      getDateFromString(b.date).getTime() -
-      getDateFromString(a.date).getTime()
+      getDateFromString(b.date).getTime() - getDateFromString(a.date).getTime()
     )
   })
 
   const latestWorkouts = sortedWorkouts.slice(0, 3)
 
-  const upcomingPlannedWorkouts = plannedWorkouts
-    .filter((plannedWorkout) => {
-      return getDateFromString(plannedWorkout.date).getTime() >= today.getTime()
-    })
-    .sort((a, b) => {
-      return (
-        getDateFromString(a.date).getTime() -
-        getDateFromString(b.date).getTime()
-      )
-    })
-
-  const weeklyWorkouts = workouts.filter((workout) => {
-    const workoutDate = getDateFromString(workout.date)
-
-    return workoutDate >= startOfWeek && workoutDate <= endOfWeek
+  const upcomingPlannedWorkouts = plannedWorkouts.filter((plannedWorkout) => {
+    return getDateFromString(plannedWorkout.date).getTime() >= today.getTime()
   })
 
   const totalWorkouts = workouts.length
@@ -61,40 +54,21 @@ export default function DashboardPage({
     return total + workout.duration
   }, 0)
 
-  const weeklyDuration = weeklyWorkouts.reduce((total, workout) => {
-    return total + workout.duration
-  }, 0)
-
-  const recordCount = workouts.filter((workout) => {
-    return workout.trend === 'record'
-  }).length
-
-  const weeklyGoalProgress =
-    weeklyGoal.targetMinutes > 0
-      ? Math.min(
-          Math.round((weeklyDuration / weeklyGoal.targetMinutes) * 100),
-          100,
-        )
-      : 0
-
   const handleOpenWorkout = (workoutId: string) => {
     navigate(`/workouts/${workoutId}`)
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <DashboardHero
           totalWorkouts={totalWorkouts}
           totalDuration={totalDuration}
           upcomingCount={upcomingPlannedWorkouts.length}
-          weeklyDuration={weeklyDuration}
-          weeklyTarget={weeklyGoal.targetMinutes}
-          weeklyProgress={weeklyGoalProgress}
           onAddWorkoutClick={onAddWorkoutClick}
         />
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="space-y-6">
             <WeeklyGoalCard
               workouts={workouts}
@@ -109,19 +83,10 @@ export default function DashboardPage({
             />
           </div>
 
-          <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
+          <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
             <NextPlannedWorkoutCard plannedWorkouts={plannedWorkouts} />
 
             <QuickActions onAddWorkoutClick={onAddWorkoutClick} />
-
-            <MiniSummary
-              totalWorkouts={totalWorkouts}
-              totalDuration={totalDuration}
-              weeklyDuration={weeklyDuration}
-              weeklyWorkoutsCount={weeklyWorkouts.length}
-              upcomingCount={upcomingPlannedWorkouts.length}
-              recordCount={recordCount}
-            />
           </aside>
         </div>
       </section>
@@ -133,142 +98,70 @@ function DashboardHero({
   totalWorkouts,
   totalDuration,
   upcomingCount,
-  weeklyDuration,
-  weeklyTarget,
-  weeklyProgress,
   onAddWorkoutClick,
 }: {
   totalWorkouts: number
   totalDuration: number
   upcomingCount: number
-  weeklyDuration: number
-  weeklyTarget: number
-  weeklyProgress: number
   onAddWorkoutClick: () => void
 }) {
   return (
-    <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
-      <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
+    <header className="rounded-3xl border border-slate-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm sm:p-8">
+      <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
+        Carnet de sport
+      </p>
 
-      <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
-            Carnet de sport
-          </p>
+      <h1 className="mt-3 max-w-2xl text-3xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl">
+        Ton suivi sportif, simple et motivant.
+      </h1>
 
-          <h1 className="mt-4 max-w-3xl text-3xl font-black leading-tight tracking-tight text-white sm:text-4xl lg:text-5xl">
-            Ton suivi sportif, simple et motivant.
-          </h1>
+      <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+        Ajoute tes séances, garde un œil sur ton objectif de la semaine et
+        prépare ton prochain entraînement. Rien de superflu.
+      </p>
 
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-            Ajoute tes séances, suis ton objectif de la semaine et prépare ton
-            prochain entraînement sans transformer ton dashboard en tableau de
-            bord compliqué.
-          </p>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <button
+          type="button"
+          onClick={onAddWorkoutClick}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        >
+          <Plus className="h-4 w-4" />
+          Ajouter une séance
+        </button>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={onAddWorkoutClick}
-              className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
-            >
-              + Ajouter une séance
-            </button>
+        <Link
+          to="/planning"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+        >
+          <CalendarDays className="h-4 w-4" />
+          Voir le planning
+        </Link>
+      </div>
 
-            <Link
-              to="/planning"
-              className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
-            >
-              Voir le planning
-            </Link>
-          </div>
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <HeroStat
+          icon={TrendingUp}
+          label="Séances"
+          value={String(totalWorkouts)}
+          description="dans ton carnet"
+        />
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <HeroStat
-              label="Séances"
-              value={totalWorkouts}
-              description="dans ton carnet"
-            />
+        <HeroStat
+          icon={Clock}
+          label="Temps total"
+          value={formatDuration(totalDuration)}
+          description="d’activité enregistrée"
+        />
 
-            <HeroStat
-              label="Temps total"
-              value={formatDuration(totalDuration)}
-              description="d’activité enregistrée"
-            />
-
-            <HeroStat
-              label="À venir"
-              value={upcomingCount}
-              description={
-                upcomingCount > 1 ? 'séances prévues' : 'séance prévue'
-              }
-            />
-          </div>
-        </div>
-
-        <WeekFocusCard
-          weeklyDuration={weeklyDuration}
-          targetMinutes={weeklyTarget}
-          progress={weeklyProgress}
+        <HeroStat
+          icon={CalendarDays}
+          label="À venir"
+          value={String(upcomingCount)}
+          description={upcomingCount > 1 ? 'séances prévues' : 'séance prévue'}
         />
       </div>
     </header>
-  )
-}
-
-function WeekFocusCard({
-  weeklyDuration,
-  targetMinutes,
-  progress,
-}: {
-  weeklyDuration: number
-  targetMinutes: number
-  progress: number
-}) {
-  return (
-    <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-5">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-slate-500">
-            Objectif semaine
-          </p>
-
-          <p className="mt-3 text-4xl font-black text-white">{progress}%</p>
-        </div>
-
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300">
-          🎯 Focus
-        </div>
-      </div>
-
-      <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-950">
-        <div
-          className="h-full rounded-full bg-emerald-400"
-          style={{
-            width: `${progress}%`,
-          }}
-        />
-      </div>
-
-      <p className="mt-4 text-sm leading-6 text-slate-300">
-        {targetMinutes > 0 ? (
-          <>
-            {formatDuration(weeklyDuration)} réalisés sur{' '}
-            {formatDuration(targetMinutes)} prévus.
-          </>
-        ) : (
-          <>Définis un objectif pour mieux suivre ta semaine.</>
-        )}
-      </p>
-
-      <Link
-        to="/progress"
-        className="mt-5 inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
-      >
-        Voir ma progression
-      </Link>
-    </div>
   )
 }
 
@@ -283,31 +176,30 @@ function RecentWorkoutsSection({
 }) {
   return (
     <Panel>
-      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="mb-5 flex items-center justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-600">
             Dernières séances
           </p>
 
-          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+          <h2 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
             Ton historique récent
           </h2>
         </div>
 
         <Link
           to="/workouts"
-          className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
         >
           Voir le carnet
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
       {workouts.length > 0 ? (
         <div
           className={
-            workouts.length === 1
-              ? 'max-w-md'
-              : 'grid gap-4 lg:grid-cols-2 2xl:grid-cols-3'
+            workouts.length === 1 ? 'max-w-md' : 'grid gap-4 lg:grid-cols-2'
           }
         >
           {workouts.map((workout) => (
@@ -332,79 +224,43 @@ function QuickActions({
   onAddWorkoutClick: () => void
 }) {
   return (
-    <Panel title="Actions rapides" accent="emerald">
-      <div className="grid gap-3">
+    <Panel title="Actions rapides">
+      <div className="grid gap-2">
         <button
           type="button"
           onClick={onAddWorkoutClick}
-          className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-5 text-left transition hover:bg-emerald-400/15"
+          className="flex items-center gap-3 rounded-2xl bg-emerald-50 p-4 text-left transition hover:bg-emerald-100"
         >
-          <p className="text-base font-black text-white sm:text-lg">
-            + Ajouter une séance
-          </p>
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-600 text-white">
+            <Plus className="h-5 w-5" />
+          </span>
 
-          <p className="mt-1 text-sm leading-6 text-slate-400">
-            Note ton entraînement du jour.
-          </p>
+          <div>
+            <p className="font-semibold text-slate-900">Ajouter une séance</p>
+            <p className="text-sm text-slate-500">Note ton entraînement du jour.</p>
+          </div>
         </button>
 
         <ActionLink
           to="/planning"
           title="Planning"
           text="Préparer tes prochaines séances."
-          icon="📅"
+          icon={CalendarDays}
         />
 
         <ActionLink
           to="/progress"
           title="Progression"
-          text="Voir ton niveau, ton XP et tes badges."
-          icon="📊"
+          text="Ton niveau, ton XP et tes badges."
+          icon={TrendingUp}
         />
 
         <ActionLink
           to="/challenges"
           title="Défis"
-          text="Retrouver les objectifs à compléter."
-          icon="🎯"
+          text="Les objectifs à compléter."
+          icon={Target}
         />
-      </div>
-    </Panel>
-  )
-}
-
-function MiniSummary({
-  totalWorkouts,
-  totalDuration,
-  weeklyDuration,
-  weeklyWorkoutsCount,
-  upcomingCount,
-  recordCount,
-}: {
-  totalWorkouts: number
-  totalDuration: number
-  weeklyDuration: number
-  weeklyWorkoutsCount: number
-  upcomingCount: number
-  recordCount: number
-}) {
-  return (
-    <Panel title="Résumé express">
-      <div className="space-y-3">
-        <SummaryLine label="Séances totales" value={`${totalWorkouts}`} />
-
-        <SummaryLine label="Temps total" value={formatDuration(totalDuration)} />
-
-        <SummaryLine
-          label="Cette semaine"
-          value={`${weeklyWorkoutsCount} séance${
-            weeklyWorkoutsCount > 1 ? 's' : ''
-          } · ${formatDuration(weeklyDuration)}`}
-        />
-
-        <SummaryLine label="Séances à venir" value={`${upcomingCount}`} />
-
-        <SummaryLine label="Records" value={`${recordCount} 🔥`} />
       </div>
     </Panel>
   )
@@ -413,48 +269,46 @@ function MiniSummary({
 function Panel({
   title,
   children,
-  accent = 'default',
 }: {
   title?: string
   children: ReactNode
-  accent?: 'default' | 'emerald'
 }) {
-  const titleColor =
-    accent === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
-
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       {title ? (
-        <p
-          className={`text-xs font-black uppercase tracking-[0.24em] ${titleColor}`}
-        >
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
           {title}
         </p>
       ) : null}
 
-      <div className={title ? 'mt-5' : ''}>{children}</div>
+      <div className={title ? 'mt-4' : ''}>{children}</div>
     </section>
   )
 }
 
 function HeroStat({
+  icon: Icon,
   label,
   value,
   description,
 }: {
+  icon: ComponentType<{ className?: string }>
   label: string
-  value: string | number
+  value: string
   description: string
 }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-        {label}
-      </p>
+    <div className="rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="flex items-center gap-2 text-emerald-600">
+        <Icon className="h-4 w-4" />
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          {label}
+        </p>
+      </div>
 
-      <p className="mt-2 text-2xl font-black text-white">{value}</p>
+      <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
 
-      <p className="mt-1 text-xs leading-5 text-slate-400">{description}</p>
+      <p className="mt-0.5 text-xs leading-5 text-slate-500">{description}</p>
     </div>
   )
 }
@@ -463,38 +317,27 @@ function ActionLink({
   to,
   title,
   text,
-  icon,
+  icon: Icon,
 }: {
   to: string
   title: string
   text: string
-  icon: string
+  icon: ComponentType<{ className?: string }>
 }) {
   return (
     <Link
       to={to}
-      className="rounded-3xl border border-white/10 bg-slate-950/50 p-5 transition hover:bg-white/[0.06]"
+      className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition hover:bg-slate-50"
     >
-      <div className="flex items-start gap-4">
-        <p className="text-2xl">{icon}</p>
+      <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+        <Icon className="h-5 w-5" />
+      </span>
 
-        <div>
-          <p className="font-black text-white">{title}</p>
-
-          <p className="mt-1 text-sm leading-6 text-slate-400">{text}</p>
-        </div>
+      <div>
+        <p className="font-semibold text-slate-900">{title}</p>
+        <p className="text-sm text-slate-500">{text}</p>
       </div>
     </Link>
-  )
-}
-
-function SummaryLine({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-4 rounded-3xl border border-white/10 bg-slate-950/50 px-5 py-4">
-      <p className="text-sm font-bold text-slate-400">{label}</p>
-
-      <p className="text-right text-sm font-black text-white">{value}</p>
-    </div>
   )
 }
 
@@ -504,14 +347,16 @@ function EmptyState({
   onAddWorkoutClick: () => void
 }) {
   return (
-    <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/50 p-8 text-center">
-      <p className="text-5xl">🌱</p>
+    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+      <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
+        <Sprout className="h-7 w-7" />
+      </span>
 
-      <h3 className="mt-4 text-2xl font-black text-white">
+      <h3 className="mt-4 text-xl font-bold text-slate-900">
         Aucune séance pour le moment.
       </h3>
 
-      <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-slate-400">
+      <p className="mx-auto mt-2 max-w-md text-sm leading-7 text-slate-500">
         Ajoute ton premier entraînement pour commencer à construire ton
         historique.
       </p>
@@ -519,8 +364,9 @@ function EmptyState({
       <button
         type="button"
         onClick={onAddWorkoutClick}
-        className="mt-6 rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+        className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
       >
+        <Plus className="h-4 w-4" />
         Créer ma première séance
       </button>
     </div>
@@ -547,28 +393,6 @@ function getTodayDate() {
   today.setHours(0, 0, 0, 0)
 
   return today
-}
-
-function getStartOfWeek() {
-  const today = getTodayDate()
-  const day = today.getDay()
-  const diff = day === 0 ? -6 : 1 - day
-
-  const startOfWeek = new Date(today)
-  startOfWeek.setDate(today.getDate() + diff)
-  startOfWeek.setHours(0, 0, 0, 0)
-
-  return startOfWeek
-}
-
-function getEndOfWeek() {
-  const startOfWeek = getStartOfWeek()
-  const endOfWeek = new Date(startOfWeek)
-
-  endOfWeek.setDate(startOfWeek.getDate() + 6)
-  endOfWeek.setHours(23, 59, 59, 999)
-
-  return endOfWeek
 }
 
 function getDateFromString(date: string) {

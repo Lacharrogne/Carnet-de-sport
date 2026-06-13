@@ -31,27 +31,27 @@ const trendConfig: Record<Workout['trend'], TrendConfig> = {
   progress: {
     icon: '📈',
     label: 'Progression',
-    className: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300',
+    className: 'border-emerald-200 bg-emerald-50 text-emerald-600',
   },
   stable: {
     icon: '⚖️',
     label: 'Stable',
-    className: 'border-sky-400/20 bg-sky-400/10 text-sky-300',
+    className: 'border-sky-200 bg-sky-50 text-sky-700',
   },
   regress: {
     icon: '📉',
     label: 'Régression',
-    className: 'border-orange-400/20 bg-orange-400/10 text-orange-300',
+    className: 'border-amber-200 bg-amber-50 text-amber-600',
   },
   record: {
     icon: '🔥',
     label: 'Record',
-    className: 'border-red-400/20 bg-red-400/10 text-red-300',
+    className: 'border-rose-200 bg-rose-50 text-rose-600',
   },
   first: {
     icon: '🌱',
     label: 'Première séance',
-    className: 'border-lime-400/20 bg-lime-400/10 text-lime-300',
+    className: 'border-lime-200 bg-lime-50 text-lime-600',
   },
 }
 
@@ -77,13 +77,13 @@ export default function WorkoutDetailPage({
   }).format(new Date(`${workout.date}T00:00:00`))
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <main className="min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
+      <section className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <button
             type="button"
             onClick={onBack}
-            className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
+            className="rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
           >
             ← Retour au carnet
           </button>
@@ -92,7 +92,7 @@ export default function WorkoutDetailPage({
             <button
               type="button"
               onClick={() => onEdit(workout.id)}
-              className="rounded-full border border-sky-400/20 bg-sky-400/10 px-5 py-3 text-sm font-black text-sky-200 transition hover:bg-sky-400/20"
+              className="rounded-full border border-sky-200 bg-sky-50 px-5 py-3 text-sm font-bold text-sky-700 transition hover:bg-sky-100"
             >
               ✎ Modifier
             </button>
@@ -101,7 +101,7 @@ export default function WorkoutDetailPage({
               <button
                 type="button"
                 onClick={() => onDelete(workout.id)}
-                className="rounded-full border border-red-400/20 bg-red-400/10 px-5 py-3 text-sm font-black text-red-200 transition hover:bg-red-400/20"
+                className="rounded-full border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-600 transition hover:bg-rose-100"
               >
                 ✕ Supprimer
               </button>
@@ -109,27 +109,24 @@ export default function WorkoutDetailPage({
           </div>
         </div>
 
-        <section className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
-
+        <section className="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm sm:p-7 lg:p-8">
           <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
             <div>
               <div className="flex flex-wrap items-center gap-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-[1.5rem] border border-white/10 bg-white/10 text-3xl sm:h-20 sm:w-20 sm:text-4xl">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-3xl sm:h-20 sm:w-20 sm:text-4xl">
                   {category?.emoji ?? '✨'}
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+                  <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
                     Séance réalisée
                   </p>
 
-                  <h1 className="mt-2 text-3xl font-black leading-tight text-white sm:text-4xl lg:text-5xl">
+                  <h1 className="mt-2 text-3xl font-bold leading-tight text-slate-900 sm:text-4xl lg:text-5xl">
                     {workout.title}
                   </h1>
 
-                  <p className="mt-2 capitalize text-sm leading-6 text-slate-400 sm:text-base">
+                  <p className="mt-2 capitalize text-sm leading-6 text-slate-500 sm:text-base">
                     {formattedDate}
                   </p>
                 </div>
@@ -218,8 +215,8 @@ function PerformanceSummaryPanel({
   const averageReps = getAverageReps(exercises)
 
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
-      <p className="text-xs font-black uppercase tracking-[0.24em] text-slate-500">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
         Résumé de séance
       </p>
 
@@ -279,28 +276,28 @@ function PerformanceSummaryPanel({
       </div>
 
       {bestVolumeExercise ? (
-        <div className="mt-5 rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
+        <div className="mt-5 rounded-3xl border border-emerald-200 bg-emerald-50 p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
             Meilleur volume
           </p>
 
-          <p className="mt-2 text-lg font-black text-white">
+          <p className="mt-2 text-lg font-bold text-slate-900">
             {bestVolumeExercise.name || 'Exercice sans nom'}
           </p>
 
-          <p className="mt-1 text-sm font-bold text-slate-400">
+          <p className="mt-1 text-sm font-bold text-slate-500">
             {formatNumber(getExerciseVolume(bestVolumeExercise))} kg estimés
           </p>
         </div>
       ) : null}
 
       {detailMode === 'climb' ? (
-        <div className="mt-5 rounded-3xl border border-orange-400/15 bg-orange-400/5 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-orange-300">
+        <div className="mt-5 rounded-3xl border border-amber-200 bg-amber-50 p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-amber-600">
             Séance technique
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             Pense à noter les blocs, les voies ou les cotations pour mieux
             suivre ta progression en escalade.
           </p>
@@ -308,7 +305,7 @@ function PerformanceSummaryPanel({
       ) : null}
 
       <div
-        className={`mt-5 inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-black ${trend.className}`}
+        className={`mt-5 inline-flex w-fit items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold ${trend.className}`}
       >
         <span>{trend.icon}</span>
         <span>{trend.label}</span>
@@ -339,19 +336,19 @@ function WorkoutAnalysisSection({
   })
 
   return (
-    <section className="mt-6 rounded-[2rem] border border-sky-400/15 bg-gradient-to-br from-sky-400/10 via-white/[0.04] to-emerald-400/5 p-5 shadow-2xl shadow-black/20 sm:p-6">
+    <section className="mt-6 rounded-3xl border border-sky-200 bg-gradient-to-br from-sky-50 to-white p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-sky-300">
+          <p className="text-xs font-bold uppercase tracking-wide text-sky-700">
             Analyse de séance
           </p>
 
-          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
             Ce que cette séance montre
           </h2>
         </div>
 
-        <p className="max-w-xl text-sm leading-6 text-slate-400">
+        <p className="max-w-xl text-sm leading-6 text-slate-500">
           Analyse automatique basée sur la durée, la tendance et les détails
           enregistrés.
         </p>
@@ -361,15 +358,15 @@ function WorkoutAnalysisSection({
         {analysisItems.map((item) => (
           <article
             key={item.title}
-            className="rounded-3xl border border-white/10 bg-slate-950/35 p-5"
+            className="rounded-3xl border border-slate-200 bg-slate-50 p-5"
           >
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-2xl">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 text-2xl">
               {item.icon}
             </div>
 
-            <h3 className="mt-4 font-black text-white">{item.title}</h3>
+            <h3 className="mt-4 font-bold text-slate-900">{item.title}</h3>
 
-            <p className="mt-2 text-sm leading-6 text-slate-400">
+            <p className="mt-2 text-sm leading-6 text-slate-500">
               {item.text}
             </p>
           </article>
@@ -387,32 +384,32 @@ function StrengthExercisesSection({
   const totalVolume = getTotalVolume(exercises)
 
   return (
-    <section className="overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-emerald-400/5 p-5 shadow-2xl shadow-black/20 sm:p-6">
+    <section className="overflow-hidden rounded-3xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm sm:p-6">
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+          <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
             Exercices réalisés
           </p>
 
-          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
             Détail musculation
           </h2>
 
-          <p className="mt-2 text-sm leading-6 text-slate-400">
+          <p className="mt-2 text-sm leading-6 text-slate-500">
             {exercises.length} exercice{exercises.length > 1 ? 's' : ''}{' '}
             enregistré{exercises.length > 1 ? 's' : ''}.
           </p>
         </div>
 
-        <div className="rounded-full border border-emerald-400/20 bg-slate-950/60 px-5 py-3 text-sm font-black text-emerald-200">
+        <div className="rounded-full border border-emerald-200 bg-slate-100 px-5 py-3 text-sm font-bold text-emerald-700">
           Volume estimé : {formatNumber(totalVolume)} kg
         </div>
       </div>
 
-      <div className="hidden overflow-hidden rounded-[1.75rem] border border-white/10 md:block">
+      <div className="hidden overflow-hidden rounded-2xl border border-slate-200 md:block">
         <table className="w-full table-fixed border-collapse">
-          <thead className="bg-white/[0.08]">
-            <tr className="text-left text-[0.68rem] font-black uppercase tracking-[0.18em] text-slate-500">
+          <thead className="bg-slate-100">
+            <tr className="text-left text-[0.68rem] font-bold uppercase tracking-wide text-slate-400">
               <th className="w-[30%] px-4 py-4">Exercice</th>
               <th className="w-[12%] px-3 py-4 text-center">Séries</th>
               <th className="w-[12%] px-3 py-4 text-center">Reps</th>
@@ -429,37 +426,37 @@ function StrengthExercisesSection({
               return (
                 <tr
                   key={exercise.id}
-                  className="border-t border-white/10 transition hover:bg-white/[0.04]"
+                  className="border-t border-slate-200 transition hover:bg-white"
                 >
                   <td className="px-4 py-4 align-middle">
-                    <p className="break-words font-black text-white">
+                    <p className="break-words font-bold text-slate-900">
                       {exercise.name || 'Exercice sans nom'}
                     </p>
 
                     {exercise.notes ? (
-                      <p className="mt-1 break-words text-sm leading-5 text-slate-500">
+                      <p className="mt-1 break-words text-sm leading-5 text-slate-400">
                         {exercise.notes}
                       </p>
                     ) : null}
                   </td>
 
-                  <td className="px-3 py-4 text-center font-black text-sky-100">
+                  <td className="px-3 py-4 text-center font-bold text-sky-700">
                     {exercise.sets || '—'}
                   </td>
 
-                  <td className="px-3 py-4 text-center font-black text-sky-100">
+                  <td className="px-3 py-4 text-center font-bold text-sky-700">
                     {exercise.reps || '—'}
                   </td>
 
-                  <td className="px-3 py-4 text-center font-black text-sky-100">
+                  <td className="px-3 py-4 text-center font-bold text-sky-700">
                     {formatWeight(exercise.weight)}
                   </td>
 
-                  <td className="px-3 py-4 text-center font-black text-sky-100">
+                  <td className="px-3 py-4 text-center font-bold text-sky-700">
                     {formatRest(exercise.rest)}
                   </td>
 
-                  <td className="px-3 py-4 text-center font-black text-emerald-200">
+                  <td className="px-3 py-4 text-center font-bold text-emerald-700">
                     {exerciseVolume > 0
                       ? `${formatNumber(exerciseVolume)} kg`
                       : '—'}
@@ -478,22 +475,22 @@ function StrengthExercisesSection({
           return (
             <article
               key={exercise.id}
-              className="rounded-3xl border border-white/10 bg-slate-950/35 p-4"
+              className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="break-words text-lg font-black text-white">
+                  <h3 className="break-words text-lg font-bold text-slate-900">
                     {exercise.name || 'Exercice sans nom'}
                   </h3>
 
                   {exercise.notes ? (
-                    <p className="mt-1 break-words text-sm leading-6 text-slate-500">
+                    <p className="mt-1 break-words text-sm leading-6 text-slate-400">
                       {exercise.notes}
                     </p>
                   ) : null}
                 </div>
 
-                <div className="shrink-0 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200">
+                <div className="shrink-0 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
                   {exerciseVolume > 0
                     ? `${formatNumber(exerciseVolume)} kg`
                     : '—'}
@@ -525,8 +522,8 @@ function StrengthExercisesSection({
 
 function OtherDetailsSection({ items }: { items: OtherDetailItem[] }) {
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
-      <p className="text-xs font-black uppercase tracking-[0.24em] text-slate-500">
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
         Autres détails
       </p>
 
@@ -534,13 +531,13 @@ function OtherDetailsSection({ items }: { items: OtherDetailItem[] }) {
         {items.map((item) => (
           <div
             key={item.label}
-            className="rounded-3xl border border-white/10 bg-slate-950/35 p-4"
+            className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
           >
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
               {item.label}
             </p>
 
-            <p className="mt-2 break-words font-black text-white">
+            <p className="mt-2 break-words font-bold text-slate-900">
               {item.value}
             </p>
           </div>
@@ -563,8 +560,8 @@ function TextPanel({
 }) {
   const className =
     variant === 'emerald'
-      ? 'border-emerald-400/15 bg-emerald-400/5'
-      : 'border-white/10 bg-white/[0.04]'
+      ? 'border-emerald-200 bg-emerald-50'
+      : 'border-slate-200 bg-white'
 
   const hasContent =
     typeof children === 'string'
@@ -572,16 +569,16 @@ function TextPanel({
       : Boolean(children)
 
   return (
-    <section className={`rounded-[1.5rem] border p-5 ${className}`}>
+    <section className={`rounded-2xl border p-5 ${className}`}>
       <p
-        className={`text-xs font-black uppercase tracking-[0.2em] ${
-          variant === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
+        className={`text-xs font-bold uppercase tracking-wide ${
+          variant === 'emerald' ? 'text-emerald-600' : 'text-slate-400'
         }`}
       >
         {title}
       </p>
 
-      <p className="mt-4 text-sm leading-7 text-slate-200">
+      <p className="mt-4 text-sm leading-7 text-slate-700">
         {hasContent ? children : emptyText}
       </p>
     </section>
@@ -598,21 +595,21 @@ function EmptyPanel({
   text: string
 }) {
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center shadow-2xl shadow-black/20">
+    <section className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
       <p className="text-5xl">{icon}</p>
 
-      <h2 className="mt-4 text-2xl font-black text-white sm:text-3xl">
+      <h2 className="mt-4 text-2xl font-bold text-slate-900 sm:text-3xl">
         {title}
       </h2>
 
-      <p className="mt-2 text-sm leading-7 text-slate-400">{text}</p>
+      <p className="mt-2 text-sm leading-7 text-slate-500">{text}</p>
     </section>
   )
 }
 
 function Badge({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black text-slate-100 sm:text-sm">
+    <span className="rounded-full border border-slate-200 bg-slate-100 px-4 py-2 text-xs font-bold text-slate-800 sm:text-sm">
       {children}
     </span>
   )
@@ -620,24 +617,24 @@ function Badge({ children }: { children: ReactNode }) {
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-4">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+    <div className="rounded-3xl border border-slate-200 bg-white p-4">
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
         {label}
       </p>
 
-      <p className="mt-2 break-words text-xl font-black text-white">{value}</p>
+      <p className="mt-2 break-words text-xl font-bold text-slate-900">{value}</p>
     </div>
   )
 }
 
 function MiniStat({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
-      <p className="text-[0.65rem] font-black uppercase tracking-[0.16em] text-slate-500">
+    <div className="rounded-2xl border border-slate-200 bg-white p-3">
+      <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-400">
         {label}
       </p>
 
-      <p className="mt-1 break-words font-black text-sky-100">{value}</p>
+      <p className="mt-1 break-words font-bold text-sky-700">{value}</p>
     </div>
   )
 }

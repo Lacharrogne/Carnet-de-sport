@@ -26,21 +26,21 @@ export default function ProfilePage({
 }: ProfilePageProps) {
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#050816] px-4 py-10 text-slate-50 sm:px-6 lg:px-8">
-        <section className="mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
+      <main className="min-h-screen bg-slate-50 px-4 py-10 text-slate-900 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-3xl rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <p className="text-5xl">🔒</p>
 
-          <h1 className="mt-4 text-3xl font-black text-white">
+          <h1 className="mt-4 text-3xl font-bold text-slate-900">
             Connecte-toi pour modifier ton profil.
           </h1>
 
-          <p className="mt-3 text-slate-400">
+          <p className="mt-3 text-slate-500">
             Ton pseudo et ta photo seront utilisés dans la navigation.
           </p>
 
           <Link
             to="/auth"
-            className="mt-6 inline-flex rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="mt-6 inline-flex rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
           >
             Se connecter
           </Link>
@@ -161,55 +161,52 @@ function ProfileForm({
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] text-slate-50">
-      <section className="mx-auto w-full max-w-[1180px] px-4 py-8 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <section className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
+          className="mb-6 rounded-full border border-slate-200 bg-slate-50 px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100"
         >
           ← Retour au dashboard
         </button>
 
-        <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-6 shadow-2xl shadow-black/25 sm:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
-
+        <header className="relative overflow-hidden rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm sm:p-8">
           <div className="relative grid gap-6 md:grid-cols-[1fr_300px] md:items-center">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-bold uppercase tracking-wide text-emerald-600">
                 Profil sportif
               </p>
 
-              <h1 className="mt-4 text-4xl font-black leading-tight text-white sm:text-5xl">
+              <h1 className="mt-4 text-4xl font-bold leading-tight text-slate-900 sm:text-5xl">
                 Personnalise ton carnet.
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
                 Ajoute un pseudo et une photo pour donner une vraie identité à
                 ton espace sportif.
               </p>
             </div>
 
-            <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/45 p-5 text-center">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center">
               {previewUrl && !avatarHasError ? (
                 <img
                   src={previewUrl}
                   alt={displayName}
                   onError={() => setAvatarHasError(true)}
-                  className="mx-auto h-32 w-32 rounded-full border border-emerald-400/20 object-cover shadow-2xl shadow-emerald-400/10"
+                  className="mx-auto h-32 w-32 rounded-full border border-emerald-200 object-cover shadow-sm"
                 />
               ) : (
-                <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/15 text-5xl font-black text-emerald-200">
+                <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-5xl font-bold text-emerald-700">
                   {displayInitials}
                 </div>
               )}
 
-              <p className="mt-4 truncate text-2xl font-black text-white">
+              <p className="mt-4 truncate text-2xl font-bold text-slate-900">
                 {displayName || 'Sportif'}
               </p>
 
-              <p className="mt-1 truncate text-sm font-bold text-slate-400">
+              <p className="mt-1 truncate text-sm font-bold text-slate-500">
                 {user.email}
               </p>
             </div>
@@ -218,34 +215,34 @@ function ProfileForm({
 
         <form
           onSubmit={handleSubmit}
-          className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8"
+          className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
         >
           <div className="grid gap-6">
             <label className="block space-y-2">
-              <span className="text-sm font-black text-slate-200">Pseudo</span>
+              <span className="text-sm font-bold text-slate-700">Pseudo</span>
 
               <input
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
                 placeholder="Ex : Maxime, Lacharrogne, Sportif du dimanche..."
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
             </label>
 
-            <div className="rounded-[1.75rem] border border-white/10 bg-slate-950/35 p-5">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
               <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-sm font-black text-slate-200">
+                  <p className="text-sm font-bold text-slate-700">
                     Photo de profil
                   </p>
 
-                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                  <p className="mt-1 text-xs leading-5 text-slate-400">
                     Formats conseillés : JPG, PNG ou WebP. Maximum 3 Mo.
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300">
+                  <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-700">
                     Choisir une image
                     <input
                       type="file"
@@ -259,7 +256,7 @@ function ProfileForm({
                     <button
                       type="button"
                       onClick={handleRemoveAvatar}
-                      className="rounded-full border border-red-400/20 bg-red-400/10 px-6 py-3 text-sm font-black text-red-200 transition hover:bg-red-400/20"
+                      className="rounded-full border border-rose-200 bg-rose-50 px-6 py-3 text-sm font-bold text-rose-600 transition hover:bg-rose-100"
                     >
                       Retirer
                     </button>
@@ -268,14 +265,14 @@ function ProfileForm({
               </div>
 
               {avatarFile ? (
-                <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-200">
+                <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
                   Image sélectionnée : {avatarFile.name}
                 </div>
               ) : null}
             </div>
 
             {successMessage ? (
-              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-200">
+              <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
                 {successMessage}
               </div>
             ) : null}
@@ -284,14 +281,14 @@ function ProfileForm({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-emerald-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? 'Sauvegarde...' : 'Enregistrer le profil'}
               </button>
 
               <Link
                 to="/challenges"
-                className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
+                className="rounded-full border border-slate-200 bg-slate-50 px-6 py-3 text-center text-sm font-bold text-slate-800 transition hover:bg-slate-100"
               >
                 Voir mes défis
               </Link>

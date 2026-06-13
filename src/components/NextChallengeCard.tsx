@@ -45,18 +45,18 @@ export default function NextChallengeCard({
 
   if (!nextChallenge) {
     return (
-      <section className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-6 shadow-2xl shadow-emerald-400/10">
+      <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+            <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
               Prochain défi
             </p>
 
-            <h2 className="mt-2 text-3xl font-black text-white">
+            <h2 className="mt-2 text-3xl font-bold text-slate-900">
               Tous les défis sont débloqués.
             </h2>
 
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
               Tu as terminé tous les objectifs actuels. Il est temps d’ajouter
               des défis encore plus ambitieux.
             </p>
@@ -64,7 +64,7 @@ export default function NextChallengeCard({
 
           <Link
             to="/challenges"
-            className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="rounded-full bg-emerald-600 px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-emerald-700"
           >
             Voir les défis
           </Link>
@@ -79,10 +79,10 @@ export default function NextChallengeCard({
   )
 
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
+    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="grid gap-6 lg:grid-cols-[1fr_0.6fr] lg:items-center">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+          <p className="text-sm font-bold uppercase tracking-wide text-emerald-600">
             Prochain défi
           </p>
 
@@ -90,11 +90,11 @@ export default function NextChallengeCard({
             <p className="text-5xl">{nextChallenge.icon}</p>
 
             <div>
-              <h2 className="text-3xl font-black text-white">
+              <h2 className="text-3xl font-bold text-slate-900">
                 {nextChallenge.title}
               </h2>
 
-              <p className="mt-1 text-sm leading-6 text-slate-400">
+              <p className="mt-1 text-sm leading-6 text-slate-500">
                 {nextChallenge.description}
               </p>
             </div>
@@ -102,19 +102,19 @@ export default function NextChallengeCard({
 
           <div className="mt-6">
             <div className="flex items-center justify-between gap-4">
-              <p className="text-sm font-bold text-slate-300">
+              <p className="text-sm font-bold text-slate-600">
                 {nextChallenge.progress} / {nextChallenge.target}{' '}
                 {nextChallenge.unit}
               </p>
 
-              <p className="text-sm font-black text-emerald-300">
+              <p className="text-sm font-bold text-emerald-600">
                 {progressPercent} %
               </p>
             </div>
 
-            <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-950">
+            <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-100">
               <div
-                className="h-full rounded-full bg-emerald-400 transition-all"
+                className="h-full rounded-full bg-emerald-500 transition-all"
                 style={{
                   width: `${progressPercent}%`,
                 }}
@@ -123,22 +123,22 @@ export default function NextChallengeCard({
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-5">
-          <p className="text-sm text-emerald-300">
+        <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+          <p className="text-sm text-emerald-600">
             Récompense
           </p>
 
-          <p className="mt-1 text-4xl font-black text-white">
+          <p className="mt-1 text-4xl font-bold text-slate-900">
             +{nextChallenge.xp} XP
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             Termine ce défi pour faire progresser ton profil sportif.
           </p>
 
           <Link
             to="/challenges"
-            className="mt-5 inline-flex w-full justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="mt-5 inline-flex w-full justify-center rounded-full bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-emerald-700"
           >
             Voir tous les défis
           </Link>
