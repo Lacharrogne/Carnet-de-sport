@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 
+import BrandLogo from './BrandLogo'
+import { VITRINE_URL } from '../config/ecosystemLinks'
+
 type AppNavigationProps = {
   user: User | null
   isAuthLoading: boolean
@@ -97,16 +100,17 @@ export default function AppNavigation({
             onClick={closeAllMenus}
             className="group flex min-w-0 items-center gap-3"
           >
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-sky-400/10 text-2xl shadow-lg shadow-emerald-400/5 transition group-hover:scale-105">
-              ⚡
-            </div>
+            <BrandLogo
+              className="h-12 w-12 shrink-0 drop-shadow-md transition group-hover:-rotate-2 group-hover:scale-105"
+              fallbackClassName="text-2xl"
+            />
 
             <div className="min-w-0">
-              <p className="truncate text-lg font-black leading-tight text-white">
+              <p className="truncate font-display text-lg font-black leading-tight text-white">
                 Carnet de sport
               </p>
 
-              <p className="truncate text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
+              <p className="truncate text-xs font-bold uppercase tracking-[0.2em] text-azur-300">
                 Suivi sportif & motivation
               </p>
             </div>
@@ -140,12 +144,23 @@ export default function AppNavigation({
           </div>
 
           <div className="hidden items-center gap-3 lg:flex">
+            <a
+              href={VITRINE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/[0.1] hover:text-white"
+              title="Découvrir toute la suite Les Carnets"
+            >
+              <span className="text-base leading-none">▦</span>
+              Les Carnets
+            </a>
+
             <Link
               to="/workouts/new"
               onClick={closeAllMenus}
-              className="inline-flex items-center gap-3 rounded-full border border-emerald-400/20 bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-emerald-400/10 transition hover:bg-emerald-300"
+              className="inline-flex items-center gap-3 rounded-full border border-azur-400/20 bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-azur-400/10 transition hover:bg-azur-300"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-emerald-300">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-azur-300">
                 +
               </span>
               Ajouter une séance
@@ -208,7 +223,7 @@ function DesktopNavLink({
         [
           'rounded-full px-5 py-3 text-sm font-black transition',
           isActive
-            ? 'bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/10'
+            ? 'bg-azur-400 text-slate-950 shadow-lg shadow-azur-400/10'
             : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
         ].join(' ')
       }
@@ -250,7 +265,7 @@ function DesktopDropdown({
         className={[
           'inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black transition',
           isActive || isOpen
-            ? 'bg-emerald-400 text-slate-950 shadow-lg shadow-emerald-400/10'
+            ? 'bg-azur-400 text-slate-950 shadow-lg shadow-azur-400/10'
             : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
         ].join(' ')}
       >
@@ -275,7 +290,7 @@ function DesktopDropdown({
             : 'invisible translate-y-2 opacity-0',
         ].join(' ')}
       >
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-300">
+        <p className="text-xs font-black uppercase tracking-[0.22em] text-azur-300">
           {title}
         </p>
 
@@ -358,7 +373,7 @@ function DesktopProfileDropdown({
         className={[
           'inline-flex max-w-[270px] items-center gap-3 rounded-full border px-4 py-2.5 transition',
           isActive || isOpen
-            ? 'border-emerald-400/30 bg-emerald-400/15'
+            ? 'border-azur-400/30 bg-azur-400/15'
             : 'border-white/10 bg-white/[0.05] hover:bg-white/[0.1]',
         ].join(' ')}
       >
@@ -388,7 +403,7 @@ function DesktopProfileDropdown({
             : 'invisible translate-y-2 opacity-0',
         ].join(' ')}
       >
-        <div className="rounded-[1.5rem] border border-emerald-400/20 bg-emerald-400/10 p-4">
+        <div className="rounded-[1.5rem] border border-azur-400/20 bg-azur-400/10 p-4">
           <div className="flex items-center gap-4">
             <Avatar avatarUrl={avatarUrl} displayName={displayName} large />
 
@@ -520,7 +535,7 @@ function MobileMenu({
             onClick={onClose}
             className="flex min-w-0 items-center gap-3"
           >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-emerald-400/20 bg-gradient-to-br from-emerald-400/20 to-sky-400/10 text-2xl">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-azur-400/20 bg-gradient-to-br from-azur-400/20 to-sky-400/10 text-2xl">
               ⚡
             </div>
 
@@ -529,7 +544,7 @@ function MobileMenu({
                 Carnet de sport
               </p>
 
-              <p className="truncate text-xs font-black uppercase tracking-[0.2em] text-emerald-300">
+              <p className="truncate text-xs font-black uppercase tracking-[0.2em] text-azur-300">
                 Suivi sportif
               </p>
             </div>
@@ -611,7 +626,7 @@ function MobileMenu({
               isOpen={openSection === 'profile'}
               onToggle={() => toggleSection('profile')}
             >
-              <div className="mb-3 rounded-[1.5rem] border border-emerald-400/20 bg-emerald-400/10 p-4">
+              <div className="mb-3 rounded-[1.5rem] border border-azur-400/20 bg-azur-400/10 p-4">
                 <div className="flex items-center gap-4">
                   <Avatar
                     avatarUrl={avatarUrl}
@@ -690,10 +705,10 @@ function MobileBigLink({
       <Link
         to={to}
         onClick={onClick}
-        className="flex items-center justify-between gap-4 rounded-[1.75rem] bg-emerald-400 p-5 text-slate-950 shadow-xl shadow-emerald-400/10 transition hover:bg-emerald-300"
+        className="flex items-center justify-between gap-4 rounded-[1.75rem] bg-azur-400 p-5 text-slate-950 shadow-xl shadow-azur-400/10 transition hover:bg-azur-300"
       >
         <span className="flex items-center gap-4">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-950 text-xl font-black text-emerald-300">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-950 text-xl font-black text-azur-300">
             {icon}
           </span>
 
@@ -714,7 +729,7 @@ function MobileBigLink({
         [
           'flex items-center justify-between gap-4 rounded-[1.75rem] border p-5 transition',
           isActive
-            ? 'border-emerald-400/30 bg-emerald-400/15 text-emerald-200'
+            ? 'border-azur-400/30 bg-azur-400/15 text-azur-200'
             : 'border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08]',
         ].join(' ')
       }
@@ -841,7 +856,7 @@ function Avatar({
 
   return (
     <span
-      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/15 font-black text-emerald-200`}
+      className={`${sizeClass} flex shrink-0 items-center justify-center rounded-full border border-azur-400/20 bg-azur-400/15 font-black text-azur-200`}
     >
       {getInitials(displayName)}
     </span>
