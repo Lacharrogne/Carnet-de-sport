@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
+import { EXERCISE_NAMES } from '../data/exerciseLibrary'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 import type {
   SportCategoryId,
@@ -436,24 +437,14 @@ export default function PlanningPage({
           </form>
 
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
-                  Séances à venir
-                </p>
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
+                Séances à venir
+              </p>
 
-                <h2 className="mt-2 text-3xl font-black text-white">
-                  Ton programme.
-                </h2>
-              </div>
-
-              <div className="rounded-3xl border border-azur-400/20 bg-azur-400/10 px-5 py-4">
-                <p className="text-sm text-azur-300">Total prévu</p>
-
-                <p className="mt-1 text-2xl font-black text-white">
-                  {plannedWorkouts.length}
-                </p>
-              </div>
+              <h2 className="mt-2 text-3xl font-black text-white">
+                Ton programme.
+              </h2>
             </div>
 
             {sortedPlannedWorkouts.length > 0 ? (
@@ -854,6 +845,12 @@ function StrengthExercisesEditor({
 
   return (
     <div>
+      <datalist id="exercise-library">
+        {EXERCISE_NAMES.map((name) => (
+          <option key={name} value={name} />
+        ))}
+      </datalist>
+
       <div>
         <h3 className="text-2xl font-black text-white">
           Exercices de musculation
@@ -927,6 +924,7 @@ function StrengthExercisesEditor({
                   label="Nom de l’exercice"
                   value={exercise.name}
                   placeholder="Ex : Développé couché"
+                  list="exercise-library"
                   inputRef={(node) => {
                     fieldRefs.current[getFieldKey(exercise.id, 'name')] = node
                   }}
@@ -1259,6 +1257,7 @@ function ExerciseTextField({
   inputRef,
   onChange,
   onKeyDown,
+  list,
 }: {
   label: string
   value: string
@@ -1266,6 +1265,7 @@ function ExerciseTextField({
   inputRef: (node: HTMLInputElement | null) => void
   onChange: (value: string) => void
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void
+  list?: string
 }) {
   return (
     <label className="space-y-2">
@@ -1274,6 +1274,7 @@ function ExerciseTextField({
       <input
         ref={inputRef}
         value={value}
+        list={list}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
