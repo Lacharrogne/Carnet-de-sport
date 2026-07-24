@@ -22,7 +22,7 @@ const trendConfig: Record<
   progress: {
     icon: '📈',
     label: 'Progression',
-    className: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300',
+    className: 'border-azur-400/20 bg-azur-400/10 text-azur-300',
   },
   stable: {
     icon: '⚖️',
@@ -80,13 +80,13 @@ export default function WorkoutCard({
   return (
     <article
       className={[
-        'group relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 transition hover:-translate-y-1 hover:border-emerald-400/25 hover:bg-white/[0.07]',
+        'group relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] shadow-2xl shadow-black/20 transition hover:-translate-y-1 hover:border-azur-400/25 hover:bg-white/[0.07]',
         isCompact ? 'p-4 sm:p-5' : 'p-5',
         onOpen ? 'cursor-pointer' : '',
       ].join(' ')}
       onClick={handleOpen}
     >
-      <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-emerald-400/10 opacity-0 blur-3xl transition group-hover:opacity-100" />
+      <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-azur-400/10 opacity-0 blur-3xl transition group-hover:opacity-100" />
 
       <div className="relative flex h-full flex-col">
         <div className="flex items-start justify-between gap-4">
@@ -171,7 +171,7 @@ export default function WorkoutCard({
             ) : null}
 
             {workout.improvementIdea ? (
-              <PreviewTextCard title="À améliorer" variant="emerald">
+              <PreviewTextCard title="À améliorer" variant="azur">
                 {workout.improvementIdea}
               </PreviewTextCard>
             ) : null}
@@ -180,7 +180,7 @@ export default function WorkoutCard({
 
         {onOpen ? (
           <div className="mt-auto pt-5">
-            <div className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-sm font-black text-slate-300 transition group-hover:border-emerald-400/25 group-hover:text-emerald-200">
+            <div className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-center text-sm font-black text-slate-300 transition group-hover:border-azur-400/25 group-hover:text-azur-200">
               Voir le détail →
             </div>
           </div>
@@ -205,15 +205,15 @@ function PreviewTextCard({
 }: {
   title: string
   children: ReactNode
-  variant?: 'default' | 'emerald'
+  variant?: 'default' | 'azur'
 }) {
   const className =
-    variant === 'emerald'
-      ? 'border-emerald-400/15 bg-emerald-400/5'
+    variant === 'azur'
+      ? 'border-azur-400/15 bg-azur-400/5'
       : 'border-white/10 bg-slate-950/35'
 
   const titleClassName =
-    variant === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
+    variant === 'azur' ? 'text-azur-300' : 'text-slate-500'
 
   return (
     <div className={`rounded-3xl border p-4 ${className}`}>
@@ -313,10 +313,10 @@ function StrengthExercisesPreview({
 
   if (compact) {
     return (
-      <section className="rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
+      <section className="rounded-3xl border border-azur-400/15 bg-azur-400/5 p-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-azur-300">
               Musculation
             </p>
 
@@ -326,7 +326,7 @@ function StrengthExercisesPreview({
           </div>
 
           {totalVolume > 0 ? (
-            <div className="rounded-full border border-emerald-400/20 bg-slate-950/60 px-3 py-1.5 text-xs font-black text-emerald-200">
+            <div className="rounded-full border border-azur-400/20 bg-slate-950/60 px-3 py-1.5 text-xs font-black text-azur-200">
               {formatNumber(totalVolume)} kg
             </div>
           ) : null}
@@ -339,10 +339,10 @@ function StrengthExercisesPreview({
   const hiddenExercisesCount = exercises.length - visibleExercises.length
 
   return (
-    <section className="rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
+    <section className="rounded-3xl border border-azur-400/15 bg-azur-400/5 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-azur-300">
             Musculation
           </p>
 
@@ -352,7 +352,7 @@ function StrengthExercisesPreview({
         </div>
 
         {totalVolume > 0 ? (
-          <div className="rounded-full border border-emerald-400/20 bg-slate-950/60 px-3 py-1.5 text-xs font-black text-emerald-200">
+          <div className="rounded-full border border-azur-400/20 bg-slate-950/60 px-3 py-1.5 text-xs font-black text-azur-200">
             {formatNumber(totalVolume)} kg
           </div>
         ) : null}
@@ -400,7 +400,7 @@ function StrengthExercisePreviewItem({
         </div>
 
         {volume > 0 ? (
-          <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-xs font-black text-emerald-200">
+          <span className="shrink-0 rounded-full bg-white/10 px-2.5 py-1 text-xs font-black text-azur-200">
             {formatNumber(volume)} kg
           </span>
         ) : null}

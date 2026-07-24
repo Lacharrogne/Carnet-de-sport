@@ -131,13 +131,13 @@ export default function AuthPage({
         </button>
 
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
-          <section className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-6 shadow-2xl shadow-black/25 sm:p-8">
-            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+          <section className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-6 shadow-2xl shadow-black/25 sm:p-8">
+            <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
             <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
             <div className="relative flex h-full flex-col justify-between gap-10">
               <div>
-                <p className="inline-flex rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-emerald-300">
+                <p className="inline-flex rounded-full border border-azur-400/20 bg-azur-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.22em] text-azur-300">
                   Carnet de sport
                 </p>
 
@@ -170,7 +170,7 @@ export default function AuthPage({
                 className={[
                   'rounded-full px-5 py-3 text-sm font-black transition',
                   isSignIn
-                    ? 'bg-emerald-400 text-slate-950'
+                    ? 'bg-azur-400 text-slate-950'
                     : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
                 ].join(' ')}
               >
@@ -183,7 +183,7 @@ export default function AuthPage({
                 className={[
                   'rounded-full px-5 py-3 text-sm font-black transition',
                   !isSignIn
-                    ? 'bg-emerald-400 text-slate-950'
+                    ? 'bg-azur-400 text-slate-950'
                     : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
                 ].join(' ')}
               >
@@ -192,7 +192,7 @@ export default function AuthPage({
             </div>
 
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                 {isSignIn ? 'Bon retour' : 'Nouveau compte'}
               </p>
 
@@ -220,7 +220,7 @@ export default function AuthPage({
                     onChange={(event) => setDisplayName(event.target.value)}
                     placeholder="Ex : Maxime, Lacharrogne, Sportif du dimanche..."
                     autoComplete="nickname"
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-4 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-4 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
                   />
                 </label>
               ) : null}
@@ -236,7 +236,7 @@ export default function AuthPage({
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="exemple@mail.com"
                   autoComplete="email"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-4 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-4 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
                 />
               </label>
 
@@ -245,7 +245,7 @@ export default function AuthPage({
                   Mot de passe
                 </span>
 
-                <div className="flex overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 transition focus-within:border-emerald-400/60">
+                <div className="flex overflow-hidden rounded-2xl border border-white/10 bg-slate-950/45 transition focus-within:border-azur-400/60">
                   <input
                     type={isPasswordVisible ? 'text' : 'password'}
                     value={password}
@@ -276,7 +276,7 @@ export default function AuthPage({
               ) : null}
 
               {message ? (
-                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-200">
+                <div className="rounded-2xl border border-azur-400/20 bg-azur-400/10 px-4 py-3 text-sm font-bold text-azur-200">
                   {message}
                 </div>
               ) : null}
@@ -284,7 +284,7 @@ export default function AuthPage({
               <button
                 type="submit"
                 disabled={isLoading}
-                className="mt-2 rounded-full bg-emerald-400 px-6 py-4 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-2 rounded-full bg-azur-400 px-6 py-4 text-sm font-black text-slate-950 transition hover:bg-azur-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isLoading
                   ? isSignIn
@@ -304,7 +304,7 @@ export default function AuthPage({
                     <button
                       type="button"
                       onClick={() => handleModeChange('sign-up')}
-                      className="font-black text-emerald-300 hover:text-emerald-200"
+                      className="font-black text-azur-300 hover:text-azur-200"
                     >
                       Créer un compte
                     </button>
@@ -315,7 +315,7 @@ export default function AuthPage({
                     <button
                       type="button"
                       onClick={() => handleModeChange('sign-in')}
-                      className="font-black text-emerald-300 hover:text-emerald-200"
+                      className="font-black text-azur-300 hover:text-azur-200"
                     >
                       Se connecter
                     </button>

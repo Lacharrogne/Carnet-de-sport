@@ -26,7 +26,7 @@ export default function NewWorkoutPage({
         </button>
 
         <header className="mb-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-black/30">
-          <p className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-bold text-emerald-300">
+          <p className="inline-flex rounded-full border border-azur-400/30 bg-azur-400/10 px-4 py-2 text-sm font-bold text-azur-300">
             Nouvelle séance
           </p>
 

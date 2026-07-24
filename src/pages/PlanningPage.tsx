@@ -217,12 +217,12 @@ export default function PlanningPage({
     <main className="min-h-screen bg-[#050816] text-slate-50">
       <section className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
         <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 sm:p-8 lg:p-10">
-          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-azur-400/10 blur-3xl" />
           <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
 
           <div className="relative grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
             <div>
-              <p className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-bold text-emerald-300">
+              <p className="inline-flex rounded-full border border-azur-400/30 bg-azur-400/10 px-4 py-2 text-sm font-bold text-azur-300">
                 Planning
               </p>
 
@@ -236,8 +236,8 @@ export default function PlanningPage({
               </p>
             </div>
 
-            <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-6">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+            <div className="rounded-[2rem] border border-azur-400/20 bg-azur-400/10 p-6">
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
                 Prochaine séance
               </p>
 
@@ -307,7 +307,7 @@ export default function PlanningPage({
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
                   {isEditing ? 'Modifier la séance' : 'Nouvelle séance prévue'}
                 </p>
 
@@ -339,7 +339,7 @@ export default function PlanningPage({
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   placeholder="Ex : Séance jambes, footing, natation..."
-                  className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
                 />
               </label>
 
@@ -351,7 +351,7 @@ export default function PlanningPage({
                   onChange={(event) =>
                     handleCategoryChange(event.target.value as SportCategoryId)
                   }
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
                 >
                   {SPORT_CATEGORIES.map((sportCategory) => (
                     <option key={sportCategory.id} value={sportCategory.id}>
@@ -369,7 +369,7 @@ export default function PlanningPage({
                     type="date"
                     value={date}
                     onChange={(event) => setDate(event.target.value)}
-                    className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
                   />
                 </label>
 
@@ -384,7 +384,7 @@ export default function PlanningPage({
                     value={duration}
                     onChange={(event) => setDuration(event.target.value)}
                     placeholder="Ex : 45"
-                    className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                    className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
                   />
                 </label>
               </div>
@@ -399,7 +399,7 @@ export default function PlanningPage({
                   onChange={(event) => setObjective(event.target.value)}
                   rows={4}
                   placeholder="Ex : Travailler les jambes, courir sans m’arrêter, améliorer mon cardio..."
-                  className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                  className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
                 />
               </label>
 
@@ -424,7 +424,7 @@ export default function PlanningPage({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmitting
                   ? 'Sauvegarde en cours...'
@@ -438,7 +438,7 @@ export default function PlanningPage({
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
                   Séances à venir
                 </p>
 
@@ -447,8 +447,8 @@ export default function PlanningPage({
                 </h2>
               </div>
 
-              <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4">
-                <p className="text-sm text-emerald-300">Total prévu</p>
+              <div className="rounded-3xl border border-azur-400/20 bg-azur-400/10 px-5 py-4">
+                <p className="text-sm text-azur-300">Total prévu</p>
 
                 <p className="mt-1 text-2xl font-black text-white">
                   {plannedWorkouts.length}
@@ -526,8 +526,8 @@ function SportSpecificFields({
 const detailMode = getSportDetailMode(category)
 
   return (
-    <section className="rounded-[2rem] border border-emerald-400/10 bg-emerald-400/5 p-5">
-      <p className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">
+    <section className="rounded-[2rem] border border-azur-400/10 bg-azur-400/5 p-5">
+      <p className="text-sm font-bold uppercase tracking-[0.2em] text-azur-300">
         Détails préparés
       </p>
 
@@ -880,7 +880,7 @@ function StrengthExercisesEditor({
           <button
             type="button"
             onClick={addExercise}
-            className="mt-6 rounded-full bg-emerald-400 px-7 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="mt-6 rounded-full bg-azur-400 px-7 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
           >
             + Ajouter mon premier exercice
           </button>
@@ -894,7 +894,7 @@ function StrengthExercisesEditor({
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-300">
+                  <p className="text-xs font-black uppercase tracking-[0.25em] text-azur-300">
                     Exercice {index + 1}
                   </p>
 
@@ -1022,7 +1022,7 @@ function StrengthExercisesEditor({
           <button
             type="button"
             onClick={addExercise}
-            className="w-full rounded-[2rem] border border-dashed border-emerald-400/30 bg-emerald-400/10 px-6 py-5 text-sm font-black text-emerald-200 transition hover:bg-emerald-400/20"
+            className="w-full rounded-[2rem] border border-dashed border-azur-400/30 bg-azur-400/10 px-6 py-5 text-sm font-black text-azur-200 transition hover:bg-azur-400/20"
           >
             + Ajouter un exercice
           </button>
@@ -1083,7 +1083,7 @@ function PlannedWorkoutCard({
                 À rattraper
               </span>
             ) : (
-              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200">
+              <span className="rounded-full border border-azur-400/20 bg-azur-400/10 px-3 py-1 text-xs font-black text-azur-200">
                 À venir
               </span>
             )}
@@ -1114,8 +1114,8 @@ function PlannedWorkoutCard({
           </div>
 
           {plannedWorkout.objective ? (
-            <div className="mt-4 rounded-2xl border border-emerald-400/10 bg-emerald-400/5 p-4">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300">
+            <div className="mt-4 rounded-2xl border border-azur-400/10 bg-azur-400/5 p-4">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-azur-300">
                 Objectif
               </p>
 
@@ -1158,7 +1158,7 @@ function PlannedWorkoutCard({
             onClick={() => {
               void onComplete()
             }}
-            className="rounded-full bg-emerald-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="rounded-full bg-azur-400 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-azur-300"
           >
             Marquer réalisée
           </button>
@@ -1220,7 +1220,7 @@ function TextField({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
       />
     </label>
   )
@@ -1246,7 +1246,7 @@ function TextAreaField({
         onChange={(event) => onChange(event.target.value)}
         rows={4}
         placeholder={placeholder}
-        className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
       />
     </label>
   )
@@ -1277,7 +1277,7 @@ function ExerciseTextField({
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
       />
     </label>
   )

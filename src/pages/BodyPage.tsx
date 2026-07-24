@@ -111,12 +111,12 @@ const mobilityWorkouts = workouts.filter((workout) => {
         </button>
 
         <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 sm:p-8 lg:p-10">
-          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/10 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 left-10 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
           <div className="relative grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
             <div>
-              <p className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-bold text-emerald-300">
+              <p className="inline-flex rounded-full border border-azur-400/30 bg-azur-400/10 px-4 py-2 text-sm font-bold text-azur-300">
                 Mon corps
               </p>
 
@@ -146,8 +146,8 @@ const mobilityWorkouts = workouts.filter((workout) => {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-6">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+            <div className="rounded-[2rem] border border-azur-400/20 bg-azur-400/10 p-6">
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
                 Profil actuel
               </p>
 
@@ -187,7 +187,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+                <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
                   Avatar corporel
                 </p>
 
@@ -196,8 +196,8 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 </h2>
               </div>
 
-              <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4">
-                <p className="text-sm text-emerald-300">
+              <div className="rounded-3xl border border-azur-400/20 bg-azur-400/10 px-5 py-4">
+                <p className="text-sm text-azur-300">
                   Score d’équilibre
                 </p>
 
@@ -208,7 +208,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
             </div>
 
             <div className="mt-8 flex justify-center">
-              <div className="relative flex h-[440px] w-[290px] items-center justify-center rounded-[3rem] border border-emerald-400/20 bg-gradient-to-b from-emerald-400/10 via-white/[0.03] to-sky-400/10 shadow-2xl shadow-emerald-400/10 sm:w-[330px]">
+              <div className="relative flex h-[440px] w-[290px] items-center justify-center rounded-[3rem] border border-azur-400/20 bg-gradient-to-b from-azur-400/10 via-white/[0.03] to-sky-400/10 shadow-2xl shadow-azur-400/10 sm:w-[330px]">
                 <div className="absolute inset-8 rounded-full border border-white/5" />
                 <div className="absolute inset-14 rounded-full border border-white/5" />
 
@@ -246,7 +246,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                   position="right-[-16px] top-20 sm:right-[-28px]"
                   label="Force"
                   value={`Niv. ${bodyStats.strengthLevel}`}
-                  color="emerald"
+                  color="azur"
                 />
 
                 <FloatingStat
@@ -272,7 +272,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
 
           <div className="space-y-6">
             <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
                 Mes informations
               </p>
 
@@ -318,7 +318,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                         event.target.value as ActivityLevel,
                       )
                     }
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
                   >
                     {Object.entries(activityLabels).map(([value, label]) => (
                       <option key={value} value={value}>
@@ -342,7 +342,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                       event.target.value as FitnessGoal,
                     )
                   }
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
                 >
                   {Object.entries(goalLabels).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -354,7 +354,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
             </section>
 
             <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
-              <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
                 Analyse corporelle
               </p>
 
@@ -388,7 +388,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 />
               </div>
 
-              <div className="mt-6 rounded-3xl border border-emerald-400/10 bg-emerald-400/5 p-5">
+              <div className="mt-6 rounded-3xl border border-azur-400/10 bg-azur-400/5 p-5">
                 <p className="font-black text-white">
                   Suggestion automatique
                 </p>
@@ -631,7 +631,7 @@ function NumberField({
         value={inputValue}
         onChange={handleChange}
         onBlur={handleBlur}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
       />
     </label>
   )
@@ -647,7 +647,7 @@ function BodyPart({ className, active }: BodyPartProps) {
     <div
       className={`${className} border transition ${
         active
-          ? 'border-emerald-300/50 bg-emerald-300/25 shadow-lg shadow-emerald-400/20'
+          ? 'border-azur-300/50 bg-azur-300/25 shadow-lg shadow-azur-400/20'
           : 'border-white/20 bg-white/10'
       }`}
     />
@@ -658,12 +658,12 @@ type FloatingStatProps = {
   position: string
   label: string
   value: string
-  color: 'emerald' | 'sky' | 'violet'
+  color: 'azur' | 'sky' | 'violet'
 }
 
 function FloatingStat({ position, label, value, color }: FloatingStatProps) {
   const colorClasses = {
-    emerald: 'border-emerald-400/20 text-emerald-300',
+    azur: 'border-azur-400/20 text-azur-300',
     sky: 'border-sky-400/20 text-sky-300',
     violet: 'border-violet-400/20 text-violet-300',
   }

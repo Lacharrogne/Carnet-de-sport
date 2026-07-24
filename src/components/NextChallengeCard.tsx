@@ -45,10 +45,10 @@ export default function NextChallengeCard({
 
   if (!nextChallenge) {
     return (
-      <section className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-6 shadow-2xl shadow-emerald-400/10">
+      <section className="rounded-[2rem] border border-azur-400/20 bg-azur-400/10 p-6 shadow-2xl shadow-azur-400/10">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+            <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
               Prochain défi
             </p>
 
@@ -64,7 +64,7 @@ export default function NextChallengeCard({
 
           <Link
             to="/challenges"
-            className="rounded-full bg-emerald-400 px-6 py-3 text-center text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="rounded-full bg-azur-400 px-6 py-3 text-center text-sm font-black text-slate-950 transition hover:bg-azur-300"
           >
             Voir les défis
           </Link>
@@ -82,7 +82,7 @@ export default function NextChallengeCard({
     <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
       <div className="grid gap-6 lg:grid-cols-[1fr_0.6fr] lg:items-center">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
             Prochain défi
           </p>
 
@@ -107,14 +107,14 @@ export default function NextChallengeCard({
                 {nextChallenge.unit}
               </p>
 
-              <p className="text-sm font-black text-emerald-300">
+              <p className="text-sm font-black text-azur-300">
                 {progressPercent} %
               </p>
             </div>
 
             <div className="mt-3 h-4 overflow-hidden rounded-full bg-slate-950">
               <div
-                className="h-full rounded-full bg-emerald-400 transition-all"
+                className="h-full rounded-full bg-azur-400 transition-all"
                 style={{
                   width: `${progressPercent}%`,
                 }}
@@ -123,8 +123,8 @@ export default function NextChallengeCard({
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-5">
-          <p className="text-sm text-emerald-300">
+        <div className="rounded-[2rem] border border-azur-400/20 bg-azur-400/10 p-5">
+          <p className="text-sm text-azur-300">
             Récompense
           </p>
 
@@ -138,7 +138,7 @@ export default function NextChallengeCard({
 
           <Link
             to="/challenges"
-            className="mt-5 inline-flex w-full justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="mt-5 inline-flex w-full justify-center rounded-full bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
           >
             Voir tous les défis
           </Link>

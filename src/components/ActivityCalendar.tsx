@@ -58,13 +58,13 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
 
   return (
     <section className="relative h-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
-      <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-emerald-400/10 blur-3xl" />
+      <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-azur-400/10 blur-3xl" />
       <div className="absolute -bottom-24 -left-24 h-52 w-52 rounded-full bg-cyan-400/10 blur-3xl" />
 
       <div className="relative flex h-full flex-col gap-7">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+            <p className="text-sm font-black uppercase tracking-[0.25em] text-azur-300">
               Calendrier d’activité
             </p>
 
@@ -97,8 +97,8 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3">
-              <p className="text-sm font-black text-emerald-300">
+            <div className="rounded-2xl border border-azur-400/20 bg-azur-400/10 px-4 py-3">
+              <p className="text-sm font-black text-azur-300">
                 {regularityPercent}%
               </p>
             </div>
@@ -118,7 +118,7 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
                   className={[
                     'group relative flex h-14 flex-col items-center justify-center rounded-2xl border text-center transition hover:-translate-y-1 hover:scale-105',
                     getDayClass(intensity),
-                    isToday ? 'ring-2 ring-emerald-300/70' : '',
+                    isToday ? 'ring-2 ring-azur-300/70' : '',
                   ].join(' ')}
                 >
                   <p className="text-xs font-black">
@@ -144,9 +144,9 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
               <span>Repos</span>
 
               <span className="h-4 w-4 rounded-md border border-white/10 bg-slate-950/60" />
-              <span className="h-4 w-4 rounded-md border border-emerald-400/30 bg-emerald-400/15" />
-              <span className="h-4 w-4 rounded-md border border-emerald-400/50 bg-emerald-400/35" />
-              <span className="h-4 w-4 rounded-md border border-emerald-300/70 bg-emerald-300" />
+              <span className="h-4 w-4 rounded-md border border-azur-400/30 bg-azur-400/15" />
+              <span className="h-4 w-4 rounded-md border border-azur-400/50 bg-azur-400/35" />
+              <span className="h-4 w-4 rounded-md border border-azur-300/70 bg-azur-300" />
 
               <span>Très actif</span>
             </div>
@@ -157,7 +157,7 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
                 {bestDay.workoutCount} séance{bestDay.workoutCount > 1 ? 's' : ''}
               </span>
               {' · '}
-              <span className="text-emerald-300">
+              <span className="text-azur-300">
                 {bestDay.duration} min
               </span>
             </p>
@@ -221,15 +221,15 @@ function getActivityIntensity(workoutCount: number, duration: number) {
 
 function getDayClass(intensity: number) {
   if (intensity === 3) {
-    return 'border-emerald-300/70 bg-emerald-300 text-slate-950 shadow-lg shadow-emerald-400/20'
+    return 'border-azur-300/70 bg-azur-300 text-slate-950 shadow-lg shadow-azur-400/20'
   }
 
   if (intensity === 2) {
-    return 'border-emerald-400/50 bg-emerald-400/35 text-white'
+    return 'border-azur-400/50 bg-azur-400/35 text-white'
   }
 
   if (intensity === 1) {
-    return 'border-emerald-400/30 bg-emerald-400/15 text-emerald-100'
+    return 'border-azur-400/30 bg-azur-400/15 text-azur-100'
   }
 
   return 'border-white/10 bg-slate-950/60 text-slate-500'

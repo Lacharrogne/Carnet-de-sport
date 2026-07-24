@@ -40,7 +40,7 @@ export default function ProfilePage({
 
           <Link
             to="/auth"
-            className="mt-6 inline-flex rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="mt-6 inline-flex rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
           >
             Se connecter
           </Link>
@@ -171,13 +171,13 @@ function ProfileForm({
           ← Retour au dashboard
         </button>
 
-        <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-6 shadow-2xl shadow-black/25 sm:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+        <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-6 shadow-2xl shadow-black/25 sm:p-8">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
           <div className="relative grid gap-6 md:grid-cols-[1fr_300px] md:items-center">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                 Profil sportif
               </p>
 
@@ -197,10 +197,10 @@ function ProfileForm({
                   src={previewUrl}
                   alt={displayName}
                   onError={() => setAvatarHasError(true)}
-                  className="mx-auto h-32 w-32 rounded-full border border-emerald-400/20 object-cover shadow-2xl shadow-emerald-400/10"
+                  className="mx-auto h-32 w-32 rounded-full border border-azur-400/20 object-cover shadow-2xl shadow-azur-400/10"
                 />
               ) : (
-                <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/15 text-5xl font-black text-emerald-200">
+                <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full border border-azur-400/20 bg-azur-400/15 text-5xl font-black text-azur-200">
                   {displayInitials}
                 </div>
               )}
@@ -228,7 +228,7 @@ function ProfileForm({
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
                 placeholder="Ex : Maxime, Lacharrogne, Sportif du dimanche..."
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
               />
             </label>
 
@@ -245,7 +245,7 @@ function ProfileForm({
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300">
+                  <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300">
                     Choisir une image
                     <input
                       type="file"
@@ -268,14 +268,14 @@ function ProfileForm({
               </div>
 
               {avatarFile ? (
-                <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-200">
+                <div className="mt-4 rounded-2xl border border-azur-400/20 bg-azur-400/10 px-4 py-3 text-sm font-bold text-azur-200">
                   Image sélectionnée : {avatarFile.name}
                 </div>
               ) : null}
             </div>
 
             {successMessage ? (
-              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-200">
+              <div className="rounded-2xl border border-azur-400/20 bg-azur-400/10 px-4 py-3 text-sm font-bold text-azur-200">
                 {successMessage}
               </div>
             ) : null}
@@ -284,7 +284,7 @@ function ProfileForm({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? 'Sauvegarde...' : 'Enregistrer le profil'}
               </button>

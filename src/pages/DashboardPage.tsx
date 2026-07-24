@@ -147,13 +147,13 @@ function DashboardHero({
   onAddWorkoutClick: () => void
 }) {
   return (
-    <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+    <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
       <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
       <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
             Carnet de sport
           </p>
 
@@ -171,7 +171,7 @@ function DashboardHero({
             <button
               type="button"
               onClick={onAddWorkoutClick}
-              className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+              className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
             >
               + Ajouter une séance
             </button>
@@ -237,14 +237,14 @@ function WeekFocusCard({
           <p className="mt-3 text-4xl font-black text-white">{progress}%</p>
         </div>
 
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300">
+        <div className="rounded-full border border-azur-400/20 bg-azur-400/10 px-4 py-2 text-xs font-black text-azur-300">
           🎯 Focus
         </div>
       </div>
 
       <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-950">
         <div
-          className="h-full rounded-full bg-emerald-400"
+          className="h-full rounded-full bg-azur-400"
           style={{
             width: `${progress}%`,
           }}
@@ -285,7 +285,7 @@ function RecentWorkoutsSection({
     <Panel>
       <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
             Dernières séances
           </p>
 
@@ -332,12 +332,12 @@ function QuickActions({
   onAddWorkoutClick: () => void
 }) {
   return (
-    <Panel title="Actions rapides" accent="emerald">
+    <Panel title="Actions rapides" accent="azur">
       <div className="grid gap-3">
         <button
           type="button"
           onClick={onAddWorkoutClick}
-          className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-5 text-left transition hover:bg-emerald-400/15"
+          className="rounded-3xl border border-azur-400/20 bg-azur-400/10 p-5 text-left transition hover:bg-azur-400/15"
         >
           <p className="text-base font-black text-white sm:text-lg">
             + Ajouter une séance
@@ -417,10 +417,10 @@ function Panel({
 }: {
   title?: string
   children: ReactNode
-  accent?: 'default' | 'emerald'
+  accent?: 'default' | 'azur'
 }) {
   const titleColor =
-    accent === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
+    accent === 'azur' ? 'text-azur-300' : 'text-slate-500'
 
   return (
     <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
@@ -519,7 +519,7 @@ function EmptyState({
       <button
         type="button"
         onClick={onAddWorkoutClick}
-        className="mt-6 rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+        className="mt-6 rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
       >
         Créer ma première séance
       </button>

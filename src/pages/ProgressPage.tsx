@@ -250,13 +250,13 @@ export default function ProgressPage({
           ← Retour au dashboard
         </button>
 
-        <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+        <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
           <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                 Progression globale
               </p>
 
@@ -300,7 +300,7 @@ export default function ProgressPage({
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-6">
-            <Panel title="Détail de l’XP" accent="emerald">
+            <Panel title="Détail de l’XP" accent="azur">
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <XpDetailCard
                   label="Séances"
@@ -389,7 +389,7 @@ export default function ProgressPage({
               )}
             </Panel>
 
-            <Panel title="Badges" accent="emerald">
+            <Panel title="Badges" accent="azur">
               <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {badges.map((badge) => (
                   <BadgeCard key={badge.title} badge={badge} />
@@ -399,7 +399,7 @@ export default function ProgressPage({
           </div>
 
           <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
-            <Panel title="Résumé rapide" accent="emerald">
+            <Panel title="Résumé rapide" accent="azur">
               <div className="space-y-3">
                 <InfoCard
                   title="Cette semaine"
@@ -532,14 +532,14 @@ function LevelCard({
           </p>
         </div>
 
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300">
+        <div className="rounded-full border border-azur-400/20 bg-azur-400/10 px-4 py-2 text-xs font-black text-azur-300">
           ⚡ XP
         </div>
       </div>
 
       <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-950">
         <div
-          className="h-full rounded-full bg-emerald-400"
+          className="h-full rounded-full bg-azur-400"
           style={{
             width: `${sportProfileXp.levelProgressPercent}%`,
           }}
@@ -561,10 +561,10 @@ function Panel({
 }: {
   title: string
   children: ReactNode
-  accent?: 'default' | 'emerald'
+  accent?: 'default' | 'azur'
 }) {
   const titleColor =
-    accent === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
+    accent === 'azur' ? 'text-azur-300' : 'text-slate-500'
 
   return (
     <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
@@ -609,12 +609,12 @@ function CategoryProgressCard({
           {category.emoji} {category.label}
         </p>
 
-        <p className="text-sm font-black text-emerald-300">{percent}%</p>
+        <p className="text-sm font-black text-azur-300">{percent}%</p>
       </div>
 
       <div className="h-3 overflow-hidden rounded-full bg-slate-950">
         <div
-          className="h-full rounded-full bg-emerald-400"
+          className="h-full rounded-full bg-azur-400"
           style={{
             width: `${percent}%`,
           }}
@@ -699,7 +699,7 @@ function BadgeCard({ badge }: { badge: Badge }) {
       className={[
         'rounded-3xl border p-5 transition',
         badge.unlocked
-          ? 'border-emerald-400/20 bg-emerald-400/10'
+          ? 'border-azur-400/20 bg-azur-400/10'
           : 'border-white/10 bg-slate-950/40 opacity-50',
       ].join(' ')}
     >
@@ -716,7 +716,7 @@ function BadgeCard({ badge }: { badge: Badge }) {
           <p
             className={[
               'mt-3 text-sm font-black',
-              badge.unlocked ? 'text-emerald-300' : 'text-slate-500',
+              badge.unlocked ? 'text-azur-300' : 'text-slate-500',
             ].join(' ')}
           >
             {badge.unlocked ? 'Badge obtenu' : 'À débloquer'}
