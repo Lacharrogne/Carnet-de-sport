@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
+import { estimateWorkoutCalories } from '../services/caloriesService'
+import { useBodyWeight } from '../context/bodyWeightContext'
 import type { StrengthExercise, Workout } from '../types/workout'
 import {
   getDistanceUnit,
@@ -211,6 +213,9 @@ function PerformanceSummaryPanel({
   const detailMode = getSportDetailMode(workout.category)
   const details = workout.details
 
+  const bodyWeight = useBodyWeight()
+  const calories = estimateWorkoutCalories(workout, bodyWeight)
+
   const totalVolume = getTotalVolume(exercises)
   const totalSets = getTotalSets(exercises)
   const heaviestExercise = getHeaviestExercise(exercises)
@@ -227,6 +232,10 @@ function PerformanceSummaryPanel({
         <StatCard label="Durée" value={formatDuration(workout.duration)} />
         <StatCard label="Intensité" value={`${workout.intensity}`} />
         <StatCard label="Ressenti" value={`${workout.feeling}`} />
+
+        {calories > 0 ? (
+          <StatCard label="Calories" value={`${formatNumber(calories)} kcal`} />
+        ) : null}
 
         {details?.distance ? (
           <StatCard

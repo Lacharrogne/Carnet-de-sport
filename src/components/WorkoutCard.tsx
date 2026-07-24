@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
+import { estimateWorkoutCalories } from '../services/caloriesService'
+import { useBodyWeight } from '../context/bodyWeightContext'
 import type { StrengthExercise, Workout } from '../types/workout'
 
 type WorkoutCardProps = {
@@ -54,6 +56,8 @@ export default function WorkoutCard({
   onDelete,
 }: WorkoutCardProps) {
   const isCompact = variant === 'compact'
+  const bodyWeight = useBodyWeight()
+  const calories = estimateWorkoutCalories(workout, bodyWeight)
 
   const category = SPORT_CATEGORIES.find((item) => {
     return item.id === workout.category
@@ -147,6 +151,10 @@ export default function WorkoutCard({
           <InfoPill>{category?.label ?? 'Autre'}</InfoPill>
           <InfoPill>{formatDuration(workout.duration)}</InfoPill>
           <InfoPill>Intensité {formatLabel(workout.intensity)}</InfoPill>
+
+          {calories > 0 ? (
+            <InfoPill>🔥 {formatNumber(calories)} kcal</InfoPill>
+          ) : null}
 
           {!isCompact ? (
             <InfoPill>Ressenti {formatLabel(workout.feeling)}</InfoPill>

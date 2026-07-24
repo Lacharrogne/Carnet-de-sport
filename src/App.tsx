@@ -13,6 +13,7 @@ import type { User } from '@supabase/supabase-js'
 import AppNavigation from './components/AppNavigation'
 import DemoModeBanner from './components/DemoModeBanner'
 import Footer from './components/Footer'
+import { BodyWeightContext } from './context/bodyWeightContext'
 import { WORKOUTS } from './data/workouts'
 
 import AuthPage from './pages/AuthPage'
@@ -486,7 +487,7 @@ function AppShell() {
     !user && !isAuthLoading && location.pathname !== '/auth'
 
   return (
-    <>
+    <BodyWeightContext.Provider value={healthProfile.weight}>
       <AppNavigation
         user={user}
         isAuthLoading={isAuthLoading}
@@ -696,7 +697,7 @@ function AppShell() {
           {location.pathname !== '/auth' && <Footer />}
         </>
       )}
-    </>
+    </BodyWeightContext.Provider>
   )
 }
 
