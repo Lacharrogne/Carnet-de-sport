@@ -528,7 +528,7 @@ function MobileMenu({
         onClick={onClose}
       />
 
-      <aside className="absolute right-0 top-0 h-screen w-full max-w-[430px] overflow-y-auto border-l border-white/10 bg-[#050816] px-5 py-5 text-slate-50 shadow-2xl shadow-black/50">
+      <aside className="absolute right-0 top-0 h-screen w-full max-w-[430px] overflow-y-auto border-l border-white/10 px-5 py-5 text-slate-50 shadow-2xl shadow-black/50">
         <div className="flex items-center justify-between gap-4">
           <Link
             to="/"

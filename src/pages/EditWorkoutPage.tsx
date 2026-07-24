@@ -26,7 +26,7 @@ export default function EditWorkoutPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] text-slate-50">
+    <main className="min-h-screen text-slate-50">
       <section className="mx-auto max-w-5xl px-6 py-10">
         <button
           type="button"

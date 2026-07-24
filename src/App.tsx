@@ -493,7 +493,7 @@ function AppShell() {
       />
 
       {isAuthLoading ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
+        <main className="min-h-screen px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
             <p className="text-5xl">⚡</p>
 
@@ -505,7 +505,7 @@ function AppShell() {
           </section>
         </main>
       ) : isLoadingRemoteData ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
+        <main className="min-h-screen px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
             <p className="text-5xl">⚡</p>
 
@@ -519,7 +519,7 @@ function AppShell() {
           </section>
         </main>
       ) : syncError ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
+        <main className="min-h-screen px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-red-400/20 bg-red-400/10 p-10 text-center">
             <p className="text-5xl">⚠️</p>
 
@@ -724,7 +724,7 @@ function EditWorkoutRoute({
 
   if (!workout) {
     return (
-      <main className="min-h-screen bg-[#050816] text-slate-50">
+      <main className="min-h-screen text-slate-50">
         <section className="mx-auto max-w-5xl px-6 py-10">
           <button
             type="button"
@@ -782,7 +782,7 @@ function WorkoutDetailRoute({
 
   if (!workout) {
     return (
-      <main className="min-h-screen bg-[#050816] text-slate-50">
+      <main className="min-h-screen text-slate-50">
         <section className="mx-auto max-w-5xl px-6 py-10">
           <button
             type="button"

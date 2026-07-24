@@ -82,7 +82,7 @@ export default function DashboardPage({
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
+    <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <DashboardHero
           totalWorkouts={totalWorkouts}

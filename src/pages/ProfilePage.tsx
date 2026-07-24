@@ -26,7 +26,7 @@ export default function ProfilePage({
 }: ProfilePageProps) {
   if (!user) {
     return (
-      <main className="min-h-screen bg-[#050816] px-4 py-10 text-slate-50 sm:px-6 lg:px-8">
+      <main className="min-h-screen px-4 py-10 text-slate-50 sm:px-6 lg:px-8">
         <section className="mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center">
           <p className="text-5xl">🔒</p>
 
@@ -161,7 +161,7 @@ function ProfileForm({
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] text-slate-50">
+    <main className="min-h-screen text-slate-50">
       <section className="mx-auto w-full max-w-[1180px] px-4 py-8 sm:px-6 lg:px-8">
         <button
           type="button"

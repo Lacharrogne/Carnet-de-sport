@@ -214,7 +214,7 @@ export default function PlanningPage({
   }
 
   return (
-    <main className="min-h-screen bg-[#050816] text-slate-50">
+    <main className="min-h-screen text-slate-50">
       <section className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
         <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 sm:p-8 lg:p-10">
           <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-azur-400/10 blur-3xl" />

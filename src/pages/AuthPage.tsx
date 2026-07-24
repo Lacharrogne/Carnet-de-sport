@@ -120,7 +120,7 @@ export default function AuthPage({
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
+    <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1180px] px-4 py-8 sm:px-6 lg:px-8">
         <button
           type="button"

@@ -64,7 +64,7 @@ export default function ChallengesPage({
   const nextChallenge = ongoingChallenges[0] ?? null
 
   return (
-    <main className="min-h-screen bg-[#050816] text-slate-50">
+    <main className="min-h-screen text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
