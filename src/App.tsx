@@ -210,7 +210,9 @@ function AppShell() {
           getRemotePlannedWorkouts(userId),
           getRemoteWeeklyGoal(userId),
           getRemoteHealthProfile(userId),
-          getRemoteBodyWeightEntries(userId),
+          // Tolérant : si la table n'existe pas encore (migration non lancée),
+          // on démarre avec un historique vide plutôt que de bloquer l'app.
+          getRemoteBodyWeightEntries(userId).catch(() => []),
         ])
 
         if (!isMounted) {
