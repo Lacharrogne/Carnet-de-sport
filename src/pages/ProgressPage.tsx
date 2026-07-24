@@ -1,10 +1,27 @@
-import { useMemo, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import { getSportProfileXp } from '../services/xpService'
+import {
+  getWeeklyTrends,
+  getWeekOverWeek,
+  type WeeklyBucket,
+} from '../services/workoutTrendsService'
+import {
+  countPersonalRecords,
+  getPersonalRecords,
+  type PersonalRecord,
+  type RecordSection,
+} from '../services/personalRecordsService'
+import WeeklyBarChart, {
+  type ChartPoint,
+} from '../components/charts/WeeklyBarChart'
+import TrendLineChart from '../components/charts/TrendLineChart'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 import type { WeeklyGoal } from '../types/weeklyGoal'
 import type { StrengthExercise, Workout } from '../types/workout'
+
+type TrendMetric = 'minutes' | 'sessions' | 'distance' | 'strength'
 
 type ProgressPageProps = {
   workouts: Workout[]
@@ -50,6 +67,25 @@ export default function ProgressPage({
       weeklyGoal,
     })
   }, [workouts, plannedWorkouts, weeklyGoal])
+
+  const weeklyTrends = useMemo(() => {
+    return getWeeklyTrends(workouts, 12)
+  }, [workouts])
+
+  const weekOverWeek = useMemo(() => {
+    return getWeekOverWeek(weeklyTrends)
+  }, [weeklyTrends])
+
+  const recordSections = useMemo(() => {
+    return getPersonalRecords(workouts)
+  }, [workouts])
+
+  const recordsCount = countPersonalRecords(recordSections)
+
+  const hasDistanceData = weeklyTrends.some((week) => week.distanceKm > 0)
+  const hasStrengthData = weeklyTrends.some((week) => week.strengthVolume > 0)
+
+  const [trendMetric, setTrendMetric] = useState<TrendMetric>('minutes')
 
   const totalWorkouts = workouts.length
 
@@ -300,6 +336,83 @@ export default function ProgressPage({
 
         <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-6">
+            <Panel title="Progression dans le temps" accent="azur">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-2">
+                  <MetricTab
+                    label="Minutes"
+                    active={trendMetric === 'minutes'}
+                    onClick={() => setTrendMetric('minutes')}
+                  />
+                  <MetricTab
+                    label="Séances"
+                    active={trendMetric === 'sessions'}
+                    onClick={() => setTrendMetric('sessions')}
+                  />
+                  {hasDistanceData && (
+                    <MetricTab
+                      label="Distance"
+                      active={trendMetric === 'distance'}
+                      onClick={() => setTrendMetric('distance')}
+                    />
+                  )}
+                  {hasStrengthData && (
+                    <MetricTab
+                      label="Volume muscu"
+                      active={trendMetric === 'strength'}
+                      onClick={() => setTrendMetric('strength')}
+                    />
+                  )}
+                </div>
+
+                <WeekDeltaBadge deltaPercent={weekOverWeek.deltaPercent} />
+              </div>
+
+              {trendMetric === 'minutes' ? (
+                <WeeklyBarChart
+                  data={buildTrendPoints(weeklyTrends, 'minutes')}
+                  formatValue={(value) => formatCompactDuration(value)}
+                  goal={
+                    weeklyGoal.targetMinutes > 0
+                      ? weeklyGoal.targetMinutes
+                      : undefined
+                  }
+                  goalLabel="Objectif hebdo"
+                />
+              ) : (
+                <TrendLineChart
+                  data={buildTrendPoints(weeklyTrends, trendMetric)}
+                  formatValue={(value) =>
+                    formatMetricValue(trendMetric, value)
+                  }
+                />
+              )}
+
+              <p className="mt-4 text-sm leading-6 text-slate-400">
+                {getTrendCaption(trendMetric)} sur les 12 dernières semaines.
+                Survole une barre ou un point pour le détail.
+              </p>
+            </Panel>
+
+            {recordsCount > 0 && (
+              <Panel title="Records personnels" accent="azur">
+                <div className="mb-4 flex items-center gap-3 rounded-3xl border border-azur-400/20 bg-azur-400/10 px-4 py-3">
+                  <span className="text-2xl">🏆</span>
+                  <p className="text-sm font-bold text-azur-100">
+                    {recordsCount} record{recordsCount > 1 ? 's' : ''} détecté
+                    {recordsCount > 1 ? 's' : ''} automatiquement à partir de tes
+                    séances.
+                  </p>
+                </div>
+
+                <div className="space-y-5">
+                  {recordSections.map((section) => (
+                    <RecordSectionCard key={section.id} section={section} />
+                  ))}
+                </div>
+              </Panel>
+            )}
+
             <Panel title="Détail de l’XP" accent="azur">
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <XpDetailCard
@@ -733,6 +846,173 @@ function EmptyText({ text }: { text: string }) {
       {text}
     </div>
   )
+}
+
+function MetricTab({
+  label,
+  active,
+  onClick,
+}: {
+  label: string
+  active: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        'rounded-full px-4 py-2 text-sm font-black transition',
+        active
+          ? 'bg-azur-400 text-slate-950 shadow-lg shadow-azur-400/20'
+          : 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10',
+      ].join(' ')}
+    >
+      {label}
+    </button>
+  )
+}
+
+function WeekDeltaBadge({ deltaPercent }: { deltaPercent: number }) {
+  if (deltaPercent === 0) {
+    return (
+      <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-black text-slate-400">
+        → stable vs S-1
+      </span>
+    )
+  }
+
+  const isUp = deltaPercent > 0
+
+  return (
+    <span
+      className={[
+        'rounded-full px-3 py-1.5 text-xs font-black',
+        isUp
+          ? 'border border-emerald-400/25 bg-emerald-400/10 text-emerald-300'
+          : 'border border-amber-400/25 bg-amber-400/10 text-amber-300',
+      ].join(' ')}
+    >
+      {isUp ? '▲' : '▼'} {Math.abs(deltaPercent)}% vs S-1
+    </span>
+  )
+}
+
+function RecordSectionCard({ section }: { section: RecordSection }) {
+  return (
+    <div>
+      <p className="mb-3 text-sm font-black text-white">
+        {section.icon} {section.title}
+      </p>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {section.records.map((record) => (
+          <RecordCard key={record.id} record={record} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function RecordCard({ record }: { record: PersonalRecord }) {
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="truncate text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+            {record.label}
+          </p>
+
+          <p className="mt-1.5 text-2xl font-black text-azur-200">
+            {record.value}
+          </p>
+        </div>
+
+        <span className="text-2xl">{record.icon}</span>
+      </div>
+
+      {record.detail && (
+        <p className="mt-2 text-sm leading-5 text-slate-300">{record.detail}</p>
+      )}
+
+      {record.date && (
+        <p className="mt-1 text-xs font-bold text-slate-500">
+          {formatDate(record.date)}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function buildTrendPoints(
+  weeks: WeeklyBucket[],
+  metric: TrendMetric,
+): ChartPoint[] {
+  return weeks.map((week) => {
+    const value =
+      metric === 'minutes'
+        ? week.minutes
+        : metric === 'sessions'
+          ? week.sessions
+          : metric === 'distance'
+            ? Math.round(week.distanceKm * 10) / 10
+            : week.strengthVolume
+
+    return {
+      label: week.shortLabel,
+      fullLabel: week.longLabel,
+      value,
+    }
+  })
+}
+
+function formatMetricValue(metric: TrendMetric, value: number) {
+  if (metric === 'sessions') {
+    return `${value}`
+  }
+
+  if (metric === 'distance') {
+    return `${formatNumber(value, 1)} km`
+  }
+
+  if (metric === 'strength') {
+    return `${formatNumber(value)} kg`
+  }
+
+  return formatCompactDuration(value)
+}
+
+function formatCompactDuration(minutes: number) {
+  if (minutes <= 0) {
+    return '0'
+  }
+
+  if (minutes < 60) {
+    return `${Math.round(minutes)} min`
+  }
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = Math.round(minutes % 60)
+
+  return remainingMinutes === 0
+    ? `${hours} h`
+    : `${hours}h${String(remainingMinutes).padStart(2, '0')}`
+}
+
+function getTrendCaption(metric: TrendMetric) {
+  if (metric === 'sessions') {
+    return 'Nombre de séances'
+  }
+
+  if (metric === 'distance') {
+    return 'Distance parcourue (course, vélo, marche, rando)'
+  }
+
+  if (metric === 'strength') {
+    return 'Volume de musculation (kg soulevés)'
+  }
+
+  return 'Minutes d’activité'
 }
 
 function getCategoryMetaItems(category: CategoryStat) {
