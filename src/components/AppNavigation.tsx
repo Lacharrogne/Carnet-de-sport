@@ -158,9 +158,9 @@ export default function AppNavigation({
             <Link
               to="/workouts/new"
               onClick={closeAllMenus}
-              className="inline-flex items-center gap-3 rounded-full border border-azur-400/20 bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-azur-400/10 transition hover:bg-azur-300"
+              className="group inline-flex items-center gap-3 rounded-full border border-azur-400/20 bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-azur-400/10 transition duration-200 hover:-translate-y-0.5 hover:bg-azur-300 hover:shadow-azur-400/20"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-azur-300">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-950 text-lg text-azur-300 transition duration-200 group-hover:rotate-90">
                 +
               </span>
               Ajouter une séance
