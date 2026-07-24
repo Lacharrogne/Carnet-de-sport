@@ -13,20 +13,23 @@ import {
   type PersonalRecord,
   type RecordSection,
 } from '../services/personalRecordsService'
+import { getTotalCalories } from '../services/caloriesService'
 import WeeklyBarChart, {
   type ChartPoint,
 } from '../components/charts/WeeklyBarChart'
 import TrendLineChart from '../components/charts/TrendLineChart'
+import type { HealthProfile } from '../types/health'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 import type { WeeklyGoal } from '../types/weeklyGoal'
 import type { StrengthExercise, Workout } from '../types/workout'
 
-type TrendMetric = 'minutes' | 'sessions' | 'distance' | 'strength'
+type TrendMetric = 'minutes' | 'sessions' | 'distance' | 'strength' | 'calories'
 
 type ProgressPageProps = {
   workouts: Workout[]
   plannedWorkouts: PlannedWorkout[]
   weeklyGoal: WeeklyGoal
+  healthProfile: HealthProfile
   onBack: () => void
 }
 
@@ -49,8 +52,10 @@ export default function ProgressPage({
   workouts,
   plannedWorkouts,
   weeklyGoal,
+  healthProfile,
   onBack,
 }: ProgressPageProps) {
+  const bodyWeight = healthProfile.weight
   const sortedWorkouts = useMemo(() => {
     return [...workouts].sort((a, b) => {
       return (
@@ -69,8 +74,12 @@ export default function ProgressPage({
   }, [workouts, plannedWorkouts, weeklyGoal])
 
   const weeklyTrends = useMemo(() => {
-    return getWeeklyTrends(workouts, 12)
-  }, [workouts])
+    return getWeeklyTrends(workouts, 12, bodyWeight)
+  }, [workouts, bodyWeight])
+
+  const totalCalories = useMemo(() => {
+    return getTotalCalories(workouts, bodyWeight)
+  }, [workouts, bodyWeight])
 
   const weekOverWeek = useMemo(() => {
     return getWeekOverWeek(weeklyTrends)
@@ -84,6 +93,7 @@ export default function ProgressPage({
 
   const hasDistanceData = weeklyTrends.some((week) => week.distanceKm > 0)
   const hasStrengthData = weeklyTrends.some((week) => week.strengthVolume > 0)
+  const hasCaloriesData = weeklyTrends.some((week) => week.calories > 0)
 
   const [trendMetric, setTrendMetric] = useState<TrendMetric>('minutes')
 
@@ -363,6 +373,13 @@ export default function ProgressPage({
                       onClick={() => setTrendMetric('strength')}
                     />
                   )}
+                  {hasCaloriesData && (
+                    <MetricTab
+                      label="Calories"
+                      active={trendMetric === 'calories'}
+                      onClick={() => setTrendMetric('calories')}
+                    />
+                  )}
                 </div>
 
                 <WeekDeltaBadge deltaPercent={weekOverWeek.deltaPercent} />
@@ -471,6 +488,11 @@ export default function ProgressPage({
           ? `${formatNumber(totalStrengthVolume)} kg`
           : '—'
       }
+    />
+
+    <CompactStat
+      label="Calories brûlées"
+      value={totalCalories > 0 ? `${formatNumber(totalCalories)} kcal` : '—'}
     />
 
     <CompactStat
@@ -956,7 +978,9 @@ function buildTrendPoints(
           ? week.sessions
           : metric === 'distance'
             ? Math.round(week.distanceKm * 10) / 10
-            : week.strengthVolume
+            : metric === 'calories'
+              ? week.calories
+              : week.strengthVolume
 
     return {
       label: week.shortLabel,
@@ -977,6 +1001,10 @@ function formatMetricValue(metric: TrendMetric, value: number) {
 
   if (metric === 'strength') {
     return `${formatNumber(value)} kg`
+  }
+
+  if (metric === 'calories') {
+    return `${formatNumber(value)} kcal`
   }
 
   return formatCompactDuration(value)
@@ -1010,6 +1038,10 @@ function getTrendCaption(metric: TrendMetric) {
 
   if (metric === 'strength') {
     return 'Volume de musculation (kg soulevés)'
+  }
+
+  if (metric === 'calories') {
+    return 'Calories brûlées estimées'
   }
 
   return 'Minutes d’activité'

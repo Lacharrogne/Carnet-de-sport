@@ -1,4 +1,5 @@
 import type { StrengthExercise, Workout } from '../types/workout'
+import { estimateWorkoutCalories } from './caloriesService'
 
 /** Un « bucket » = une semaine calendaire (démarrant le lundi). */
 export type WeeklyBucket = {
@@ -13,6 +14,8 @@ export type WeeklyBucket = {
   distanceKm: number
   swimMeters: number
   strengthVolume: number
+  /** Calories brûlées estimées (0 si le poids n'est pas connu). */
+  calories: number
   /** Vrai pour la semaine en cours. */
   isCurrent: boolean
 }
@@ -34,6 +37,7 @@ const RUN_LIKE: Workout['category'][] = [
 export function getWeeklyTrends(
   workouts: Workout[],
   weeks = 12,
+  weightKg = 0,
 ): WeeklyBucket[] {
   const currentMonday = getMonday(new Date())
 
@@ -56,6 +60,7 @@ export function getWeeklyTrends(
       distanceKm: 0,
       swimMeters: 0,
       strengthVolume: 0,
+      calories: 0,
       isCurrent: offset === 0,
     })
   }
@@ -82,6 +87,7 @@ export function getWeeklyTrends(
     }
 
     bucket.strengthVolume += getSessionStrengthVolume(workout)
+    bucket.calories += estimateWorkoutCalories(workout, weightKg)
   }
 
   return buckets

@@ -1,6 +1,10 @@
 import { useMemo, useState, type ChangeEvent } from 'react'
 
 import HealthyRecipeSection from '../components/HealthyRecipeSection'
+import {
+  getCalorieTarget,
+  getTotalCalories,
+} from '../services/caloriesService'
 import type { ActivityLevel, FitnessGoal, HealthProfile } from '../types/health'
 import type { Workout } from '../types/workout'
 
@@ -88,6 +92,15 @@ const mobilityWorkouts = workouts.filter((workout) => {
 
   const bmiLabel = getBmiLabel(bmi)
   const estimatedMetabolism = getEstimatedMetabolism(profile)
+
+  const energy = useMemo(() => {
+    const target = getCalorieTarget(profile)
+    const totalBurned = getTotalCalories(workouts, profile.weight)
+    const averageBurned =
+      workouts.length > 0 ? Math.round(totalBurned / workouts.length) : 0
+
+    return { ...target, totalBurned, averageBurned }
+  }, [profile, workouts])
 
   const updateProfileField = <Key extends keyof HealthProfile>(
     key: Key,
@@ -181,6 +194,78 @@ const mobilityWorkouts = workouts.filter((workout) => {
             value={`${estimatedMetabolism} kcal`}
             icon="🔥"
           />
+        </section>
+
+        <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
+                Énergie
+              </p>
+
+              <h2 className="mt-2 text-3xl font-black text-white">
+                Tes calories, au clair.
+              </h2>
+            </div>
+
+            <div className="rounded-3xl border border-azur-400/20 bg-azur-400/10 px-5 py-4">
+              <p className="text-sm text-azur-300">Stratégie</p>
+              <p className="mt-1 text-2xl font-black text-white">
+                {energy.label}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-4 md:grid-cols-4">
+            <EnergyCard
+              label="Maintien (TDEE)"
+              value={`${formatNumber(energy.maintenance)} kcal`}
+              description="Dépense quotidienne totale estimée."
+              icon="⚖️"
+            />
+
+            <EnergyCard
+              label="Cible conseillée"
+              value={`${formatNumber(energy.target)} kcal`}
+              description={
+                energy.delta === 0
+                  ? 'Autour du maintien pour ton objectif.'
+                  : `${energy.delta > 0 ? '+' : ''}${formatNumber(
+                      energy.delta,
+                    )} kcal/jour vs maintien.`
+              }
+              icon="🎯"
+              accent
+            />
+
+            <EnergyCard
+              label="Brûlé par le sport"
+              value={
+                energy.totalBurned > 0
+                  ? `${formatNumber(energy.totalBurned)} kcal`
+                  : '—'
+              }
+              description="Cumul estimé sur toutes tes séances."
+              icon="🔥"
+            />
+
+            <EnergyCard
+              label="Moyenne / séance"
+              value={
+                energy.averageBurned > 0
+                  ? `${formatNumber(energy.averageBurned)} kcal`
+                  : '—'
+              }
+              description="Dépense moyenne par entraînement."
+              icon="📊"
+            />
+          </div>
+
+          <p className="mt-5 text-sm leading-6 text-slate-400">
+            Estimations calculées à partir de ton poids, de la durée et de
+            l’intensité de tes séances (méthode MET). Elles restent indicatives
+            et ne remplacent pas un suivi nutritionnel personnalisé.
+          </p>
         </section>
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
@@ -506,6 +591,55 @@ function HeroMetric({ label, value }: { label: string; value: string }) {
     <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
       <p className="text-sm text-slate-400">{label}</p>
       <p className="mt-1 text-2xl font-black text-white">{value}</p>
+    </div>
+  )
+}
+
+function formatNumber(value: number) {
+  return new Intl.NumberFormat('fr-FR').format(value)
+}
+
+type EnergyCardProps = {
+  label: string
+  value: string
+  description: string
+  icon: string
+  accent?: boolean
+}
+
+function EnergyCard({
+  label,
+  value,
+  description,
+  icon,
+  accent = false,
+}: EnergyCardProps) {
+  return (
+    <div
+      className={[
+        'rounded-3xl border p-5',
+        accent
+          ? 'border-azur-400/25 bg-azur-400/10'
+          : 'border-white/10 bg-slate-950/60',
+      ].join(' ')}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs font-black uppercase tracking-[0.14em] text-slate-400">
+          {label}
+        </p>
+        <span className="text-xl">{icon}</span>
+      </div>
+
+      <p
+        className={[
+          'mt-2 text-2xl font-black',
+          accent ? 'text-azur-200' : 'text-white',
+        ].join(' ')}
+      >
+        {value}
+      </p>
+
+      <p className="mt-2 text-sm leading-5 text-slate-400">{description}</p>
     </div>
   )
 }

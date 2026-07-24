@@ -629,6 +629,7 @@ function AppShell() {
                   workouts={workouts}
                   plannedWorkouts={plannedWorkouts}
                   weeklyGoal={weeklyGoal}
+                  healthProfile={healthProfile}
                   onBack={() => navigate('/')}
                 />
               }
