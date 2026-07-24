@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import NextPlannedWorkoutCard from '../components/NextPlannedWorkoutCard'
 import WeeklyGoalCard from '../components/WeeklyGoalCard'
 import WorkoutCard from '../components/WorkoutCard'
+import WeeklyBarChart from '../components/charts/WeeklyBarChart'
+import { getWeeklyTrends } from '../services/workoutTrendsService'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 import type { WeeklyGoal } from '../types/weeklyGoal'
 import type { Workout } from '../types/workout'
@@ -100,6 +102,11 @@ export default function DashboardPage({
               workouts={workouts}
               weeklyGoal={weeklyGoal}
               onWeeklyGoalChange={onWeeklyGoalChange}
+            />
+
+            <WeeklyActivityCard
+              workouts={workouts}
+              weeklyTarget={weeklyGoal.targetMinutes}
             />
 
             <RecentWorkoutsSection
@@ -270,6 +277,69 @@ function WeekFocusCard({
       </Link>
     </div>
   )
+}
+
+function WeeklyActivityCard({
+  workouts,
+  weeklyTarget,
+}: {
+  workouts: Workout[]
+  weeklyTarget: number
+}) {
+  const weeks = getWeeklyTrends(workouts, 12)
+  const points = weeks.map((week) => ({
+    label: week.shortLabel,
+    fullLabel: week.longLabel,
+    value: week.minutes,
+  }))
+
+  return (
+    <Panel>
+      <div className="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
+            Ton activité
+          </p>
+
+          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+            12 dernières semaines
+          </h2>
+        </div>
+
+        <Link
+          to="/progress"
+          className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
+        >
+          Voir la progression
+        </Link>
+      </div>
+
+      <WeeklyBarChart
+        data={points}
+        formatValue={(value) => formatCompactMinutes(value)}
+        goal={weeklyTarget > 0 ? weeklyTarget : undefined}
+        goalLabel="Objectif hebdo"
+        emptyLabel="Ajoute des séances pour voir ton activité hebdomadaire."
+      />
+    </Panel>
+  )
+}
+
+function formatCompactMinutes(minutes: number) {
+  if (minutes <= 0) {
+    return '0'
+  }
+
+  if (minutes < 60) {
+    return `${Math.round(minutes)} min`
+  }
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = Math.round(minutes % 60)
+
+  return remainingMinutes === 0
+    ? `${hours} h`
+    : `${hours}h${String(remainingMinutes).padStart(2, '0')}`
 }
 
 function RecentWorkoutsSection({
