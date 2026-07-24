@@ -29,6 +29,8 @@ import type { StrengthExercise, Workout } from '../types/workout'
 
 type TrendMetric = 'minutes' | 'sessions' | 'distance' | 'strength' | 'calories'
 
+type ProgressTab = 'overview' | 'progression' | 'rewards'
+
 type ProgressPageProps = {
   workouts: Workout[]
   plannedWorkouts: PlannedWorkout[]
@@ -100,6 +102,7 @@ export default function ProgressPage({
   const hasCaloriesData = weeklyTrends.some((week) => week.calories > 0)
 
   const [trendMetric, setTrendMetric] = useState<TrendMetric>('minutes')
+  const [tab, setTab] = useState<ProgressTab>('overview')
 
   const trackedExercises = useMemo(() => {
     return getTrackedExercises(workouts)
@@ -365,8 +368,182 @@ export default function ProgressPage({
           </div>
         </header>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="space-y-6">
+        <div className="mt-6 flex flex-wrap gap-2">
+          <MetricTab
+            label="Vue d’ensemble"
+            active={tab === 'overview'}
+            onClick={() => setTab('overview')}
+          />
+          <MetricTab
+            label="Progression"
+            active={tab === 'progression'}
+            onClick={() => setTab('progression')}
+          />
+          <MetricTab
+            label="Récompenses"
+            active={tab === 'rewards'}
+            onClick={() => setTab('rewards')}
+          />
+        </div>
+
+        {tab === 'overview' && (
+          <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="space-y-6">
+              <Panel title="Chiffres clés">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                  <CompactStat
+                    label="Durée moyenne"
+                    value={formatDuration(averageDuration)}
+                  />
+                  <CompactStat
+                    label="Distance totale"
+                    value={formatGlobalDistance(
+                      totalDistanceKm,
+                      totalSwimmingDistance,
+                    )}
+                  />
+                  <CompactStat
+                    label="Dénivelé"
+                    value={
+                      totalElevation > 0
+                        ? `${formatNumber(totalElevation)} m`
+                        : '—'
+                    }
+                  />
+                  <CompactStat
+                    label="Volume muscu"
+                    value={
+                      totalStrengthVolume > 0
+                        ? `${formatNumber(totalStrengthVolume)} kg`
+                        : '—'
+                    }
+                  />
+                  <CompactStat
+                    label="Calories brûlées"
+                    value={
+                      totalCalories > 0
+                        ? `${formatNumber(totalCalories)} kcal`
+                        : '—'
+                    }
+                  />
+                  <CompactStat
+                    label="Sports testés"
+                    value={`${sportsTriedCount}`}
+                  />
+                  <CompactStat label="Records" value={`${recordCount} 🔥`} />
+                  <CompactStat
+                    label="Progressions"
+                    value={`${progressCount} 📈`}
+                  />
+                  <CompactStat
+                    label="Régressions"
+                    value={`${regressCount} 📉`}
+                  />
+                </div>
+              </Panel>
+
+              <Panel title="Répartition par sport">
+                {visibleCategoryStats.length > 0 ? (
+                  <div className="space-y-4">
+                    {visibleCategoryStats.map((category) => {
+                      const percent =
+                        totalWorkouts > 0
+                          ? Math.round((category.count / totalWorkouts) * 100)
+                          : 0
+
+                      return (
+                        <CategoryProgressCard
+                          key={category.id}
+                          category={category}
+                          percent={percent}
+                        />
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <EmptyText text="Aucune séance enregistrée pour le moment." />
+                )}
+              </Panel>
+            </div>
+
+            <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
+              <Panel title="Cette semaine" accent="azur">
+                <div className="space-y-3">
+                  <InfoCard
+                    title="Cette semaine"
+                    value={formatDuration(weeklyDuration)}
+                    description={`${weeklyWorkouts.length} séance${
+                      weeklyWorkouts.length > 1 ? 's' : ''
+                    } enregistrée${weeklyWorkouts.length > 1 ? 's' : ''}.`}
+                  />
+
+                  <InfoCard
+                    title="Objectif semaine"
+                    value={
+                      weeklyGoal.targetMinutes > 0
+                        ? `${weeklyGoalProgress}%`
+                        : 'Non défini'
+                    }
+                    description={
+                      weeklyGoal.targetMinutes > 0
+                        ? `${formatDuration(
+                            weeklyDuration,
+                          )} sur ${formatDuration(weeklyGoal.targetMinutes)}.`
+                        : 'Définis un objectif pour suivre ta régularité.'
+                    }
+                  />
+
+                  <InfoCard
+                    title="Dernière séance"
+                    value={lastWorkout ? lastWorkout.title : 'Aucune'}
+                    description={
+                      lastWorkout
+                        ? `${formatDate(lastWorkout.date)} · ${formatDuration(
+                            lastWorkout.duration,
+                          )}`
+                        : 'Ajoute une séance pour commencer ton suivi.'
+                    }
+                  />
+
+                  <InfoCard
+                    title="Sport dominant"
+                    value={
+                      favoriteCategory
+                        ? `${favoriteCategory.emoji} ${favoriteCategory.label}`
+                        : 'Aucun'
+                    }
+                    description={
+                      favoriteCategory
+                        ? `${favoriteCategory.count} séance${
+                            favoriteCategory.count > 1 ? 's' : ''
+                          } enregistrée${
+                            favoriteCategory.count > 1 ? 's' : ''
+                          }.`
+                        : 'Aucune donnée pour le moment.'
+                    }
+                  />
+                </div>
+
+                <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+                  <p className="font-black text-white">Conseil automatique</p>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    {getAutomaticAdvice({
+                      totalWorkouts,
+                      progressCount,
+                      regressCount,
+                      plannedWorkoutsCount: plannedWorkouts.length,
+                      weeklyGoalProgress,
+                    })}
+                  </p>
+                </div>
+              </Panel>
+            </aside>
+          </div>
+        )}
+
+        {tab === 'progression' && (
+          <div className="mt-6 space-y-6">
             <Panel title="Progression dans le temps" accent="azur">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap gap-2">
@@ -420,9 +597,7 @@ export default function ProgressPage({
               ) : (
                 <TrendLineChart
                   data={buildTrendPoints(weeklyTrends, trendMetric)}
-                  formatValue={(value) =>
-                    formatMetricValue(trendMetric, value)
-                  }
+                  formatValue={(value) => formatMetricValue(trendMetric, value)}
                 />
               )}
 
@@ -432,31 +607,14 @@ export default function ProgressPage({
               </p>
             </Panel>
 
-            {recordsCount > 0 && (
-              <Panel title="Records personnels" accent="azur">
-                <div className="mb-4 flex items-center gap-3 rounded-3xl border border-azur-400/20 bg-azur-400/10 px-4 py-3">
-                  <span className="text-2xl">🏆</span>
-                  <p className="text-sm font-bold text-azur-100">
-                    {recordsCount} record{recordsCount > 1 ? 's' : ''} détecté
-                    {recordsCount > 1 ? 's' : ''} automatiquement à partir de tes
-                    séances.
-                  </p>
-                </div>
-
-                <div className="space-y-5">
-                  {recordSections.map((section) => (
-                    <RecordSectionCard key={section.id} section={section} />
-                  ))}
-                </div>
-              </Panel>
-            )}
-
             {trackedExercises.length > 0 && (
               <Panel title="Progression par exercice" accent="azur">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <select
                     value={activeExercise}
-                    onChange={(event) => setSelectedExercise(event.target.value)}
+                    onChange={(event) =>
+                      setSelectedExercise(event.target.value)
+                    }
                     className="rounded-full border border-white/10 bg-slate-950 px-4 py-2.5 text-sm font-black text-white outline-none transition focus:border-azur-400/60"
                   >
                     {trackedExercises.map((exercise) => (
@@ -507,6 +665,37 @@ export default function ProgressPage({
                 </p>
               </Panel>
             )}
+          </div>
+        )}
+
+        {tab === 'rewards' && (
+          <div className="mt-6 space-y-6">
+            {recordsCount > 0 && (
+              <Panel title="Records personnels" accent="azur">
+                <div className="mb-4 flex items-center gap-3 rounded-3xl border border-azur-400/20 bg-azur-400/10 px-4 py-3">
+                  <span className="text-2xl">🏆</span>
+                  <p className="text-sm font-bold text-azur-100">
+                    {recordsCount} record{recordsCount > 1 ? 's' : ''} détecté
+                    {recordsCount > 1 ? 's' : ''} automatiquement à partir de tes
+                    séances.
+                  </p>
+                </div>
+
+                <div className="space-y-5">
+                  {recordSections.map((section) => (
+                    <RecordSectionCard key={section.id} section={section} />
+                  ))}
+                </div>
+              </Panel>
+            )}
+
+            <Panel title="Badges" accent="azur">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {badges.map((badge) => (
+                  <BadgeCard key={badge.title} badge={badge} />
+                ))}
+              </div>
+            </Panel>
 
             <Panel title="Détail de l’XP" accent="azur">
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -547,181 +736,8 @@ export default function ProgressPage({
                 />
               </div>
             </Panel>
-<Panel title="Stats clés">
-  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-    <CompactStat
-      label="Distance totale"
-      value={formatGlobalDistance(totalDistanceKm, totalSwimmingDistance)}
-    />
-
-    <CompactStat
-      label="Dénivelé"
-      value={totalElevation > 0 ? `${formatNumber(totalElevation)} m` : '—'}
-    />
-
-    <CompactStat
-      label="Volume muscu"
-      value={
-        totalStrengthVolume > 0
-          ? `${formatNumber(totalStrengthVolume)} kg`
-          : '—'
-      }
-    />
-
-    <CompactStat
-      label="Calories brûlées"
-      value={totalCalories > 0 ? `${formatNumber(totalCalories)} kcal` : '—'}
-    />
-
-    <CompactStat
-      label="Sports testés"
-      value={`${sportsTriedCount}`}
-    />
-  </div>
-</Panel>
-            <Panel title="Répartition par sport">
-              {visibleCategoryStats.length > 0 ? (
-                <div className="space-y-4">
-                  {visibleCategoryStats.map((category) => {
-                    const percent =
-                      totalWorkouts > 0
-                        ? Math.round((category.count / totalWorkouts) * 100)
-                        : 0
-
-                    return (
-                      <CategoryProgressCard
-                        key={category.id}
-                        category={category}
-                        percent={percent}
-                      />
-                    )
-                  })}
-                </div>
-              ) : (
-                <EmptyText text="Aucune séance enregistrée pour le moment." />
-              )}
-            </Panel>
-
-            <Panel title="Badges" accent="azur">
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {badges.map((badge) => (
-                  <BadgeCard key={badge.title} badge={badge} />
-                ))}
-              </div>
-            </Panel>
           </div>
-
-          <aside className="space-y-5 xl:sticky xl:top-24 xl:self-start">
-            <Panel title="Résumé rapide" accent="azur">
-              <div className="space-y-3">
-                <InfoCard
-                  title="Cette semaine"
-                  value={formatDuration(weeklyDuration)}
-                  description={`${weeklyWorkouts.length} séance${
-                    weeklyWorkouts.length > 1 ? 's' : ''
-                  } enregistrée${weeklyWorkouts.length > 1 ? 's' : ''}.`}
-                />
-
-                <InfoCard
-                  title="Objectif semaine"
-                  value={
-                    weeklyGoal.targetMinutes > 0
-                      ? `${weeklyGoalProgress}%`
-                      : 'Non défini'
-                  }
-                  description={
-                    weeklyGoal.targetMinutes > 0
-                      ? `${formatDuration(weeklyDuration)} sur ${formatDuration(
-                          weeklyGoal.targetMinutes,
-                        )}.`
-                      : 'Définis un objectif pour suivre ta régularité.'
-                  }
-                />
-
-                <InfoCard
-                  title="Dernière séance"
-                  value={lastWorkout ? lastWorkout.title : 'Aucune'}
-                  description={
-                    lastWorkout
-                      ? `${formatDate(lastWorkout.date)} · ${formatDuration(
-                          lastWorkout.duration,
-                        )}`
-                      : 'Ajoute une séance pour commencer ton suivi.'
-                  }
-                />
-
-                <InfoCard
-                  title="Sport dominant"
-                  value={
-                    favoriteCategory
-                      ? `${favoriteCategory.emoji} ${favoriteCategory.label}`
-                      : 'Aucun'
-                  }
-                  description={
-                    favoriteCategory
-                      ? `${favoriteCategory.count} séance${
-                          favoriteCategory.count > 1 ? 's' : ''
-                        } enregistrée${favoriteCategory.count > 1 ? 's' : ''}.`
-                      : 'Aucune donnée pour le moment.'
-                  }
-                />
-              </div>
-            </Panel>
-
-            <Panel title="Analyse rapide">
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                <CompactStat
-                  label="Durée moyenne"
-                  value={formatDuration(averageDuration)}
-                />
-
-                <CompactStat label="Records" value={`${recordCount} 🔥`} />
-
-                <CompactStat
-                  label="Progressions"
-                  value={`${progressCount} 📈`}
-                />
-
-                <CompactStat
-                  label="Régressions"
-                  value={`${regressCount} 📉`}
-                />
-
-                <CompactStat
-                  label="Dénivelé total"
-                  value={
-                    totalElevation > 0
-                      ? `${formatNumber(totalElevation)} m`
-                      : '—'
-                  }
-                />
-
-                <CompactStat
-                  label="Volume muscu"
-                  value={
-                    totalStrengthVolume > 0
-                      ? `${formatNumber(totalStrengthVolume)} kg`
-                      : '—'
-                  }
-                />
-              </div>
-
-              <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-                <p className="font-black text-white">Conseil automatique</p>
-
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  {getAutomaticAdvice({
-                    totalWorkouts,
-                    progressCount,
-                    regressCount,
-                    plannedWorkoutsCount: plannedWorkouts.length,
-                    weeklyGoalProgress,
-                  })}
-                </p>
-              </div>
-            </Panel>
-          </aside>
-        </div>
+        )}
       </section>
     </main>
   )

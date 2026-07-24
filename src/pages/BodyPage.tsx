@@ -189,21 +189,6 @@ const mobilityWorkouts = workouts.filter((workout) => {
           </div>
         </header>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-4">
-          <StatCard label="Taille" value={`${profile.height} cm`} icon="📏" />
-          <StatCard label="Poids" value={`${profile.weight} kg`} icon="⚖️" />
-          <StatCard
-            label="IMC indicatif"
-            value={`${bmi} · ${bmiLabel}`}
-            icon="🧬"
-          />
-          <StatCard
-            label="Métabolisme estimé"
-            value={`${estimatedMetabolism} kcal`}
-            icon="🔥"
-          />
-        </section>
-
         <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
@@ -984,29 +969,6 @@ function EnergyCard({
 
       <p className="mt-2 text-sm leading-5 text-slate-400">{description}</p>
     </div>
-  )
-}
-
-type StatCardProps = {
-  label: string
-  value: string
-  icon: string
-}
-
-function StatCard({ label, value, icon }: StatCardProps) {
-  return (
-    <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/10 transition hover:-translate-y-1 hover:bg-white/[0.07]">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-slate-400">{label}</p>
-          <p className="mt-3 text-3xl font-black text-white">{value}</p>
-        </div>
-
-        <div className="rounded-2xl bg-white/10 px-3 py-2 text-3xl">
-          {icon}
-        </div>
-      </div>
-    </article>
   )
 }
 
