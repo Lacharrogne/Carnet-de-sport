@@ -11,6 +11,7 @@ type WorkoutsPageProps = {
   onOpenWorkout: (workoutId: string) => void
   onEditWorkout: (workoutId: string) => void
   onDeleteWorkout: (workoutId: string) => void | Promise<void>
+  onDuplicateWorkout: (workout: Workout) => void
 }
 
 type CategoryFilter = 'all' | SportCategoryId
@@ -30,6 +31,7 @@ export default function WorkoutsPage({
   onOpenWorkout,
   onEditWorkout,
   onDeleteWorkout,
+  onDuplicateWorkout,
 }: WorkoutsPageProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
@@ -277,6 +279,7 @@ export default function WorkoutsPage({
                     onOpen={onOpenWorkout}
                     onEdit={onEditWorkout}
                     onDelete={onDeleteWorkout}
+                    onDuplicate={onDuplicateWorkout}
                   />
                 ))}
               </div>

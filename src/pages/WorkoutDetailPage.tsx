@@ -16,6 +16,8 @@ type WorkoutDetailPageProps = {
   onBack: () => void
   onEdit: (workoutId: string) => void
   onDelete?: (workoutId: string) => void
+  onDuplicate?: (workout: Workout) => void
+  onSaveTemplate?: (name: string, workout: Workout) => void
 }
 
 type TrendConfig = {
@@ -62,7 +64,24 @@ export default function WorkoutDetailPage({
   onBack,
   onEdit,
   onDelete,
+  onDuplicate,
+  onSaveTemplate,
 }: WorkoutDetailPageProps) {
+  const handleSaveTemplate = () => {
+    if (!onSaveTemplate) {
+      return
+    }
+
+    const name = window.prompt(
+      'Nom du modèle à créer à partir de cette séance :',
+      workout.title,
+    )
+
+    if (name && name.trim()) {
+      onSaveTemplate(name.trim(), workout)
+    }
+  }
+
   const category = SPORT_CATEGORIES.find((item) => {
     return item.id === workout.category
   })
@@ -91,6 +110,26 @@ export default function WorkoutDetailPage({
           </button>
 
           <div className="flex flex-wrap gap-3">
+            {onDuplicate ? (
+              <button
+                type="button"
+                onClick={() => onDuplicate(workout)}
+                className="rounded-full border border-azur-400/20 bg-azur-400/10 px-5 py-3 text-sm font-black text-azur-200 transition hover:bg-azur-400/20"
+              >
+                ⧉ Dupliquer
+              </button>
+            ) : null}
+
+            {onSaveTemplate ? (
+              <button
+                type="button"
+                onClick={handleSaveTemplate}
+                className="rounded-full border border-violet-400/20 bg-violet-400/10 px-5 py-3 text-sm font-black text-violet-200 transition hover:bg-violet-400/20"
+              >
+                ★ Enregistrer comme modèle
+              </button>
+            ) : null}
+
             <button
               type="button"
               onClick={() => onEdit(workout.id)}

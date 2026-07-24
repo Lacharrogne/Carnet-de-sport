@@ -11,6 +11,7 @@ type WorkoutCardProps = {
   onOpen?: (workoutId: string) => void
   onEdit?: (workoutId: string) => void
   onDelete?: (workoutId: string) => void | Promise<void>
+  onDuplicate?: (workout: Workout) => void
 }
 
 const trendConfig: Record<
@@ -54,6 +55,7 @@ export default function WorkoutCard({
   onOpen,
   onEdit,
   onDelete,
+  onDuplicate,
 }: WorkoutCardProps) {
   const isCompact = variant === 'compact'
   const bodyWeight = useBodyWeight()
@@ -71,7 +73,7 @@ export default function WorkoutCard({
     year: 'numeric',
   }).format(new Date(`${workout.date}T00:00:00`))
 
-  const hasActions = Boolean(onEdit || onDelete)
+  const hasActions = Boolean(onEdit || onDelete || onDuplicate)
 
   const handleOpen = () => {
     if (!onOpen) {
@@ -115,6 +117,18 @@ export default function WorkoutCard({
                 className="flex items-center gap-2"
                 onClick={(event) => event.stopPropagation()}
               >
+                {onDuplicate ? (
+                  <button
+                    type="button"
+                    onClick={() => onDuplicate(workout)}
+                    className="flex h-10 w-10 items-center justify-center rounded-2xl border border-azur-400/20 bg-azur-400/10 text-sm font-black text-azur-300 transition hover:bg-azur-400/20"
+                    aria-label="Dupliquer la séance"
+                    title="Dupliquer"
+                  >
+                    ⧉
+                  </button>
+                ) : null}
+
                 {onEdit ? (
                   <button
                     type="button"

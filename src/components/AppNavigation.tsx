@@ -29,6 +29,12 @@ const toolsLinks = [
     icon: '📅',
   },
   {
+    to: '/templates',
+    label: 'Modèles',
+    description: 'Séances toutes prêtes à démarrer',
+    icon: '📋',
+  },
+  {
     to: '/progress',
     label: 'Progression',
     description: 'Voir ton niveau, ton XP et tes badges',
