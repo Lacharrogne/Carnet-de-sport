@@ -4,6 +4,11 @@ type TrendLineChartProps = {
   data: ChartPoint[]
   formatValue?: (value: number) => string
   emptyLabel?: string
+  /**
+   * Valeur de base de l'axe Y. Par défaut 0. Passer `'auto'` resserre l'échelle
+   * autour des données (utile pour de faibles variations, ex. le poids).
+   */
+  yBaseline?: number | 'auto'
 }
 
 const WIDTH = 720
@@ -21,9 +26,19 @@ export default function TrendLineChart({
   data,
   formatValue = (value) => String(value),
   emptyLabel = 'Pas encore de données à afficher.',
+  yBaseline = 0,
 }: TrendLineChartProps) {
-  const maxValue = Math.max(...data.map((point) => point.value), 1)
+  const values = data.map((point) => point.value)
+  const dataMax = Math.max(...values, 1)
+  const dataMin = Math.min(...values)
   const hasData = data.some((point) => point.value > 0)
+
+  // Base de l'axe : 0 par défaut, ou une base resserrée sous le minimum.
+  const minValue =
+    yBaseline === 'auto'
+      ? Math.max(0, Math.floor(dataMin - (dataMax - dataMin) * 0.15 - 0.5))
+      : yBaseline
+  const maxValue = dataMax > minValue ? dataMax : minValue + 1
 
   const plotWidth = WIDTH - PADDING_LEFT - PADDING_RIGHT
   const plotHeight = HEIGHT - PADDING_TOP - PADDING_BOTTOM
@@ -34,9 +49,13 @@ export default function TrendLineChart({
       : PADDING_LEFT + (index / (data.length - 1)) * plotWidth
 
   const yFor = (value: number) =>
-    PADDING_TOP + plotHeight - (value / maxValue) * plotHeight
+    PADDING_TOP +
+    plotHeight -
+    ((value - minValue) / (maxValue - minValue)) * plotHeight
 
-  const gridValues = [0, 0.5, 1].map((ratio) => Math.round(maxValue * ratio))
+  const gridValues = [0, 0.5, 1].map((ratio) =>
+    Math.round(minValue + (maxValue - minValue) * ratio),
+  )
   const labelEvery = Math.ceil(data.length / 8)
 
   const points = data.map((point, index) => ({

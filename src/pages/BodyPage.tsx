@@ -1,10 +1,12 @@
 import { useMemo, useState, type ChangeEvent } from 'react'
 
 import HealthyRecipeSection from '../components/HealthyRecipeSection'
+import TrendLineChart from '../components/charts/TrendLineChart'
 import {
   getCalorieTarget,
   getTotalCalories,
 } from '../services/caloriesService'
+import type { BodyWeightEntry } from '../types/bodyWeight'
 import type { ActivityLevel, FitnessGoal, HealthProfile } from '../types/health'
 import type { Workout } from '../types/workout'
 
@@ -12,6 +14,9 @@ type BodyPageProps = {
   workouts: Workout[]
   profile: HealthProfile
   onProfileChange: (profile: HealthProfile) => void
+  weightEntries: BodyWeightEntry[]
+  onAddWeightEntry: (entry: BodyWeightEntry) => void
+  onDeleteWeightEntry: (entryId: string) => void
   onBack: () => void
 }
 
@@ -37,6 +42,9 @@ export default function BodyPage({
   workouts,
   profile,
   onProfileChange,
+  weightEntries,
+  onAddWeightEntry,
+  onDeleteWeightEntry,
   onBack,
 }: BodyPageProps) {
   const bmi = useMemo(() => {
@@ -267,6 +275,16 @@ const mobilityWorkouts = workouts.filter((workout) => {
             et ne remplacent pas un suivi nutritionnel personnalisé.
           </p>
         </section>
+
+        <WeightTrackingSection
+          entries={weightEntries}
+          goalWeight={profile.goalWeight}
+          onGoalWeightChange={(value) =>
+            updateProfileField('goalWeight', value)
+          }
+          onAddEntry={onAddWeightEntry}
+          onDeleteEntry={onDeleteWeightEntry}
+        />
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
@@ -504,6 +522,331 @@ const mobilityWorkouts = workouts.filter((workout) => {
       </section>
     </main>
   )
+}
+
+function WeightTrackingSection({
+  entries,
+  goalWeight,
+  onGoalWeightChange,
+  onAddEntry,
+  onDeleteEntry,
+}: {
+  entries: BodyWeightEntry[]
+  goalWeight: number
+  onGoalWeightChange: (value: number) => void
+  onAddEntry: (entry: BodyWeightEntry) => void
+  onDeleteEntry: (entryId: string) => void
+}) {
+  const [date, setDate] = useState(() => getTodayKey())
+  const [weightInput, setWeightInput] = useState('')
+
+  const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date))
+  const first = sorted[0] ?? null
+  const last = sorted[sorted.length - 1] ?? null
+  const totalDelta = first && last ? last.weight - first.weight : 0
+
+  const chartPoints = sorted.map((entry) => ({
+    label: formatShortDate(entry.date),
+    fullLabel: formatLongDate(entry.date),
+    value: entry.weight,
+  }))
+
+  const projection = getWeightProjection(sorted, goalWeight)
+
+  const handleAdd = () => {
+    const parsed = Number(weightInput.replace(',', '.'))
+
+    if (!date || Number.isNaN(parsed) || parsed <= 0) {
+      return
+    }
+
+    onAddEntry({
+      id: `w-${date}`,
+      date,
+      weight: Math.round(parsed * 10) / 10,
+    })
+
+    setWeightInput('')
+  }
+
+  return (
+    <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
+            Suivi du poids
+          </p>
+
+          <h2 className="mt-2 text-3xl font-black text-white">
+            Ton évolution, semaine après semaine.
+          </h2>
+        </div>
+
+        {last ? (
+          <div className="rounded-3xl border border-azur-400/20 bg-azur-400/10 px-5 py-4 text-right">
+            <p className="text-sm text-azur-300">Poids actuel</p>
+            <p className="mt-1 text-2xl font-black text-white">
+              {formatWeight(last.weight)} kg
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-6 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+        <div>
+          {chartPoints.length >= 2 ? (
+            <>
+              <TrendLineChart
+                data={chartPoints}
+                formatValue={(value) => `${formatWeight(value)} kg`}
+                yBaseline="auto"
+              />
+
+              <div className="mt-4 flex flex-wrap gap-3">
+                <WeightBadge
+                  label="Depuis le début"
+                  value={`${totalDelta > 0 ? '+' : ''}${formatWeight(
+                    totalDelta,
+                  )} kg`}
+                  positive={totalDelta <= 0}
+                />
+
+                {goalWeight > 0 && last ? (
+                  <WeightBadge
+                    label="Reste vers l’objectif"
+                    value={`${formatWeight(
+                      Math.abs(last.weight - goalWeight),
+                    )} kg`}
+                    neutral
+                  />
+                ) : null}
+              </div>
+
+              {projection ? (
+                <div className="mt-4 rounded-3xl border border-azur-400/10 bg-azur-400/5 p-5">
+                  <p className="font-black text-white">Projection</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    {projection}
+                  </p>
+                </div>
+              ) : null}
+            </>
+          ) : (
+            <div className="flex h-48 items-center justify-center rounded-3xl border border-dashed border-white/10 bg-slate-950/50 p-6 text-center text-sm text-slate-400">
+              Ajoute au moins deux pesées pour voir ta courbe d’évolution.
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-5">
+          <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+            <p className="text-sm font-black text-white">Ajouter une pesée</p>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <label className="space-y-2">
+                <span className="text-xs font-bold text-slate-400">Date</span>
+                <input
+                  type="date"
+                  value={date}
+                  max={getTodayKey()}
+                  onChange={(event) => setDate(event.target.value)}
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
+                />
+              </label>
+
+              <label className="space-y-2">
+                <span className="text-xs font-bold text-slate-400">
+                  Poids (kg)
+                </span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step={0.1}
+                  min={1}
+                  value={weightInput}
+                  placeholder="Ex : 72,3"
+                  onChange={(event) => setWeightInput(event.target.value)}
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
+                />
+              </label>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAdd}
+              className="mt-4 w-full rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
+            >
+              Enregistrer la pesée
+            </button>
+          </div>
+
+          <label className="block rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+            <span className="text-sm font-black text-white">Poids cible</span>
+            <div className="mt-3 flex items-center gap-3">
+              <input
+                type="number"
+                inputMode="decimal"
+                step={0.1}
+                min={0}
+                value={goalWeight > 0 ? String(goalWeight) : ''}
+                placeholder="Ex : 68"
+                onChange={(event) => {
+                  const parsed = Number(event.target.value.replace(',', '.'))
+                  onGoalWeightChange(Number.isNaN(parsed) ? 0 : parsed)
+                }}
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
+              />
+              <span className="text-sm font-bold text-slate-400">kg</span>
+            </div>
+          </label>
+
+          {sorted.length > 0 ? (
+            <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+              <p className="text-sm font-black text-white">Dernières pesées</p>
+
+              <ul className="mt-3 space-y-2">
+                {[...sorted]
+                  .reverse()
+                  .slice(0, 5)
+                  .map((entry) => (
+                    <li
+                      key={entry.id}
+                      className="flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.03] px-4 py-2.5"
+                    >
+                      <span className="text-sm font-bold text-slate-300">
+                        {formatLongDate(entry.date)}
+                      </span>
+
+                      <span className="flex items-center gap-3">
+                        <span className="text-sm font-black text-white">
+                          {formatWeight(entry.weight)} kg
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => onDeleteEntry(entry.id)}
+                          className="text-xs font-black text-red-300/80 transition hover:text-red-300"
+                          aria-label="Supprimer la pesée"
+                          title="Supprimer"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function WeightBadge({
+  label,
+  value,
+  positive = false,
+  neutral = false,
+}: {
+  label: string
+  value: string
+  positive?: boolean
+  neutral?: boolean
+}) {
+  const className = neutral
+    ? 'border-white/10 bg-white/5 text-slate-200'
+    : positive
+      ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300'
+      : 'border-amber-400/25 bg-amber-400/10 text-amber-300'
+
+  return (
+    <span
+      className={`rounded-full border px-4 py-2 text-sm font-black ${className}`}
+    >
+      {label} : {value}
+    </span>
+  )
+}
+
+/** Texte de projection vers l'objectif à partir du rythme observé. */
+function getWeightProjection(
+  entries: BodyWeightEntry[],
+  goalWeight: number,
+): string | null {
+  if (entries.length < 2 || goalWeight <= 0) {
+    return null
+  }
+
+  const first = entries[0]
+  const last = entries[entries.length - 1]
+  const remaining = last.weight - goalWeight
+
+  if (Math.abs(remaining) < 0.2) {
+    return 'Objectif de poids atteint. Bravo, à toi de le stabiliser 💪'
+  }
+
+  const daysBetween =
+    (new Date(`${last.date}T00:00:00`).getTime() -
+      new Date(`${first.date}T00:00:00`).getTime()) /
+    86_400_000
+
+  if (daysBetween <= 0) {
+    return null
+  }
+
+  const weeklyChange = ((last.weight - first.weight) / daysBetween) * 7
+
+  const needsToLose = remaining > 0
+  const goingRightWay = needsToLose ? weeklyChange < -0.05 : weeklyChange > 0.05
+
+  if (!goingRightWay) {
+    return needsToLose
+      ? 'Ton rythme actuel ne descend pas vers ton objectif. Un léger déficit calorique et de la régularité aideront.'
+      : 'Ton rythme actuel ne monte pas vers ton objectif. Un léger surplus calorique et du renforcement aideront.'
+  }
+
+  const weeks = Math.abs(remaining / weeklyChange)
+  const targetDate = new Date(`${last.date}T00:00:00`)
+  targetDate.setDate(targetDate.getDate() + Math.round(weeks * 7))
+
+  const roundedWeeks = Math.max(1, Math.round(weeks))
+
+  return `À ce rythme (~${formatWeight(Math.abs(weeklyChange))} kg/semaine), objectif atteint dans ~${roundedWeeks} semaine${
+    roundedWeeks > 1 ? 's' : ''
+  } (vers le ${formatLongDate(getDateKey(targetDate))}).`
+}
+
+function getTodayKey() {
+  return getDateKey(new Date())
+}
+
+function getDateKey(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function formatShortDate(date: string) {
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+  }).format(new Date(`${date}T00:00:00`))
+}
+
+function formatLongDate(date: string) {
+  return new Intl.DateTimeFormat('fr-FR', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(`${date}T00:00:00`))
+}
+
+function formatWeight(value: number) {
+  return new Intl.NumberFormat('fr-FR', {
+    maximumFractionDigits: 1,
+  }).format(value)
 }
 
 function getBmiLabel(bmi: number) {

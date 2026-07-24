@@ -18,4 +18,6 @@ export type HealthProfile = {
   age: number
   goal: FitnessGoal
   activityLevel: ActivityLevel
+  /** Poids cible en kg (0 = non défini). */
+  goalWeight: number
 }

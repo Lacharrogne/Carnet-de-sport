@@ -56,6 +56,15 @@ import {
   saveRemoteWorkouts,
 } from './services/workoutStorage'
 
+import {
+  deleteRemoteBodyWeightEntry,
+  getRemoteBodyWeightEntries,
+  saveRemoteBodyWeightEntry,
+} from './services/bodyWeightStorage'
+
+import { DEMO_BODY_WEIGHT_ENTRIES } from './data/bodyWeightEntries'
+
+import type { BodyWeightEntry } from './types/bodyWeight'
 import type { HealthProfile } from './types/health'
 import type { PlannedWorkout } from './types/plannedWorkout'
 import type { WeeklyGoal } from './types/weeklyGoal'
@@ -94,12 +103,16 @@ function AppShell() {
     useState<WeeklyGoal>(DEFAULT_WEEKLY_GOAL)
   const [healthProfile, setHealthProfile] =
     useState<HealthProfile>(DEFAULT_HEALTH_PROFILE)
+  const [bodyWeightEntries, setBodyWeightEntries] = useState<BodyWeightEntry[]>(
+    DEMO_BODY_WEIGHT_ENTRIES,
+  )
 
   const resetDemoData = useCallback(() => {
     setWorkouts(WORKOUTS)
     setPlannedWorkouts([])
     setWeeklyGoal(DEFAULT_WEEKLY_GOAL)
     setHealthProfile(DEFAULT_HEALTH_PROFILE)
+    setBodyWeightEntries(DEMO_BODY_WEIGHT_ENTRIES)
     setHasLoadedRemoteData(false)
     setSyncError('')
   }, [])
@@ -191,11 +204,13 @@ function AppShell() {
           remotePlannedWorkouts,
           remoteWeeklyGoal,
           remoteHealthProfile,
+          remoteBodyWeightEntries,
         ] = await Promise.all([
           getRemoteWorkouts(userId),
           getRemotePlannedWorkouts(userId),
           getRemoteWeeklyGoal(userId),
           getRemoteHealthProfile(userId),
+          getRemoteBodyWeightEntries(userId),
         ])
 
         if (!isMounted) {
@@ -206,6 +221,7 @@ function AppShell() {
         setPlannedWorkouts(remotePlannedWorkouts)
         setWeeklyGoal(remoteWeeklyGoal ?? DEFAULT_WEEKLY_GOAL)
         setHealthProfile(remoteHealthProfile ?? DEFAULT_HEALTH_PROFILE)
+        setBodyWeightEntries(remoteBodyWeightEntries)
         setHasLoadedRemoteData(true)
         setSyncError('')
       } catch (error) {
@@ -481,6 +497,67 @@ function AppShell() {
     }
   }
 
+  const syncProfileWeightToLatest = (entries: BodyWeightEntry[]) => {
+    if (entries.length === 0) {
+      return
+    }
+
+    const latest = entries[entries.length - 1]
+
+    setHealthProfile((current) =>
+      current.weight === latest.weight
+        ? current
+        : { ...current, weight: latest.weight },
+    )
+  }
+
+  const handleAddWeightEntry = async (entry: BodyWeightEntry) => {
+    const mergeEntries = (saved: BodyWeightEntry) =>
+      [...bodyWeightEntries.filter((item) => item.date !== saved.date), saved].sort(
+        (a, b) => a.date.localeCompare(b.date),
+      )
+
+    if (!user) {
+      const nextEntries = mergeEntries(entry)
+      setBodyWeightEntries(nextEntries)
+      syncProfileWeightToLatest(nextEntries)
+      return
+    }
+
+    try {
+      const saved = await saveRemoteBodyWeightEntry(entry, user.id)
+      const nextEntries = mergeEntries(saved)
+      setBodyWeightEntries(nextEntries)
+      syncProfileWeightToLatest(nextEntries)
+    } catch (error) {
+      console.error('Erreur lors de l’enregistrement de la pesée :', error)
+
+      window.alert(
+        "La pesée n'a pas pu être sauvegardée dans Supabase. Regarde la console pour voir l'erreur exacte.",
+      )
+    }
+  }
+
+  const handleDeleteWeightEntry = async (entryId: string) => {
+    const nextEntries = bodyWeightEntries.filter((item) => item.id !== entryId)
+
+    if (!user) {
+      setBodyWeightEntries(nextEntries)
+      return
+    }
+
+    try {
+      await deleteRemoteBodyWeightEntry(entryId, user.id)
+      setBodyWeightEntries(nextEntries)
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la pesée :', error)
+
+      window.alert(
+        "La pesée n'a pas pu être supprimée. Regarde la console pour voir l'erreur exacte.",
+      )
+    }
+  }
+
   const isLoadingRemoteData = Boolean(user && !hasLoadedRemoteData && !syncError)
 
   const shouldShowDemoBanner =
@@ -643,6 +720,9 @@ function AppShell() {
                   workouts={workouts}
                   profile={healthProfile}
                   onProfileChange={setHealthProfile}
+                  weightEntries={bodyWeightEntries}
+                  onAddWeightEntry={handleAddWeightEntry}
+                  onDeleteWeightEntry={handleDeleteWeightEntry}
                   onBack={() => navigate('/')}
                 />
               }
