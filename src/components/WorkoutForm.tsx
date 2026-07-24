@@ -1,6 +1,7 @@
 import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
+import { EXERCISE_NAMES } from '../data/exerciseLibrary'
 import type {
   SportCategoryId,
   StrengthExercise,
@@ -737,6 +738,12 @@ function StrengthExercisesEditor({
 
   return (
     <div>
+      <datalist id="exercise-library">
+        {EXERCISE_NAMES.map((name) => (
+          <option key={name} value={name} />
+        ))}
+      </datalist>
+
       <div>
         <h3 className="text-2xl font-black text-white">
           Exercices de musculation
@@ -811,6 +818,7 @@ function StrengthExercisesEditor({
                   label="Nom de l’exercice"
                   value={exercise.name}
                   placeholder="Ex : Développé couché"
+                  list="exercise-library"
                   inputRef={(node) => {
                     fieldRefs.current[getFieldKey(exercise.id, 'name')] = node
                   }}
@@ -928,6 +936,7 @@ type ExerciseTextFieldProps = {
   inputRef: (node: HTMLInputElement | null) => void
   onChange: (value: string) => void
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void
+  list?: string
 }
 
 function ExerciseTextField({
@@ -937,6 +946,7 @@ function ExerciseTextField({
   inputRef,
   onChange,
   onKeyDown,
+  list,
 }: ExerciseTextFieldProps) {
   return (
     <label className="space-y-2">
@@ -945,6 +955,7 @@ function ExerciseTextField({
       <input
         ref={inputRef}
         value={value}
+        list={list}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}

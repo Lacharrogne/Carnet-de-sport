@@ -13,6 +13,10 @@ import {
   type PersonalRecord,
   type RecordSection,
 } from '../services/personalRecordsService'
+import {
+  getExerciseProgression,
+  getTrackedExercises,
+} from '../services/exerciseProgressionService'
 import { getTotalCalories } from '../services/caloriesService'
 import WeeklyBarChart, {
   type ChartPoint,
@@ -96,6 +100,23 @@ export default function ProgressPage({
   const hasCaloriesData = weeklyTrends.some((week) => week.calories > 0)
 
   const [trendMetric, setTrendMetric] = useState<TrendMetric>('minutes')
+
+  const trackedExercises = useMemo(() => {
+    return getTrackedExercises(workouts)
+  }, [workouts])
+
+  const [selectedExercise, setSelectedExercise] = useState('')
+  const [exerciseMetric, setExerciseMetric] =
+    useState<'oneRepMax' | 'maxWeight'>('oneRepMax')
+
+  const activeExercise =
+    selectedExercise && trackedExercises.some((e) => e.name === selectedExercise)
+      ? selectedExercise
+      : (trackedExercises[0]?.name ?? '')
+
+  const exerciseProgression = useMemo(() => {
+    return getExerciseProgression(workouts, activeExercise)
+  }, [workouts, activeExercise])
 
   const totalWorkouts = workouts.length
 
@@ -427,6 +448,63 @@ export default function ProgressPage({
                     <RecordSectionCard key={section.id} section={section} />
                   ))}
                 </div>
+              </Panel>
+            )}
+
+            {trackedExercises.length > 0 && (
+              <Panel title="Progression par exercice" accent="azur">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                  <select
+                    value={activeExercise}
+                    onChange={(event) => setSelectedExercise(event.target.value)}
+                    className="rounded-full border border-white/10 bg-slate-950 px-4 py-2.5 text-sm font-black text-white outline-none transition focus:border-azur-400/60"
+                  >
+                    {trackedExercises.map((exercise) => (
+                      <option key={exercise.name} value={exercise.name}>
+                        {exercise.name} ({exercise.sessions})
+                      </option>
+                    ))}
+                  </select>
+
+                  <div className="flex flex-wrap gap-2">
+                    <MetricTab
+                      label="1RM estimé"
+                      active={exerciseMetric === 'oneRepMax'}
+                      onClick={() => setExerciseMetric('oneRepMax')}
+                    />
+                    <MetricTab
+                      label="Charge max"
+                      active={exerciseMetric === 'maxWeight'}
+                      onClick={() => setExerciseMetric('maxWeight')}
+                    />
+                  </div>
+                </div>
+
+                {exerciseProgression.length >= 2 ? (
+                  <TrendLineChart
+                    data={exerciseProgression.map((point) => ({
+                      label: point.shortLabel,
+                      fullLabel: point.longLabel,
+                      value:
+                        exerciseMetric === 'oneRepMax'
+                          ? point.estimatedOneRepMax
+                          : point.maxWeight,
+                    }))}
+                    formatValue={(value) => `${formatNumber(value, 1)} kg`}
+                  />
+                ) : (
+                  <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5 text-sm text-slate-400">
+                    Enregistre au moins deux séances avec cet exercice pour
+                    afficher sa courbe de progression.
+                  </div>
+                )}
+
+                <p className="mt-4 text-sm leading-6 text-slate-400">
+                  {exerciseMetric === 'oneRepMax'
+                    ? 'Force maximale estimée (formule d’Epley)'
+                    : 'Charge la plus lourde soulevée'}{' '}
+                  au fil de tes séances.
+                </p>
               </Panel>
             )}
 
