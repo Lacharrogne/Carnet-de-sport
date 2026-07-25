@@ -80,8 +80,9 @@ export function useEntitlement(user: User | null): Entitlement {
     ? trialEndsAt.getTime() - now
     : TRIAL_DURATION_DAYS * DAY_MS
 
-  const isTrialing = msLeft > 0
-  const daysLeft = Math.max(0, Math.ceil(msLeft / DAY_MS))
+  // Dès qu'on est abonné, l'essai est considéré terminé (il ne « reste » plus).
+  const isTrialing = !isPremium && msLeft > 0
+  const daysLeft = isPremium ? 0 : Math.max(0, Math.ceil(msLeft / DAY_MS))
 
   const status: EntitlementStatus = isPremium
     ? 'premium'
