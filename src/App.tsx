@@ -13,7 +13,10 @@ import type { User } from '@supabase/supabase-js'
 import AppNavigation from './components/AppNavigation'
 import DemoModeBanner from './components/DemoModeBanner'
 import Footer from './components/Footer'
+import SubscriptionGate from './components/SubscriptionGate'
 import { BodyWeightContext } from './context/bodyWeightContext'
+import { useEntitlement } from './hooks/useEntitlement'
+import { ENFORCE_TRIAL } from './config/subscription'
 import { WORKOUTS } from './data/workouts'
 
 import AuthPage from './pages/AuthPage'
@@ -670,6 +673,14 @@ function AppShell() {
 
   const isLoadingRemoteData = Boolean(user && !hasLoadedRemoteData && !syncError)
 
+  // Verrou d'abonnement par carnet (inerte tant que ENFORCE_TRIAL est false).
+  const entitlement = useEntitlement(user)
+  const showSubscriptionGate =
+    ENFORCE_TRIAL &&
+    !entitlement.loading &&
+    !entitlement.hasAccess &&
+    location.pathname !== '/auth'
+
   const shouldShowDemoBanner =
     !user && !isAuthLoading && location.pathname !== '/auth'
 
@@ -727,6 +738,8 @@ function AppShell() {
             </button>
           </section>
         </main>
+      ) : showSubscriptionGate ? (
+        <SubscriptionGate />
       ) : (
         <>
           {shouldShowDemoBanner && <DemoModeBanner />}
