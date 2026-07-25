@@ -21,4 +21,4 @@ export const TRIAL_DURATION_DAYS = 14
  * `true` (dans les 3 carnets, le jour du lancement du paiement) pour
  * verrouiller l'app à la fin de l'essai, sauf abonnés à ce carnet ou au global.
  */
-export const ENFORCE_TRIAL = false
+export const ENFORCE_TRIAL = true
