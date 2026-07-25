@@ -56,6 +56,12 @@ body {
 }
 
 @layer base {
+  /* Garde-fou mobile : aucun contenu ne peut déborder horizontalement.
+     Sur <html> uniquement (sticky-safe, contrairement à body/#root). */
+  html {
+    overflow-x: hidden;
+  }
+
   /* Grands titres en Fraunces sur toute l'app (cohérence avec la suite). */
   h1,
   h2 {
