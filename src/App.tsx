@@ -14,6 +14,7 @@ import AppNavigation from './components/AppNavigation'
 import DemoModeBanner from './components/DemoModeBanner'
 import Footer from './components/Footer'
 import SubscriptionGate from './components/SubscriptionGate'
+import TrialBanner from './components/TrialBanner'
 import { BodyWeightContext } from './context/bodyWeightContext'
 import { useEntitlement } from './hooks/useEntitlement'
 import { ENFORCE_TRIAL } from './config/subscription'
@@ -743,6 +744,19 @@ function AppShell() {
       ) : (
         <>
           {shouldShowDemoBanner && <DemoModeBanner />}
+
+          {user &&
+            !entitlement.loading &&
+            (entitlement.status === 'trialing' ||
+              entitlement.status === 'expired') &&
+            location.pathname !== '/auth' && (
+              <div className="mx-auto w-full max-w-[1380px] px-4 pt-4 sm:px-6 lg:px-8">
+                <TrialBanner
+                  status={entitlement.status}
+                  daysLeft={entitlement.daysLeft}
+                />
+              </div>
+            )}
 
           <Routes>
             <Route
