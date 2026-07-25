@@ -18,6 +18,15 @@ import {
   getTrackedExercises,
 } from '../services/exerciseProgressionService'
 import { getTotalCalories } from '../services/caloriesService'
+import {
+  getMuscleBalance,
+  type MuscleBalance,
+} from '../services/muscleBalanceService'
+import {
+  deltaPercent,
+  getPeriodComparisons,
+  type PeriodComparison,
+} from '../services/periodComparisonService'
 import WeeklyBarChart, {
   type ChartPoint,
 } from '../components/charts/WeeklyBarChart'
@@ -86,6 +95,14 @@ export default function ProgressPage({
   const totalCalories = useMemo(() => {
     return getTotalCalories(workouts, bodyWeight)
   }, [workouts, bodyWeight])
+
+  const periodComparisons = useMemo(() => {
+    return getPeriodComparisons(workouts, bodyWeight)
+  }, [workouts, bodyWeight])
+
+  const muscleBalance = useMemo(() => {
+    return getMuscleBalance(workouts)
+  }, [workouts])
 
   const weekOverWeek = useMemo(() => {
     return getWeekOverWeek(weeklyTrends)
@@ -389,6 +406,23 @@ export default function ProgressPage({
         {tab === 'overview' && (
           <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-6">
+              <Panel title="Comparaison de périodes">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <ComparisonBlock
+                    title="Cette semaine"
+                    data={periodComparisons.week}
+                    showCalories={totalCalories > 0}
+                    showVolume={totalStrengthVolume > 0}
+                  />
+                  <ComparisonBlock
+                    title="Ce mois-ci"
+                    data={periodComparisons.month}
+                    showCalories={totalCalories > 0}
+                    showVolume={totalStrengthVolume > 0}
+                  />
+                </div>
+              </Panel>
+
               <Panel title="Chiffres clés">
                 <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                   <CompactStat
@@ -663,6 +697,12 @@ export default function ProgressPage({
                     : 'Charge la plus lourde soulevée'}{' '}
                   au fil de tes séances.
                 </p>
+              </Panel>
+            )}
+
+            {muscleBalance.zones.length > 0 && (
+              <Panel title="Équilibre musculaire" accent="azur">
+                <MuscleBalancePanel balance={muscleBalance} />
               </Panel>
             )}
           </div>
@@ -1054,6 +1094,150 @@ function RecordCard({ record }: { record: PersonalRecord }) {
       {record.date && (
         <p className="mt-1 text-xs font-bold text-slate-500">
           {formatDate(record.date)}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function ComparisonBlock({
+  title,
+  data,
+  showCalories,
+  showVolume,
+}: {
+  title: string
+  data: PeriodComparison
+  showCalories: boolean
+  showVolume: boolean
+}) {
+  const { current, previous } = data
+
+  const metrics: { label: string; cur: number; prev: number; value: string }[] =
+    [
+      {
+        label: 'Séances',
+        cur: current.sessions,
+        prev: previous.sessions,
+        value: `${current.sessions}`,
+      },
+      {
+        label: 'Temps',
+        cur: current.minutes,
+        prev: previous.minutes,
+        value: formatDuration(current.minutes),
+      },
+    ]
+
+  if (showCalories) {
+    metrics.push({
+      label: 'Calories',
+      cur: current.calories,
+      prev: previous.calories,
+      value: `${formatNumber(current.calories)} kcal`,
+    })
+  }
+
+  if (showVolume) {
+    metrics.push({
+      label: 'Volume muscu',
+      cur: current.volume,
+      prev: previous.volume,
+      value:
+        current.volume > 0 ? `${formatNumber(current.volume)} kg` : '—',
+    })
+  }
+
+  return (
+    <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+        {title}
+      </p>
+      <p className="mt-1 text-xs text-slate-500">vs {data.label} précédent(e)</p>
+
+      <div className="mt-4 space-y-2.5">
+        {metrics.map((metric) => (
+          <div
+            key={metric.label}
+            className="flex items-center justify-between gap-3"
+          >
+            <span className="text-sm font-bold text-slate-300">
+              {metric.label}
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-sm font-black text-white">
+                {metric.value}
+              </span>
+              <DeltaBadge percent={deltaPercent(metric.cur, metric.prev)} />
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function DeltaBadge({ percent }: { percent: number }) {
+  if (percent === 0) {
+    return <span className="text-xs font-black text-slate-500">→</span>
+  }
+
+  const isUp = percent > 0
+
+  return (
+    <span
+      className={[
+        'rounded-full px-2 py-0.5 text-xs font-black',
+        isUp ? 'bg-emerald-400/10 text-emerald-300' : 'bg-amber-400/10 text-amber-300',
+      ].join(' ')}
+    >
+      {isUp ? '▲' : '▼'} {Math.abs(percent)}%
+    </span>
+  )
+}
+
+function MuscleBalancePanel({ balance }: { balance: MuscleBalance }) {
+  const maxSets = Math.max(...balance.zones.map((zone) => zone.sets), 1)
+
+  return (
+    <div>
+      <div className="space-y-3">
+        {balance.zones.map((zone) => {
+          const percent = Math.round((zone.sets / maxSets) * 100)
+
+          return (
+            <div key={zone.zone}>
+              <div className="mb-1.5 flex items-center justify-between gap-3">
+                <span className="text-sm font-black text-white">
+                  {zone.zone}
+                </span>
+                <span className="text-xs font-bold text-slate-400">
+                  {zone.sets} série{zone.sets > 1 ? 's' : ''} ·{' '}
+                  {zone.sessions} séance{zone.sessions > 1 ? 's' : ''}
+                </span>
+              </div>
+              <div className="h-2.5 overflow-hidden rounded-full bg-slate-950">
+                <div
+                  className="h-full rounded-full bg-azur-400"
+                  style={{ width: `${percent}%` }}
+                />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {balance.neglected.length > 0 ? (
+        <div className="mt-5 rounded-3xl border border-amber-400/15 bg-amber-400/5 p-4">
+          <p className="text-sm font-black text-amber-200">Zones à ne pas oublier</p>
+          <p className="mt-1.5 text-sm leading-6 text-slate-300">
+            Pas encore travaillées : {balance.neglected.join(', ')}. Pense à les
+            intégrer pour un développement équilibré.
+          </p>
+        </div>
+      ) : (
+        <p className="mt-5 text-sm leading-6 text-slate-400">
+          Toutes les grandes zones musculaires sont travaillées — bel équilibre 💪
         </p>
       )}
     </div>
