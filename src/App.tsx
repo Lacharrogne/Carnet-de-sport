@@ -19,6 +19,7 @@ import { WORKOUTS } from './data/workouts'
 import AuthPage from './pages/AuthPage'
 import BodyPage from './pages/BodyPage'
 import TemplatesPage from './pages/TemplatesPage'
+import StravaCallbackPage from './pages/StravaCallbackPage'
 import ChallengesPage from './pages/ChallengesPage'
 import DashboardPage from './pages/DashboardPage'
 import EditWorkoutPage from './pages/EditWorkoutPage'
@@ -576,6 +577,20 @@ function AppShell() {
     }
   }
 
+  const reloadWorkouts = () => {
+    const uid = user?.id
+
+    if (!uid) {
+      return
+    }
+
+    getRemoteWorkouts(uid)
+      .then(setWorkouts)
+      .catch((error) => {
+        console.error('Erreur rechargement des séances :', error)
+      })
+  }
+
   const handleDuplicateWorkout = (workout: Workout) => {
     const initialValues: WorkoutFormValues = {
       title: workout.title ? `${workout.title} (copie)` : '',
@@ -732,6 +747,8 @@ function AppShell() {
 
             <Route path="/auth" element={<AuthPage />} />
 
+            <Route path="/strava/callback" element={<StravaCallbackPage />} />
+
             <Route
               path="/workouts"
               element={
@@ -874,6 +891,7 @@ function AppShell() {
     <ProfilePage
       user={user}
       onUserUpdate={setUser}
+      onWorkoutsImported={reloadWorkouts}
       onBack={() => navigate('/')}
     />
   }

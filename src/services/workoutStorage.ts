@@ -15,6 +15,8 @@ type WorkoutRow = {
   improvement: string | null
   is_record?: boolean | null
   details?: Workout['details'] | null
+  source?: string | null
+  external_id?: string | null
   created_at?: string
   updated_at?: string
 }
@@ -36,6 +38,8 @@ function mapWorkoutRowToWorkout(row: WorkoutRow): Workout {
     improvementIdea: row.improvement ?? '',
     trend: row.progress,
     details: row.details ?? undefined,
+    source: row.source ?? undefined,
+    externalId: row.external_id ?? undefined,
   }
 }
 
@@ -53,7 +57,10 @@ function mapWorkoutToInsert(workout: Workout, userId: string): WorkoutRow {
     notes: workout.notes,
     improvement: workout.improvementIdea,
     is_record: workout.trend === 'record',
-details: workout.details ?? {},  }
+    details: workout.details ?? {},
+    source: workout.source ?? 'manual',
+    external_id: workout.externalId ?? null,
+  }
 }
 
 export async function getRemoteWorkouts(userId: string) {

@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 
 import { updateUserProfile, uploadUserAvatar } from '../services/authService'
+import StravaConnectionCard from '../components/StravaConnectionCard'
 
 type ProfilePageProps = {
   user: User | null
   onUserUpdate: (user: User) => void
+  onWorkoutsImported?: () => void
   onBack: () => void
 }
 
@@ -22,6 +24,7 @@ type UserMetadata = {
 export default function ProfilePage({
   user,
   onUserUpdate,
+  onWorkoutsImported,
   onBack,
 }: ProfilePageProps) {
   if (!user) {
@@ -54,6 +57,7 @@ export default function ProfilePage({
       key={user.id}
       user={user}
       onUserUpdate={onUserUpdate}
+      onWorkoutsImported={onWorkoutsImported}
       onBack={onBack}
     />
   )
@@ -62,10 +66,12 @@ export default function ProfilePage({
 function ProfileForm({
   user,
   onUserUpdate,
+  onWorkoutsImported,
   onBack,
 }: {
   user: User
   onUserUpdate: (user: User) => void
+  onWorkoutsImported?: () => void
   onBack: () => void
 }) {
   const initialDisplayName = getUserDisplayName(user)
@@ -298,6 +304,10 @@ function ProfileForm({
             </div>
           </div>
         </form>
+
+        <div className="mt-6">
+          <StravaConnectionCard onImported={onWorkoutsImported} />
+        </div>
       </section>
     </main>
   )
