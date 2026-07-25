@@ -24,7 +24,6 @@ export default function StravaConnectionCard({
 
   useEffect(() => {
     if (!STRAVA_ENABLED) {
-      setLoading(false)
       return
     }
 
@@ -94,6 +93,12 @@ export default function StravaConnectionCard({
     }
   }
 
+  // Intégration en dormance : tant que Strava n'est pas configuré
+  // (VITE_STRAVA_CLIENT_ID absent), la carte reste invisible.
+  if (!STRAVA_ENABLED) {
+    return null
+  }
+
   return (
     <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -119,12 +124,7 @@ export default function StravaConnectionCard({
         ) : null}
       </div>
 
-      {!STRAVA_ENABLED ? (
-        <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/60 p-5 text-sm leading-6 text-slate-400">
-          L’intégration Strava n’est pas encore activée sur cet environnement.
-          Elle apparaîtra ici dès que la configuration sera en place.
-        </div>
-      ) : loading ? (
+      {loading ? (
         <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/60 p-5 text-sm text-slate-400">
           Vérification de la connexion…
         </div>
