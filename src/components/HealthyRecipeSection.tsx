@@ -32,7 +32,7 @@ export default function HealthyRecipeSection({
   const recipeApp = ECOSYSTEM_LINKS.recipes
 
   return (
-    <section className="mt-8 overflow-hidden rounded-[2rem] border border-orange-300/20 bg-gradient-to-br from-orange-400/10 via-white/[0.04] to-emerald-400/10 p-6 shadow-2xl shadow-orange-400/10">
+    <section className="mt-8 overflow-hidden rounded-[2rem] border border-orange-300/20 bg-gradient-to-br from-orange-400/10 via-white/[0.04] to-azur-400/10 p-6 shadow-2xl shadow-orange-400/10">
       <div className="grid gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-center">
         <div>
           <p className="inline-flex rounded-full border border-orange-300/25 bg-orange-400/10 px-4 py-2 text-sm font-black text-orange-200">
@@ -53,7 +53,7 @@ export default function HealthyRecipeSection({
           </p>
 
           <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/40 p-5">
-            <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-300">
+            <p className="text-sm font-black uppercase tracking-[0.22em] text-azur-300">
               Conseil rapide
             </p>
 

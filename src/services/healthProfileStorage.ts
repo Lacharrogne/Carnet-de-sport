@@ -7,6 +7,7 @@ export const DEFAULT_HEALTH_PROFILE: HealthProfile = {
   age: 25,
   goal: 'bien-etre',
   activityLevel: 'modere',
+  goalWeight: 0,
 }
 
 type HealthProfileRow = {
@@ -16,6 +17,7 @@ type HealthProfileRow = {
   age: number | null
   activity_level: HealthProfile['activityLevel'] | null
   main_goal: HealthProfile['goal'] | null
+  goal_weight_kg: number | null
   updated_at: string
 }
 
@@ -29,6 +31,7 @@ function mapHealthProfileRowToHealthProfile(
     activityLevel:
       row.activity_level ?? DEFAULT_HEALTH_PROFILE.activityLevel,
     goal: row.main_goal ?? DEFAULT_HEALTH_PROFILE.goal,
+    goalWeight: Number(row.goal_weight_kg ?? DEFAULT_HEALTH_PROFILE.goalWeight),
   }
 }
 
@@ -43,6 +46,7 @@ function mapHealthProfileToUpsert(
     age: profile.age,
     activity_level: profile.activityLevel,
     main_goal: profile.goal,
+    goal_weight_kg: profile.goalWeight > 0 ? profile.goalWeight : null,
     updated_at: new Date().toISOString(),
   }
 }

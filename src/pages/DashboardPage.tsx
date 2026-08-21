@@ -4,6 +4,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import NextPlannedWorkoutCard from '../components/NextPlannedWorkoutCard'
 import WeeklyGoalCard from '../components/WeeklyGoalCard'
 import WorkoutCard from '../components/WorkoutCard'
+import WeeklyBarChart from '../components/charts/WeeklyBarChart'
+import { getWeeklyTrends } from '../services/workoutTrendsService'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 import type { WeeklyGoal } from '../types/weeklyGoal'
 import type { Workout } from '../types/workout'
@@ -82,7 +84,7 @@ export default function DashboardPage({
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
+    <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <DashboardHero
           totalWorkouts={totalWorkouts}
@@ -100,6 +102,11 @@ export default function DashboardPage({
               workouts={workouts}
               weeklyGoal={weeklyGoal}
               onWeeklyGoalChange={onWeeklyGoalChange}
+            />
+
+            <WeeklyActivityCard
+              workouts={workouts}
+              weeklyTarget={weeklyGoal.targetMinutes}
             />
 
             <RecentWorkoutsSection
@@ -147,13 +154,13 @@ function DashboardHero({
   onAddWorkoutClick: () => void
 }) {
   return (
-    <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+    <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
       <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
       <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
             Carnet de sport
           </p>
 
@@ -171,7 +178,7 @@ function DashboardHero({
             <button
               type="button"
               onClick={onAddWorkoutClick}
-              className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+              className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
             >
               + Ajouter une séance
             </button>
@@ -237,14 +244,14 @@ function WeekFocusCard({
           <p className="mt-3 text-4xl font-black text-white">{progress}%</p>
         </div>
 
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300">
+        <div className="rounded-full border border-azur-400/20 bg-azur-400/10 px-4 py-2 text-xs font-black text-azur-300">
           🎯 Focus
         </div>
       </div>
 
       <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-950">
         <div
-          className="h-full rounded-full bg-emerald-400"
+          className="h-full rounded-full bg-azur-400"
           style={{
             width: `${progress}%`,
           }}
@@ -272,6 +279,69 @@ function WeekFocusCard({
   )
 }
 
+function WeeklyActivityCard({
+  workouts,
+  weeklyTarget,
+}: {
+  workouts: Workout[]
+  weeklyTarget: number
+}) {
+  const weeks = getWeeklyTrends(workouts, 12)
+  const points = weeks.map((week) => ({
+    label: week.shortLabel,
+    fullLabel: week.longLabel,
+    value: week.minutes,
+  }))
+
+  return (
+    <Panel>
+      <div className="mb-5 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
+            Ton activité
+          </p>
+
+          <h2 className="mt-2 text-2xl font-black text-white sm:text-3xl">
+            12 dernières semaines
+          </h2>
+        </div>
+
+        <Link
+          to="/progress"
+          className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
+        >
+          Voir la progression
+        </Link>
+      </div>
+
+      <WeeklyBarChart
+        data={points}
+        formatValue={(value) => formatCompactMinutes(value)}
+        goal={weeklyTarget > 0 ? weeklyTarget : undefined}
+        goalLabel="Objectif hebdo"
+        emptyLabel="Ajoute des séances pour voir ton activité hebdomadaire."
+      />
+    </Panel>
+  )
+}
+
+function formatCompactMinutes(minutes: number) {
+  if (minutes <= 0) {
+    return '0'
+  }
+
+  if (minutes < 60) {
+    return `${Math.round(minutes)} min`
+  }
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = Math.round(minutes % 60)
+
+  return remainingMinutes === 0
+    ? `${hours} h`
+    : `${hours}h${String(remainingMinutes).padStart(2, '0')}`
+}
+
 function RecentWorkoutsSection({
   workouts,
   onAddWorkoutClick,
@@ -285,7 +355,7 @@ function RecentWorkoutsSection({
     <Panel>
       <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
             Dernières séances
           </p>
 
@@ -332,12 +402,12 @@ function QuickActions({
   onAddWorkoutClick: () => void
 }) {
   return (
-    <Panel title="Actions rapides" accent="emerald">
+    <Panel title="Actions rapides" accent="azur">
       <div className="grid gap-3">
         <button
           type="button"
           onClick={onAddWorkoutClick}
-          className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-5 text-left transition hover:bg-emerald-400/15"
+          className="rounded-3xl border border-azur-400/20 bg-azur-400/10 p-5 text-left transition hover:bg-azur-400/15"
         >
           <p className="text-base font-black text-white sm:text-lg">
             + Ajouter une séance
@@ -417,10 +487,10 @@ function Panel({
 }: {
   title?: string
   children: ReactNode
-  accent?: 'default' | 'emerald'
+  accent?: 'default' | 'azur'
 }) {
   const titleColor =
-    accent === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
+    accent === 'azur' ? 'text-azur-300' : 'text-slate-500'
 
   return (
     <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
@@ -519,7 +589,7 @@ function EmptyState({
       <button
         type="button"
         onClick={onAddWorkoutClick}
-        className="mt-6 rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+        className="mt-6 rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
       >
         Créer ma première séance
       </button>

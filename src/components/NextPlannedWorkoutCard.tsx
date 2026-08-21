@@ -15,10 +15,10 @@ export default function NextPlannedWorkoutCard({
   if (!nextPlannedWorkout) {
     return (
       <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
-        <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-azur-400/10 blur-3xl" />
 
         <div className="relative">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
             Prochaine séance
           </p>
 
@@ -32,7 +32,7 @@ export default function NextPlannedWorkoutCard({
 
           <Link
             to="/planning"
-            className="mt-5 inline-flex w-full justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="mt-5 inline-flex w-full justify-center rounded-full bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
           >
             Planifier une séance
           </Link>
@@ -54,10 +54,10 @@ export default function NextPlannedWorkoutCard({
         'relative overflow-hidden rounded-[2rem] border p-5 shadow-2xl sm:p-6',
         isLate
           ? 'border-orange-400/25 bg-orange-400/10 shadow-orange-400/5'
-          : 'border-emerald-400/20 bg-gradient-to-br from-emerald-400/15 via-white/[0.04] to-sky-400/10 shadow-emerald-400/10',
+          : 'border-azur-400/20 bg-gradient-to-br from-azur-400/15 via-white/[0.04] to-sky-400/10 shadow-azur-400/10',
       ].join(' ')}
     >
-      <div className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-emerald-400/10 blur-3xl" />
+      <div className="absolute -right-16 -top-16 h-44 w-44 rounded-full bg-azur-400/10 blur-3xl" />
       <div className="absolute -bottom-20 -left-20 h-44 w-44 rounded-full bg-sky-400/10 blur-3xl" />
 
       <div className="relative">
@@ -66,7 +66,7 @@ export default function NextPlannedWorkoutCard({
             <p
               className={[
                 'text-xs font-black uppercase tracking-[0.24em]',
-                isLate ? 'text-orange-300' : 'text-emerald-300',
+                isLate ? 'text-orange-300' : 'text-azur-300',
               ].join(' ')}
             >
               {isLate ? 'Séance à rattraper' : 'Prochaine séance'}
@@ -97,7 +97,7 @@ export default function NextPlannedWorkoutCard({
             'mt-5 rounded-3xl border p-4',
             isLate
               ? 'border-orange-400/20 bg-orange-400/10'
-              : 'border-emerald-400/15 bg-emerald-400/5',
+              : 'border-azur-400/15 bg-azur-400/5',
           ].join(' ')}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -105,7 +105,7 @@ export default function NextPlannedWorkoutCard({
               <p
                 className={[
                   'text-xs font-black uppercase tracking-[0.18em]',
-                  isLate ? 'text-orange-300' : 'text-emerald-300',
+                  isLate ? 'text-orange-300' : 'text-azur-300',
                 ].join(' ')}
               >
                 Statut
@@ -133,7 +133,7 @@ export default function NextPlannedWorkoutCard({
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           <Link
             to="/planning"
-            className="inline-flex justify-center rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="inline-flex justify-center rounded-full bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
           >
             Voir le planning
           </Link>

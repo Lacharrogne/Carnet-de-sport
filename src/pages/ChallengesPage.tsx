@@ -64,15 +64,15 @@ export default function ChallengesPage({
   const nextChallenge = ongoingChallenges[0] ?? null
 
   return (
-    <main className="min-h-screen bg-[#050816] text-slate-50">
+    <main className="min-h-screen text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+        <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
           <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
             <div>
-              <p className="inline-flex rounded-full border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-sm font-bold text-emerald-300">
+              <p className="inline-flex rounded-full border border-azur-400/30 bg-azur-400/10 px-4 py-2 text-sm font-bold text-azur-300">
                 Défis
               </p>
 
@@ -110,7 +110,7 @@ export default function ChallengesPage({
         <section className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                 Progression des défis
               </p>
 
@@ -119,7 +119,7 @@ export default function ChallengesPage({
               </h2>
             </div>
 
-            <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-5 py-3 text-sm font-black text-emerald-200">
+            <div className="rounded-full border border-azur-400/20 bg-azur-400/10 px-5 py-3 text-sm font-black text-azur-200">
               {unlockedChallenges.length} débloqué
               {unlockedChallenges.length > 1 ? 's' : ''}
             </div>
@@ -127,7 +127,7 @@ export default function ChallengesPage({
 
           <div className="mt-5 h-4 overflow-hidden rounded-full bg-slate-950">
             <div
-              className="h-full rounded-full bg-emerald-400 transition-all"
+              className="h-full rounded-full bg-azur-400 transition-all"
               style={{
                 width: `${completionPercent}%`,
               }}
@@ -156,7 +156,7 @@ export default function ChallengesPage({
                   </div>
                 </div>
 
-                <span className="w-fit rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm font-black text-emerald-200">
+                <span className="w-fit rounded-full border border-azur-400/20 bg-azur-400/10 px-4 py-2 text-sm font-black text-azur-200">
                   {getProgressPercent(nextChallenge.progress, nextChallenge.target)}
                   %
                 </span>
@@ -198,7 +198,7 @@ export default function ChallengesPage({
         <section className="mt-6">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                 Collection
               </p>
 
@@ -243,14 +243,14 @@ function LevelCard({
           </p>
         </div>
 
-        <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-xs font-black text-emerald-300">
+        <div className="rounded-full border border-azur-400/20 bg-azur-400/10 px-4 py-2 text-xs font-black text-azur-300">
           ⚡ XP
         </div>
       </div>
 
       <div className="mt-5 h-3 overflow-hidden rounded-full bg-slate-950">
         <div
-          className="h-full rounded-full bg-emerald-400 transition-all"
+          className="h-full rounded-full bg-azur-400 transition-all"
           style={{
             width: `${sportProfileXp.levelProgressPercent}%`,
           }}
@@ -289,13 +289,13 @@ function ChallengeCard({
   const percent = getProgressPercent(challenge.progress, challenge.target)
 
   const cardClassName = challenge.unlocked
-    ? 'border-emerald-400/20 bg-emerald-400/10 shadow-2xl shadow-emerald-400/5'
+    ? 'border-azur-400/20 bg-azur-400/10 shadow-2xl shadow-azur-400/5'
     : variant === 'highlight'
       ? 'border-orange-300/20 bg-slate-950/35'
       : 'border-white/10 bg-white/[0.04] opacity-85'
 
   const progressClassName = challenge.unlocked
-    ? 'bg-emerald-400'
+    ? 'bg-azur-400'
     : variant === 'highlight'
       ? 'bg-orange-300'
       : 'bg-slate-500'
@@ -308,7 +308,7 @@ function ChallengeCard({
         <span
           className={`rounded-full px-3 py-1 text-xs font-black ${
             challenge.unlocked
-              ? 'bg-emerald-400 text-slate-950'
+              ? 'bg-azur-400 text-slate-950'
               : variant === 'highlight'
                 ? 'bg-orange-300 text-slate-950'
                 : 'bg-white/10 text-slate-300'
@@ -332,7 +332,7 @@ function ChallengeCard({
             {challenge.progress} / {challenge.target} {challenge.unit}
           </p>
 
-          <p className="text-sm font-black text-emerald-300">
+          <p className="text-sm font-black text-azur-300">
             +{challenge.xp} XP
           </p>
         </div>

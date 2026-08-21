@@ -37,7 +37,7 @@ export default function AdvancedStatsSection({
     <section className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-emerald-300">
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
             Statistiques avancées
           </p>
 
@@ -51,8 +51,8 @@ export default function AdvancedStatsSection({
           </p>
         </div>
 
-        <div className="rounded-3xl border border-emerald-400/20 bg-emerald-400/10 px-5 py-4">
-          <p className="text-sm text-emerald-300">Sport dominant</p>
+        <div className="rounded-3xl border border-azur-400/20 bg-azur-400/10 px-5 py-4">
+          <p className="text-sm text-azur-300">Sport dominant</p>
 
           <p className="mt-1 text-2xl font-black text-white">
             {advancedStats.favoriteSportEmoji} {advancedStats.favoriteSportLabel}

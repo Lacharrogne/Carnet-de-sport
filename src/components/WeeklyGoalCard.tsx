@@ -63,7 +63,7 @@ export default function WeeklyGoalCard({
 
   return (
     <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
-      <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-emerald-400/10 blur-3xl" />
+      <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-azur-400/10 blur-3xl" />
       <div className="absolute -bottom-24 -left-24 h-52 w-52 rounded-full bg-cyan-400/10 blur-3xl" />
 
       <div className="relative grid gap-6 xl:grid-cols-[1.15fr_0.85fr] xl:items-stretch">
@@ -71,7 +71,7 @@ export default function WeeklyGoalCard({
           <div>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-300">
+                <p className="text-sm font-black uppercase tracking-[0.25em] text-azur-300">
                   Objectif hebdomadaire
                 </p>
 
@@ -85,13 +85,13 @@ export default function WeeklyGoalCard({
               <div
                 className={`w-fit rounded-3xl border px-5 py-4 ${
                   isCompleted
-                    ? 'border-emerald-400/25 bg-emerald-400/10'
+                    ? 'border-azur-400/25 bg-azur-400/10'
                     : 'border-white/10 bg-slate-950/40'
                 }`}
               >
                 <p
                   className={`text-sm font-bold ${
-                    isCompleted ? 'text-emerald-300' : 'text-slate-400'
+                    isCompleted ? 'text-azur-300' : 'text-slate-400'
                   }`}
                 >
                   Avancement
@@ -125,7 +125,7 @@ export default function WeeklyGoalCard({
                   Objectif
                 </p>
 
-                <p className="mt-2 text-2xl font-black text-emerald-300">
+                <p className="mt-2 text-2xl font-black text-azur-300">
                   {weeklyGoal.targetMinutes} min
                 </p>
               </div>
@@ -134,7 +134,7 @@ export default function WeeklyGoalCard({
             <div className="mt-5 h-4 overflow-hidden rounded-full bg-slate-950">
               <div
                 className={`h-full rounded-full transition-all ${
-                  isCompleted ? 'bg-emerald-300' : 'bg-emerald-400'
+                  isCompleted ? 'bg-azur-300' : 'bg-azur-400'
                 }`}
                 style={{ width: `${progress}%` }}
               />
@@ -154,11 +154,11 @@ export default function WeeklyGoalCard({
           </div>
         </div>
 
-        <div className="rounded-[2rem] border border-emerald-400/20 bg-emerald-400/10 p-5 sm:p-6">
+        <div className="rounded-[2rem] border border-azur-400/20 bg-azur-400/10 p-5 sm:p-6">
           {isEditing ? (
             <div className="flex h-full flex-col justify-between gap-6">
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-300">
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-azur-300">
                   Modifier l’objectif
                 </p>
 
@@ -175,7 +175,7 @@ export default function WeeklyGoalCard({
                       setTargetMinutes(event.target.value)
                       setErrorMessage('')
                     }}
-                    className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-lg font-black text-white outline-none transition placeholder:text-slate-600 focus:border-emerald-400/60"
+                    className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-lg font-black text-white outline-none transition placeholder:text-slate-600 focus:border-azur-400/60"
                     placeholder="Ex : 180"
                   />
                 </label>
@@ -196,7 +196,7 @@ export default function WeeklyGoalCard({
                 <button
                   type="button"
                   onClick={handleSave}
-                  className="flex-1 rounded-full bg-emerald-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+                  className="flex-1 rounded-full bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
                 >
                   Sauvegarder
                 </button>
@@ -213,7 +213,7 @@ export default function WeeklyGoalCard({
           ) : (
             <div className="flex h-full flex-col justify-between gap-7">
               <div>
-                <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-300">
+                <p className="text-sm font-black uppercase tracking-[0.2em] text-azur-300">
                   Objectif actuel
                 </p>
 
@@ -236,7 +236,7 @@ export default function WeeklyGoalCard({
               <button
                 type="button"
                 onClick={handleStartEditing}
-                className="w-full rounded-full border border-emerald-400/30 bg-emerald-400/10 px-5 py-4 text-sm font-black text-emerald-300 transition hover:bg-emerald-400/20"
+                className="w-full rounded-full border border-azur-400/30 bg-azur-400/10 px-5 py-4 text-sm font-black text-azur-300 transition hover:bg-azur-400/20"
               >
                 Modifier l’objectif
               </button>

@@ -1,6 +1,7 @@
 import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
+import { EXERCISE_NAMES } from '../data/exerciseLibrary'
 import type {
   SportCategoryId,
   StrengthExercise,
@@ -225,7 +226,7 @@ export default function WorkoutForm({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Ex : Séance PUSH, footing, sortie vélo..."
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
           />
         </label>
 
@@ -237,7 +238,7 @@ export default function WorkoutForm({
             onChange={(event) =>
               handleCategoryChange(event.target.value as SportCategoryId)
             }
-            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
           >
             {SPORT_CATEGORIES.map((sportCategory) => (
               <option key={sportCategory.id} value={sportCategory.id}>
@@ -254,7 +255,7 @@ export default function WorkoutForm({
             type="date"
             value={date}
             onChange={(event) => setDate(event.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
           />
         </label>
 
@@ -269,7 +270,7 @@ export default function WorkoutForm({
             value={duration}
             onChange={(event) => setDuration(event.target.value)}
             placeholder="Ex : 45"
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
           />
         </label>
 
@@ -281,7 +282,7 @@ export default function WorkoutForm({
             onChange={(event) =>
               setIntensity(event.target.value as WorkoutIntensity)
             }
-            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
           >
             {intensityOptions.map((option) => (
               <option key={option} value={option}>
@@ -299,7 +300,7 @@ export default function WorkoutForm({
             onChange={(event) =>
               setFeeling(event.target.value as WorkoutFeeling)
             }
-            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+            className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
           >
             {feelingOptions.map((option) => (
               <option key={option} value={option}>
@@ -324,7 +325,7 @@ export default function WorkoutForm({
         <select
           value={trend}
           onChange={(event) => setTrend(event.target.value as WorkoutTrend)}
-          className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-emerald-400/60"
+          className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
         >
           {trendOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -344,7 +345,7 @@ export default function WorkoutForm({
           onChange={(event) => setNotes(event.target.value)}
           rows={4}
           placeholder="Ex : Bonne séance, mais j’ai manqué d’énergie sur la fin."
-          className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+          className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
         />
       </label>
 
@@ -358,7 +359,7 @@ export default function WorkoutForm({
           onChange={(event) => setImprovementIdea(event.target.value)}
           rows={3}
           placeholder="Ex : Mieux gérer les temps de repos ou ajouter 5 minutes de cardio."
-          className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+          className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
         />
       </label>
 
@@ -373,7 +374,7 @@ export default function WorkoutForm({
 
         <button
           type="submit"
-          className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+          className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
         >
           {submitLabel}
         </button>
@@ -399,8 +400,8 @@ function SportSpecificFields({
   const detailMode = getDetailMode(category)
 
   return (
-    <section className="rounded-[2rem] border border-emerald-400/10 bg-emerald-400/5 p-5">
-      <p className="text-sm font-bold uppercase tracking-[0.2em] text-emerald-300">
+    <section className="rounded-[2rem] border border-azur-400/10 bg-azur-400/5 p-5">
+      <p className="text-sm font-bold uppercase tracking-[0.2em] text-azur-300">
         Détails spécifiques
       </p>
 
@@ -737,6 +738,12 @@ function StrengthExercisesEditor({
 
   return (
     <div>
+      <datalist id="exercise-library">
+        {EXERCISE_NAMES.map((name) => (
+          <option key={name} value={name} />
+        ))}
+      </datalist>
+
       <div>
         <h3 className="text-2xl font-black text-white">
           Exercices de musculation
@@ -764,7 +771,7 @@ function StrengthExercisesEditor({
           <button
             type="button"
             onClick={addExercise}
-            className="mt-6 rounded-full bg-emerald-400 px-7 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+            className="mt-6 rounded-full bg-azur-400 px-7 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
           >
             + Ajouter mon premier exercice
           </button>
@@ -778,7 +785,7 @@ function StrengthExercisesEditor({
             >
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-300">
+                  <p className="text-xs font-black uppercase tracking-[0.25em] text-azur-300">
                     Exercice {index + 1}
                   </p>
 
@@ -811,6 +818,7 @@ function StrengthExercisesEditor({
                   label="Nom de l’exercice"
                   value={exercise.name}
                   placeholder="Ex : Développé couché"
+                  list="exercise-library"
                   inputRef={(node) => {
                     fieldRefs.current[getFieldKey(exercise.id, 'name')] = node
                   }}
@@ -906,7 +914,7 @@ function StrengthExercisesEditor({
           <button
             type="button"
             onClick={addExercise}
-            className="w-full rounded-[2rem] border border-dashed border-emerald-400/30 bg-emerald-400/10 px-6 py-5 text-sm font-black text-emerald-200 transition hover:bg-emerald-400/20"
+            className="w-full rounded-[2rem] border border-dashed border-azur-400/30 bg-azur-400/10 px-6 py-5 text-sm font-black text-azur-200 transition hover:bg-azur-400/20"
           >
             + Ajouter un exercice
           </button>
@@ -928,6 +936,7 @@ type ExerciseTextFieldProps = {
   inputRef: (node: HTMLInputElement | null) => void
   onChange: (value: string) => void
   onKeyDown: (event: KeyboardEvent<HTMLInputElement>) => void
+  list?: string
 }
 
 function ExerciseTextField({
@@ -937,6 +946,7 @@ function ExerciseTextField({
   inputRef,
   onChange,
   onKeyDown,
+  list,
 }: ExerciseTextFieldProps) {
   return (
     <label className="space-y-2">
@@ -945,10 +955,11 @@ function ExerciseTextField({
       <input
         ref={inputRef}
         value={value}
+        list={list}
         onChange={(event) => onChange(event.target.value)}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
       />
     </label>
   )
@@ -970,7 +981,7 @@ function TextField({ label, value, placeholder, onChange }: TextFieldProps) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
       />
     </label>
   )
@@ -998,7 +1009,7 @@ function TextAreaField({
         onChange={(event) => onChange(event.target.value)}
         rows={4}
         placeholder={placeholder}
-        className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full resize-none rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
       />
     </label>
   )
@@ -1031,7 +1042,7 @@ function NumberDetailField({
           onChange(newValue === '' ? undefined : Number(newValue))
         }}
         placeholder={placeholder}
-        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+        className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
       />
     </label>
   )

@@ -12,10 +12,18 @@ import type { User } from '@supabase/supabase-js'
 
 import AppNavigation from './components/AppNavigation'
 import DemoModeBanner from './components/DemoModeBanner'
+import Footer from './components/Footer'
+import SubscriptionGate from './components/SubscriptionGate'
+import TrialBanner from './components/TrialBanner'
+import { BodyWeightContext } from './context/bodyWeightContext'
+import { useEntitlement } from './hooks/useEntitlement'
+import { ENFORCE_TRIAL } from './config/subscription'
 import { WORKOUTS } from './data/workouts'
 
 import AuthPage from './pages/AuthPage'
 import BodyPage from './pages/BodyPage'
+import TemplatesPage from './pages/TemplatesPage'
+import StravaCallbackPage from './pages/StravaCallbackPage'
 import ChallengesPage from './pages/ChallengesPage'
 import DashboardPage from './pages/DashboardPage'
 import EditWorkoutPage from './pages/EditWorkoutPage'
@@ -54,10 +62,27 @@ import {
   saveRemoteWorkouts,
 } from './services/workoutStorage'
 
+import {
+  deleteRemoteBodyWeightEntry,
+  getRemoteBodyWeightEntries,
+  saveRemoteBodyWeightEntry,
+} from './services/bodyWeightStorage'
+
+import {
+  deleteRemoteWorkoutTemplate,
+  getRemoteWorkoutTemplates,
+  saveRemoteWorkoutTemplate,
+} from './services/workoutTemplateStorage'
+
+import { DEMO_BODY_WEIGHT_ENTRIES } from './data/bodyWeightEntries'
+import { DEMO_WORKOUT_TEMPLATES } from './data/workoutTemplates'
+
+import type { BodyWeightEntry } from './types/bodyWeight'
 import type { HealthProfile } from './types/health'
 import type { PlannedWorkout } from './types/plannedWorkout'
 import type { WeeklyGoal } from './types/weeklyGoal'
 import type { Workout, WorkoutFormValues } from './types/workout'
+import type { WorkoutTemplate } from './types/workoutTemplate'
 
 function App() {
   return (
@@ -92,12 +117,20 @@ function AppShell() {
     useState<WeeklyGoal>(DEFAULT_WEEKLY_GOAL)
   const [healthProfile, setHealthProfile] =
     useState<HealthProfile>(DEFAULT_HEALTH_PROFILE)
+  const [bodyWeightEntries, setBodyWeightEntries] = useState<BodyWeightEntry[]>(
+    DEMO_BODY_WEIGHT_ENTRIES,
+  )
+  const [templates, setTemplates] = useState<WorkoutTemplate[]>(
+    DEMO_WORKOUT_TEMPLATES,
+  )
 
   const resetDemoData = useCallback(() => {
     setWorkouts(WORKOUTS)
     setPlannedWorkouts([])
     setWeeklyGoal(DEFAULT_WEEKLY_GOAL)
     setHealthProfile(DEFAULT_HEALTH_PROFILE)
+    setBodyWeightEntries(DEMO_BODY_WEIGHT_ENTRIES)
+    setTemplates(DEMO_WORKOUT_TEMPLATES)
     setHasLoadedRemoteData(false)
     setSyncError('')
   }, [])
@@ -189,11 +222,17 @@ function AppShell() {
           remotePlannedWorkouts,
           remoteWeeklyGoal,
           remoteHealthProfile,
+          remoteBodyWeightEntries,
+          remoteTemplates,
         ] = await Promise.all([
           getRemoteWorkouts(userId),
           getRemotePlannedWorkouts(userId),
           getRemoteWeeklyGoal(userId),
           getRemoteHealthProfile(userId),
+          // Tolérant : si la table n'existe pas encore (migration non lancée),
+          // on démarre avec un historique vide plutôt que de bloquer l'app.
+          getRemoteBodyWeightEntries(userId).catch(() => []),
+          getRemoteWorkoutTemplates(userId).catch(() => []),
         ])
 
         if (!isMounted) {
@@ -204,6 +243,8 @@ function AppShell() {
         setPlannedWorkouts(remotePlannedWorkouts)
         setWeeklyGoal(remoteWeeklyGoal ?? DEFAULT_WEEKLY_GOAL)
         setHealthProfile(remoteHealthProfile ?? DEFAULT_HEALTH_PROFILE)
+        setBodyWeightEntries(remoteBodyWeightEntries)
+        setTemplates(remoteTemplates)
         setHasLoadedRemoteData(true)
         setSyncError('')
       } catch (error) {
@@ -479,13 +520,173 @@ function AppShell() {
     }
   }
 
+  const syncProfileWeightToLatest = (entries: BodyWeightEntry[]) => {
+    if (entries.length === 0) {
+      return
+    }
+
+    const latest = entries[entries.length - 1]
+
+    setHealthProfile((current) =>
+      current.weight === latest.weight
+        ? current
+        : { ...current, weight: latest.weight },
+    )
+  }
+
+  const handleAddWeightEntry = async (entry: BodyWeightEntry) => {
+    const mergeEntries = (saved: BodyWeightEntry) =>
+      [...bodyWeightEntries.filter((item) => item.date !== saved.date), saved].sort(
+        (a, b) => a.date.localeCompare(b.date),
+      )
+
+    if (!user) {
+      const nextEntries = mergeEntries(entry)
+      setBodyWeightEntries(nextEntries)
+      syncProfileWeightToLatest(nextEntries)
+      return
+    }
+
+    try {
+      const saved = await saveRemoteBodyWeightEntry(entry, user.id)
+      const nextEntries = mergeEntries(saved)
+      setBodyWeightEntries(nextEntries)
+      syncProfileWeightToLatest(nextEntries)
+    } catch (error) {
+      console.error('Erreur lors de l’enregistrement de la pesée :', error)
+
+      window.alert(
+        "La pesée n'a pas pu être sauvegardée dans Supabase. Regarde la console pour voir l'erreur exacte.",
+      )
+    }
+  }
+
+  const handleDeleteWeightEntry = async (entryId: string) => {
+    const nextEntries = bodyWeightEntries.filter((item) => item.id !== entryId)
+
+    if (!user) {
+      setBodyWeightEntries(nextEntries)
+      return
+    }
+
+    try {
+      await deleteRemoteBodyWeightEntry(entryId, user.id)
+      setBodyWeightEntries(nextEntries)
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la pesée :', error)
+
+      window.alert(
+        "La pesée n'a pas pu être supprimée. Regarde la console pour voir l'erreur exacte.",
+      )
+    }
+  }
+
+  const reloadWorkouts = () => {
+    const uid = user?.id
+
+    if (!uid) {
+      return
+    }
+
+    getRemoteWorkouts(uid)
+      .then(setWorkouts)
+      .catch((error) => {
+        console.error('Erreur rechargement des séances :', error)
+      })
+  }
+
+  const handleDuplicateWorkout = (workout: Workout) => {
+    const initialValues: WorkoutFormValues = {
+      title: workout.title ? `${workout.title} (copie)` : '',
+      category: workout.category,
+      date: getTodayDateKey(),
+      duration: workout.duration,
+      intensity: workout.intensity,
+      feeling: workout.feeling,
+      notes: workout.notes,
+      improvementIdea: workout.improvementIdea,
+      trend: 'stable',
+      details: workout.details,
+    }
+
+    navigate('/workouts/new', { state: { initialValues } })
+  }
+
+  const handleStartFromTemplate = (template: WorkoutTemplate) => {
+    const initialValues: WorkoutFormValues = {
+      ...template.payload,
+      date: getTodayDateKey(),
+    }
+
+    navigate('/workouts/new', { state: { initialValues } })
+  }
+
+  const handleSaveTemplate = async (name: string, values: WorkoutFormValues) => {
+    const cleanName = name.trim()
+
+    if (!cleanName) {
+      return
+    }
+
+    const template: WorkoutTemplate = {
+      id: crypto.randomUUID(),
+      name: cleanName,
+      category: values.category,
+      payload: { ...values, date: '' },
+    }
+
+    if (!user) {
+      setTemplates((current) => [template, ...current])
+      return
+    }
+
+    try {
+      const saved = await saveRemoteWorkoutTemplate(template, user.id)
+      setTemplates((current) => [saved, ...current])
+    } catch (error) {
+      console.error('Erreur lors de l’enregistrement du modèle :', error)
+
+      window.alert(
+        "Le modèle n'a pas pu être sauvegardé. Regarde la console pour voir l'erreur exacte.",
+      )
+    }
+  }
+
+  const handleDeleteTemplate = async (templateId: string) => {
+    const nextTemplates = templates.filter((item) => item.id !== templateId)
+
+    if (!user) {
+      setTemplates(nextTemplates)
+      return
+    }
+
+    try {
+      await deleteRemoteWorkoutTemplate(templateId, user.id)
+      setTemplates(nextTemplates)
+    } catch (error) {
+      console.error('Erreur lors de la suppression du modèle :', error)
+
+      window.alert(
+        "Le modèle n'a pas pu être supprimé. Regarde la console pour voir l'erreur exacte.",
+      )
+    }
+  }
+
   const isLoadingRemoteData = Boolean(user && !hasLoadedRemoteData && !syncError)
+
+  // Verrou d'abonnement par carnet (inerte tant que ENFORCE_TRIAL est false).
+  const entitlement = useEntitlement(user)
+  const showSubscriptionGate =
+    ENFORCE_TRIAL &&
+    !entitlement.loading &&
+    !entitlement.hasAccess &&
+    location.pathname !== '/auth'
 
   const shouldShowDemoBanner =
     !user && !isAuthLoading && location.pathname !== '/auth'
 
   return (
-    <>
+    <BodyWeightContext.Provider value={healthProfile.weight}>
       <AppNavigation
         user={user}
         isAuthLoading={isAuthLoading}
@@ -493,7 +694,7 @@ function AppShell() {
       />
 
       {isAuthLoading ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
+        <main className="min-h-screen px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
             <p className="text-5xl">⚡</p>
 
@@ -505,7 +706,7 @@ function AppShell() {
           </section>
         </main>
       ) : isLoadingRemoteData ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
+        <main className="min-h-screen px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
             <p className="text-5xl">⚡</p>
 
@@ -519,7 +720,7 @@ function AppShell() {
           </section>
         </main>
       ) : syncError ? (
-        <main className="min-h-screen bg-[#050816] px-6 py-16 text-slate-50">
+        <main className="min-h-screen px-6 py-16 text-slate-50">
           <section className="mx-auto max-w-5xl rounded-[2rem] border border-red-400/20 bg-red-400/10 p-10 text-center">
             <p className="text-5xl">⚠️</p>
 
@@ -538,9 +739,24 @@ function AppShell() {
             </button>
           </section>
         </main>
+      ) : showSubscriptionGate ? (
+        <SubscriptionGate />
       ) : (
         <>
           {shouldShowDemoBanner && <DemoModeBanner />}
+
+          {user &&
+            !entitlement.loading &&
+            (entitlement.status === 'trialing' ||
+              entitlement.status === 'expired') &&
+            location.pathname !== '/auth' && (
+              <div className="mx-auto w-full max-w-[1380px] px-4 pt-4 sm:px-6 lg:px-8">
+                <TrialBanner
+                  status={entitlement.status}
+                  daysLeft={entitlement.daysLeft}
+                />
+              </div>
+            )}
 
           <Routes>
             <Route
@@ -558,6 +774,8 @@ function AppShell() {
 
             <Route path="/auth" element={<AuthPage />} />
 
+            <Route path="/strava/callback" element={<StravaCallbackPage />} />
+
             <Route
               path="/workouts"
               element={
@@ -574,6 +792,7 @@ function AppShell() {
                   onDeleteWorkout={(workoutId) => {
                     void handleDeleteWorkout(workoutId)
                   }}
+                  onDuplicateWorkout={handleDuplicateWorkout}
                 />
               }
             />
@@ -606,6 +825,13 @@ function AppShell() {
                       }
                     })
                   }}
+                  onDuplicate={handleDuplicateWorkout}
+                  onSaveTemplate={(name, workout) => {
+                    void handleSaveTemplate(
+                      name,
+                      workoutToFormValues(workout, ''),
+                    )
+                  }}
                 />
               }
             />
@@ -628,7 +854,24 @@ function AppShell() {
                   workouts={workouts}
                   plannedWorkouts={plannedWorkouts}
                   weeklyGoal={weeklyGoal}
+                  healthProfile={healthProfile}
                   onBack={() => navigate('/')}
+                />
+              }
+            />
+
+            <Route
+              path="/templates"
+              element={
+                <TemplatesPage
+                  templates={templates}
+                  onBack={() => navigate('/')}
+                  onCreateWorkoutClick={() => navigate('/workouts/new')}
+                  onStartFromTemplate={handleStartFromTemplate}
+                  onSaveTemplate={handleSaveTemplate}
+                  onDeleteTemplate={(templateId) => {
+                    void handleDeleteTemplate(templateId)
+                  }}
                 />
               }
             />
@@ -640,6 +883,9 @@ function AppShell() {
                   workouts={workouts}
                   profile={healthProfile}
                   onProfileChange={setHealthProfile}
+                  weightEntries={bodyWeightEntries}
+                  onAddWeightEntry={handleAddWeightEntry}
+                  onDeleteWeightEntry={handleDeleteWeightEntry}
                   onBack={() => navigate('/')}
                 />
               }
@@ -672,6 +918,7 @@ function AppShell() {
     <ProfilePage
       user={user}
       onUserUpdate={setUser}
+      onWorkoutsImported={reloadWorkouts}
       onBack={() => navigate('/')}
     />
   }
@@ -690,9 +937,11 @@ function AppShell() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+
+          {location.pathname !== '/auth' && <Footer />}
         </>
       )}
-    </>
+    </BodyWeightContext.Provider>
   )
 }
 
@@ -702,7 +951,19 @@ type NewWorkoutRouteProps = {
 }
 
 function NewWorkoutRoute({ onSubmit, onCancel }: NewWorkoutRouteProps) {
-  return <NewWorkoutPage onSubmit={onSubmit} onCancel={onCancel} />
+  const location = useLocation()
+  const initialValues = (
+    location.state as { initialValues?: WorkoutFormValues } | null
+  )?.initialValues
+
+  return (
+    <NewWorkoutPage
+      initialValues={initialValues}
+      submitLabel={initialValues ? 'Enregistrer la séance' : undefined}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+    />
+  )
 }
 
 type EditWorkoutRouteProps = {
@@ -724,7 +985,7 @@ function EditWorkoutRoute({
 
   if (!workout) {
     return (
-      <main className="min-h-screen bg-[#050816] text-slate-50">
+      <main className="min-h-screen text-slate-50">
         <section className="mx-auto max-w-5xl px-6 py-10">
           <button
             type="button"
@@ -766,6 +1027,8 @@ type WorkoutDetailRouteProps = {
   onBack: () => void
   onEditWorkout: (workoutId: string) => void
   onDeleteWorkout: (workoutId: string) => void
+  onDuplicate: (workout: Workout) => void
+  onSaveTemplate: (name: string, workout: Workout) => void
 }
 
 function WorkoutDetailRoute({
@@ -773,6 +1036,8 @@ function WorkoutDetailRoute({
   onBack,
   onEditWorkout,
   onDeleteWorkout,
+  onDuplicate,
+  onSaveTemplate,
 }: WorkoutDetailRouteProps) {
   const { workoutId } = useParams()
 
@@ -782,7 +1047,7 @@ function WorkoutDetailRoute({
 
   if (!workout) {
     return (
-      <main className="min-h-screen bg-[#050816] text-slate-50">
+      <main className="min-h-screen text-slate-50">
         <section className="mx-auto max-w-5xl px-6 py-10">
           <button
             type="button"
@@ -814,8 +1079,29 @@ function WorkoutDetailRoute({
       onBack={onBack}
       onEdit={onEditWorkout}
       onDelete={onDeleteWorkout}
+      onDuplicate={onDuplicate}
+      onSaveTemplate={onSaveTemplate}
     />
   )
+}
+
+/** Convertit une séance existante en valeurs de formulaire (pour dupliquer). */
+function workoutToFormValues(
+  workout: Workout,
+  date: string,
+): WorkoutFormValues {
+  return {
+    title: workout.title,
+    category: workout.category,
+    date,
+    duration: workout.duration,
+    intensity: workout.intensity,
+    feeling: workout.feeling,
+    notes: workout.notes,
+    improvementIdea: workout.improvementIdea,
+    trend: workout.trend,
+    details: workout.details,
+  }
 }
 
 function getTodayDateKey() {

@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+@theme {
+  /* Typographies de la suite « Les Carnets » (identiques à Recettes/Budget). */
+  --font-sans:
+    "Mulish", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-display: "Fraunces", "Mulish", ui-serif, Georgia, serif;
+
+  /* Accent azur : l'identité de Carnet de sport dans la suite. */
+  --color-azur-50: #eef6fd;
+  --color-azur-100: #d7e9fa;
+  --color-azur-200: #b4d5f4;
+  --color-azur-300: #83b8ea;
+  --color-azur-400: #5296dc;
+  --color-azur-500: #3078c6;
+  --color-azur-600: #245fa6;
+  --color-azur-700: #1f4d86;
+  --color-azur-800: #1d4170;
+  --color-azur-900: #1c395e;
+  --color-azur-950: #13243e;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -8,7 +29,51 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #080b12;
-  color: #f8fafc;
+  font-family: var(--font-sans);
+
+  /* Fond sombre premium : bleu nuit profond + halos azur / indigo discrets,
+     pour donner de la profondeur sans écraser le contenu. */
+  background-color: #0a0f1a;
+  background-image:
+    radial-gradient(
+      52rem 52rem at 8% -10%,
+      rgba(63, 140, 210, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      46rem 46rem at 106% 4%,
+      rgba(99, 102, 241, 0.14),
+      transparent 58%
+    ),
+    radial-gradient(
+      48rem 48rem at 100% 108%,
+      rgba(45, 120, 198, 0.14),
+      transparent 58%
+    ),
+    linear-gradient(180deg, #0b111d 0%, #0a0f1a 100%);
+  background-attachment: fixed;
+  color: #e8eef7;
+}
+
+@layer base {
+  /* Garde-fou mobile : aucun contenu ne peut déborder horizontalement.
+     Sur <html> uniquement (sticky-safe, contrairement à body/#root). */
+  html {
+    overflow-x: hidden;
+  }
+
+  /* Grands titres en Fraunces sur toute l'app (cohérence avec la suite). */
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
+  }
 }

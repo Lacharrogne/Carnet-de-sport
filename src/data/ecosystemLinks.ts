@@ -3,7 +3,7 @@ export const ECOSYSTEM_LINKS = {
     name: 'Carnet de recettes',
     shortName: 'Recettes',
     emoji: '🍝',
-    url: 'https://carnet-de-recettes.vercel.app',
+    url: 'https://recettes.lescarnets.app',
     description:
       'Trouver des idées de repas, gérer ses recettes et mieux organiser sa cuisine.',
   },

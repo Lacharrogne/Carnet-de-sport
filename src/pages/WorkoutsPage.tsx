@@ -11,6 +11,7 @@ type WorkoutsPageProps = {
   onOpenWorkout: (workoutId: string) => void
   onEditWorkout: (workoutId: string) => void
   onDeleteWorkout: (workoutId: string) => void | Promise<void>
+  onDuplicateWorkout: (workout: Workout) => void
 }
 
 type CategoryFilter = 'all' | SportCategoryId
@@ -30,6 +31,7 @@ export default function WorkoutsPage({
   onOpenWorkout,
   onEditWorkout,
   onDeleteWorkout,
+  onDuplicateWorkout,
 }: WorkoutsPageProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
@@ -83,7 +85,7 @@ export default function WorkoutsPage({
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
+    <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <button
           type="button"
@@ -93,13 +95,13 @@ export default function WorkoutsPage({
           ← Retour au dashboard
         </button>
 
-        <header className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+        <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
           <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                 Carnet de séances
               </p>
 
@@ -116,7 +118,7 @@ export default function WorkoutsPage({
             <button
               type="button"
               onClick={onAddWorkoutClick}
-              className="rounded-full bg-emerald-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-emerald-300"
+              className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
             >
               + Ajouter une séance
             </button>
@@ -161,7 +163,7 @@ export default function WorkoutsPage({
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
                 placeholder="Rechercher une séance, une note, un exercice..."
-                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
               />
             </label>
 
@@ -175,7 +177,7 @@ export default function WorkoutsPage({
                 onChange={(event) =>
                   setCategoryFilter(event.target.value as CategoryFilter)
                 }
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-sm text-white outline-none transition focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-sm text-white outline-none transition focus:border-azur-400/60"
               >
                 <option value="all">Tous les sports</option>
 
@@ -197,7 +199,7 @@ export default function WorkoutsPage({
                 onChange={(event) =>
                   setSortOption(event.target.value as SortOption)
                 }
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-sm text-white outline-none transition focus:border-emerald-400/60"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-4 text-sm text-white outline-none transition focus:border-azur-400/60"
               >
                 <option value="date-desc">Plus récentes</option>
                 <option value="date-asc">Plus anciennes</option>
@@ -227,7 +229,7 @@ export default function WorkoutsPage({
               className={[
                 'rounded-full border px-4 py-2 text-xs font-black transition',
                 categoryFilter === 'all'
-                  ? 'border-emerald-400 bg-emerald-400 text-slate-950'
+                  ? 'border-azur-400 bg-azur-400 text-slate-950'
                   : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10',
               ].join(' ')}
             >
@@ -242,7 +244,7 @@ export default function WorkoutsPage({
                 className={[
                   'rounded-full border px-4 py-2 text-xs font-black transition',
                   categoryFilter === category.id
-                    ? 'border-emerald-400 bg-emerald-400 text-slate-950'
+                    ? 'border-azur-400 bg-azur-400 text-slate-950'
                     : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10',
                 ].join(' ')}
               >
@@ -257,7 +259,7 @@ export default function WorkoutsPage({
             <>
               <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                     Historique
                   </p>
 
@@ -277,6 +279,7 @@ export default function WorkoutsPage({
                     onOpen={onOpenWorkout}
                     onEdit={onEditWorkout}
                     onDelete={onDeleteWorkout}
+                    onDuplicate={onDuplicateWorkout}
                   />
                 ))}
               </div>
@@ -373,7 +376,7 @@ function EmptyState({
           'mt-6 rounded-full px-6 py-3 text-sm font-black transition',
           secondary
             ? 'border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10'
-            : 'bg-emerald-400 text-slate-950 hover:bg-emerald-300',
+            : 'bg-azur-400 text-slate-950 hover:bg-azur-300',
         ].join(' ')}
       >
         {actionLabel}

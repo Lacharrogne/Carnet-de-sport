@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
+import { estimateWorkoutCalories } from '../services/caloriesService'
+import { useBodyWeight } from '../context/bodyWeightContext'
 import type { StrengthExercise, Workout } from '../types/workout'
 import {
   getDistanceUnit,
@@ -14,6 +16,8 @@ type WorkoutDetailPageProps = {
   onBack: () => void
   onEdit: (workoutId: string) => void
   onDelete?: (workoutId: string) => void
+  onDuplicate?: (workout: Workout) => void
+  onSaveTemplate?: (name: string, workout: Workout) => void
 }
 
 type TrendConfig = {
@@ -31,7 +35,7 @@ const trendConfig: Record<Workout['trend'], TrendConfig> = {
   progress: {
     icon: '📈',
     label: 'Progression',
-    className: 'border-emerald-400/20 bg-emerald-400/10 text-emerald-300',
+    className: 'border-azur-400/20 bg-azur-400/10 text-azur-300',
   },
   stable: {
     icon: '⚖️',
@@ -60,7 +64,24 @@ export default function WorkoutDetailPage({
   onBack,
   onEdit,
   onDelete,
+  onDuplicate,
+  onSaveTemplate,
 }: WorkoutDetailPageProps) {
+  const handleSaveTemplate = () => {
+    if (!onSaveTemplate) {
+      return
+    }
+
+    const name = window.prompt(
+      'Nom du modèle à créer à partir de cette séance :',
+      workout.title,
+    )
+
+    if (name && name.trim()) {
+      onSaveTemplate(name.trim(), workout)
+    }
+  }
+
   const category = SPORT_CATEGORIES.find((item) => {
     return item.id === workout.category
   })
@@ -77,7 +98,7 @@ export default function WorkoutDetailPage({
   }).format(new Date(`${workout.date}T00:00:00`))
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#050816] text-slate-50">
+    <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <button
@@ -89,6 +110,26 @@ export default function WorkoutDetailPage({
           </button>
 
           <div className="flex flex-wrap gap-3">
+            {onDuplicate ? (
+              <button
+                type="button"
+                onClick={() => onDuplicate(workout)}
+                className="rounded-full border border-azur-400/20 bg-azur-400/10 px-5 py-3 text-sm font-black text-azur-200 transition hover:bg-azur-400/20"
+              >
+                ⧉ Dupliquer
+              </button>
+            ) : null}
+
+            {onSaveTemplate ? (
+              <button
+                type="button"
+                onClick={handleSaveTemplate}
+                className="rounded-full border border-violet-400/20 bg-violet-400/10 px-5 py-3 text-sm font-black text-violet-200 transition hover:bg-violet-400/20"
+              >
+                ★ Enregistrer comme modèle
+              </button>
+            ) : null}
+
             <button
               type="button"
               onClick={() => onEdit(workout.id)}
@@ -109,8 +150,8 @@ export default function WorkoutDetailPage({
           </div>
         </div>
 
-        <section className="relative overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-gradient-to-br from-emerald-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
-          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-400/20 blur-3xl" />
+        <section className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
+          <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
           <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
@@ -121,7 +162,7 @@ export default function WorkoutDetailPage({
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+                  <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                     Séance réalisée
                   </p>
 
@@ -153,7 +194,7 @@ export default function WorkoutDetailPage({
 
               <TextPanel
                 title="À améliorer"
-                variant="emerald"
+                variant="azur"
                 emptyText="Aucune idée d'amélioration ajoutée."
               >
                 {workout.improvementIdea}
@@ -211,6 +252,9 @@ function PerformanceSummaryPanel({
   const detailMode = getSportDetailMode(workout.category)
   const details = workout.details
 
+  const bodyWeight = useBodyWeight()
+  const calories = estimateWorkoutCalories(workout, bodyWeight)
+
   const totalVolume = getTotalVolume(exercises)
   const totalSets = getTotalSets(exercises)
   const heaviestExercise = getHeaviestExercise(exercises)
@@ -227,6 +271,10 @@ function PerformanceSummaryPanel({
         <StatCard label="Durée" value={formatDuration(workout.duration)} />
         <StatCard label="Intensité" value={`${workout.intensity}`} />
         <StatCard label="Ressenti" value={`${workout.feeling}`} />
+
+        {calories > 0 ? (
+          <StatCard label="Calories" value={`${formatNumber(calories)} kcal`} />
+        ) : null}
 
         {details?.distance ? (
           <StatCard
@@ -279,8 +327,8 @@ function PerformanceSummaryPanel({
       </div>
 
       {bestVolumeExercise ? (
-        <div className="mt-5 rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-300">
+        <div className="mt-5 rounded-3xl border border-azur-400/15 bg-azur-400/5 p-4">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-azur-300">
             Meilleur volume
           </p>
 
@@ -339,7 +387,7 @@ function WorkoutAnalysisSection({
   })
 
   return (
-    <section className="mt-6 rounded-[2rem] border border-sky-400/15 bg-gradient-to-br from-sky-400/10 via-white/[0.04] to-emerald-400/5 p-5 shadow-2xl shadow-black/20 sm:p-6">
+    <section className="mt-6 rounded-[2rem] border border-sky-400/15 bg-gradient-to-br from-sky-400/10 via-white/[0.04] to-azur-400/5 p-5 shadow-2xl shadow-black/20 sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.24em] text-sky-300">
@@ -387,10 +435,10 @@ function StrengthExercisesSection({
   const totalVolume = getTotalVolume(exercises)
 
   return (
-    <section className="overflow-hidden rounded-[2rem] border border-emerald-400/15 bg-emerald-400/5 p-5 shadow-2xl shadow-black/20 sm:p-6">
+    <section className="overflow-hidden rounded-[2rem] border border-azur-400/15 bg-azur-400/5 p-5 shadow-2xl shadow-black/20 sm:p-6">
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-300">
+          <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
             Exercices réalisés
           </p>
 
@@ -404,7 +452,7 @@ function StrengthExercisesSection({
           </p>
         </div>
 
-        <div className="rounded-full border border-emerald-400/20 bg-slate-950/60 px-5 py-3 text-sm font-black text-emerald-200">
+        <div className="rounded-full border border-azur-400/20 bg-slate-950/60 px-5 py-3 text-sm font-black text-azur-200">
           Volume estimé : {formatNumber(totalVolume)} kg
         </div>
       </div>
@@ -459,7 +507,7 @@ function StrengthExercisesSection({
                     {formatRest(exercise.rest)}
                   </td>
 
-                  <td className="px-3 py-4 text-center font-black text-emerald-200">
+                  <td className="px-3 py-4 text-center font-black text-azur-200">
                     {exerciseVolume > 0
                       ? `${formatNumber(exerciseVolume)} kg`
                       : '—'}
@@ -493,7 +541,7 @@ function StrengthExercisesSection({
                   ) : null}
                 </div>
 
-                <div className="shrink-0 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200">
+                <div className="shrink-0 rounded-full border border-azur-400/20 bg-azur-400/10 px-3 py-1 text-xs font-black text-azur-200">
                   {exerciseVolume > 0
                     ? `${formatNumber(exerciseVolume)} kg`
                     : '—'}
@@ -559,11 +607,11 @@ function TextPanel({
   title: string
   children?: ReactNode
   emptyText: string
-  variant?: 'default' | 'emerald'
+  variant?: 'default' | 'azur'
 }) {
   const className =
-    variant === 'emerald'
-      ? 'border-emerald-400/15 bg-emerald-400/5'
+    variant === 'azur'
+      ? 'border-azur-400/15 bg-azur-400/5'
       : 'border-white/10 bg-white/[0.04]'
 
   const hasContent =
@@ -575,7 +623,7 @@ function TextPanel({
     <section className={`rounded-[1.5rem] border p-5 ${className}`}>
       <p
         className={`text-xs font-black uppercase tracking-[0.2em] ${
-          variant === 'emerald' ? 'text-emerald-300' : 'text-slate-500'
+          variant === 'azur' ? 'text-azur-300' : 'text-slate-500'
         }`}
       >
         {title}
