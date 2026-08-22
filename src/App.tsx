@@ -12,6 +12,7 @@ import type { User } from '@supabase/supabase-js'
 
 import AppNavigation from './components/AppNavigation'
 import DemoModeBanner from './components/DemoModeBanner'
+import ErrorBoundary from './components/ErrorBoundary'
 import Footer from './components/Footer'
 import SubscriptionGate from './components/SubscriptionGate'
 import TrialBanner from './components/TrialBanner'
@@ -758,6 +759,7 @@ function AppShell() {
               </div>
             )}
 
+          <ErrorBoundary resetKey={location.pathname}>
           <Routes>
             <Route
               path="/"
@@ -937,6 +939,7 @@ function AppShell() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </ErrorBoundary>
 
           {location.pathname !== '/auth' && <Footer />}
         </>
