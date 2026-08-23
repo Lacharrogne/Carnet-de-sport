@@ -923,6 +923,8 @@ function AppShell() {
       onUserUpdate={setUser}
       onWorkoutsImported={reloadWorkouts}
       onBack={() => navigate('/')}
+      workouts={workouts}
+      bodyWeightEntries={bodyWeightEntries}
     />
   }
 />
