@@ -39,6 +39,7 @@ import {
   listenToAuthChanges,
   signOut,
 } from './services/authService'
+import { supabase } from './services/supabaseClient'
 
 import {
   DEFAULT_HEALTH_PROFILE,
@@ -216,47 +217,69 @@ function AppShell() {
     let isMounted = true
 
     async function loadUserData() {
-      try {
-        const [
-          remoteWorkouts,
-          remotePlannedWorkouts,
-          remoteWeeklyGoal,
-          remoteHealthProfile,
-          remoteBodyWeightEntries,
-          remoteTemplates,
-        ] = await Promise.all([
-          getRemoteWorkouts(userId),
-          getRemotePlannedWorkouts(userId),
-          getRemoteWeeklyGoal(userId),
-          getRemoteHealthProfile(userId),
-          // Tolérant : si la table n'existe pas encore (migration non lancée),
-          // on démarre avec un historique vide plutôt que de bloquer l'app.
-          getRemoteBodyWeightEntries(userId).catch(() => []),
-          getRemoteWorkoutTemplates(userId).catch(() => []),
-        ])
+      // Chargement résilient : une panne passagère (jeton expiré après un
+      // moment d'inactivité, micro-coupure réseau) ne doit pas bloquer toute
+      // l'app. On réessaie quelques fois en rafraîchissant la session.
+      const maxAttempts = 3
 
-        if (!isMounted) {
+      for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+        try {
+          // Dès le 2e essai, on force un rafraîchissement du jeton d'accès.
+          if (attempt > 1) {
+            await supabase.auth.getSession()
+          }
+
+          const [
+            remoteWorkouts,
+            remotePlannedWorkouts,
+            remoteWeeklyGoal,
+            remoteHealthProfile,
+            remoteBodyWeightEntries,
+            remoteTemplates,
+          ] = await Promise.all([
+            getRemoteWorkouts(userId),
+            getRemotePlannedWorkouts(userId),
+            getRemoteWeeklyGoal(userId),
+            getRemoteHealthProfile(userId),
+            // Tolérant : si la table n'existe pas encore (migration non lancée),
+            // on démarre avec un historique vide plutôt que de bloquer l'app.
+            getRemoteBodyWeightEntries(userId).catch(() => []),
+            getRemoteWorkoutTemplates(userId).catch(() => []),
+          ])
+
+          if (!isMounted) {
+            return
+          }
+
+          setWorkouts(remoteWorkouts)
+          setPlannedWorkouts(remotePlannedWorkouts)
+          setWeeklyGoal(remoteWeeklyGoal ?? DEFAULT_WEEKLY_GOAL)
+          setHealthProfile(remoteHealthProfile ?? DEFAULT_HEALTH_PROFILE)
+          setBodyWeightEntries(remoteBodyWeightEntries)
+          setTemplates(remoteTemplates)
+          setHasLoadedRemoteData(true)
+          setSyncError('')
           return
+        } catch (error) {
+          console.error(
+            `Erreur lors du chargement Supabase (essai ${attempt}/${maxAttempts}) :`,
+            error,
+          )
+
+          if (!isMounted) {
+            return
+          }
+
+          if (attempt < maxAttempts) {
+            // Backoff court avant de retenter.
+            await new Promise((resolve) => setTimeout(resolve, attempt * 1200))
+            continue
+          }
+
+          setSyncError(
+            'Impossible de charger les données Supabase pour le moment.',
+          )
         }
-
-        setWorkouts(remoteWorkouts)
-        setPlannedWorkouts(remotePlannedWorkouts)
-        setWeeklyGoal(remoteWeeklyGoal ?? DEFAULT_WEEKLY_GOAL)
-        setHealthProfile(remoteHealthProfile ?? DEFAULT_HEALTH_PROFILE)
-        setBodyWeightEntries(remoteBodyWeightEntries)
-        setTemplates(remoteTemplates)
-        setHasLoadedRemoteData(true)
-        setSyncError('')
-      } catch (error) {
-        console.error('Erreur lors du chargement Supabase :', error)
-
-        if (!isMounted) {
-          return
-        }
-
-        setSyncError(
-          'Impossible de charger les données Supabase pour le moment.',
-        )
       }
     }
 
