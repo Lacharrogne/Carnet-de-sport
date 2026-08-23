@@ -1,5 +1,4 @@
-import { Link } from 'react-router-dom'
-
+import Button from './ui/Button'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import type { PlannedWorkout } from '../types/plannedWorkout'
 
@@ -30,12 +29,9 @@ export default function NextPlannedWorkoutCard({
             Planifie ta prochaine séance pour garder une direction claire.
           </p>
 
-          <Link
-            to="/planning"
-            className="mt-5 inline-flex w-full justify-center rounded-full bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-          >
+          <Button to="/planning" fullWidth className="mt-5">
             Planifier une séance
-          </Link>
+          </Button>
         </div>
       </section>
     )
@@ -131,19 +127,13 @@ export default function NextPlannedWorkoutCard({
         </div>
 
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <Link
-            to="/planning"
-            className="inline-flex justify-center rounded-full bg-azur-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-          >
+          <Button to="/planning" fullWidth>
             Voir le planning
-          </Link>
+          </Button>
 
-          <Link
-            to="/workouts/new"
-            className="inline-flex justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
-          >
+          <Button variant="secondary" to="/workouts/new" fullWidth>
             Ajouter une séance
-          </Link>
+          </Button>
         </div>
       </div>
     </section>
