@@ -4,7 +4,7 @@
  * cache des assets statiques et des images, sans jamais mettre en cache les
  * réponses de données/authentification (Supabase).
  */
-const VERSION = 'v1'
+const VERSION = 'v2'
 const SHELL_CACHE = `sport-shell-${VERSION}`
 const ASSET_CACHE = `sport-assets-${VERSION}`
 const IMAGE_CACHE = `sport-images-${VERSION}`
