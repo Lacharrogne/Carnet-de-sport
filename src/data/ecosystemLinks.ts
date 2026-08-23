@@ -10,7 +10,7 @@ export const ECOSYSTEM_LINKS = {
   sport: {
     name: 'Carnet de sport',
     shortName: 'Sport',
-    emoji: '⚡',
+    emoji: '💪',
     url: '/',
     description:
       'Suivre ses séances, sa progression, son corps et ses objectifs sportifs.',

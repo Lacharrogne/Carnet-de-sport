@@ -541,9 +541,7 @@ function MobileMenu({
             onClick={onClose}
             className="flex min-w-0 items-center gap-3"
           >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-azur-400/20 bg-gradient-to-br from-azur-400/20 to-sky-400/10 text-2xl">
-              ⚡
-            </div>
+            <BrandLogo className="h-14 w-14 shrink-0" />
 
             <div className="min-w-0">
               <p className="truncate text-xl font-black text-white">
