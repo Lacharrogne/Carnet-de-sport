@@ -1,11 +1,12 @@
 import WorkoutForm from '../components/WorkoutForm'
-import type { WorkoutFormValues } from '../types/workout'
+import type { Workout, WorkoutFormValues } from '../types/workout'
 
 type NewWorkoutPageProps = {
   initialValues?: WorkoutFormValues
   submitLabel?: string
   onSubmit: (values: WorkoutFormValues) => void
   onCancel: () => void
+  workouts?: Workout[]
 }
 
 export default function NewWorkoutPage({
@@ -13,6 +14,7 @@ export default function NewWorkoutPage({
   submitLabel = 'Enregistrer la séance',
   onSubmit,
   onCancel,
+  workouts,
 }: NewWorkoutPageProps) {
   return (
     <main className="min-h-screen text-slate-50">
@@ -46,6 +48,7 @@ export default function NewWorkoutPage({
             submitLabel={submitLabel}
             onSubmit={onSubmit}
             onCancel={onCancel}
+            workouts={workouts}
           />
         </section>
       </section>
