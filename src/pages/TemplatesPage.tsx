@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import WorkoutForm from '../components/WorkoutForm'
+import Button from '../components/ui/Button'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import type { WorkoutFormValues } from '../types/workout'
 import type { WorkoutTemplate } from '../types/workoutTemplate'
@@ -32,13 +33,14 @@ export default function TemplatesPage({
   return (
     <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <button
-          type="button"
+        <Button
+          variant="secondary"
+          size="lg"
           onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
+          className="mb-6"
         >
           ← Retour au dashboard
-        </button>
+        </Button>
 
         <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
@@ -62,13 +64,13 @@ export default function TemplatesPage({
             </div>
 
             {!isCreating ? (
-              <button
-                type="button"
+              <Button
+                size="lg"
                 onClick={() => setIsCreating(true)}
-                className="shrink-0 rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 hover:bg-azur-300"
+                className="shrink-0"
               >
                 + Créer un modèle
-              </button>
+              </Button>
             ) : null}
           </div>
         </header>
@@ -110,21 +112,17 @@ export default function TemplatesPage({
             </p>
 
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => setIsCreating(true)}
-                className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-              >
+              <Button size="lg" onClick={() => setIsCreating(true)}>
                 + Créer un modèle
-              </button>
+              </Button>
 
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="lg"
                 onClick={onCreateWorkoutClick}
-                className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
               >
                 Ajouter une séance
-              </button>
+              </Button>
             </div>
           </section>
         ) : (
@@ -233,13 +231,9 @@ function TemplateCard({
       ) : null}
 
       <div className="mt-auto flex items-center gap-2 pt-5">
-        <button
-          type="button"
-          onClick={onStart}
-          className="flex-1 rounded-full bg-azur-400 px-5 py-3 text-center text-sm font-black text-slate-950 transition hover:bg-azur-300"
-        >
+        <Button onClick={onStart} className="flex-1">
           ▶ Démarrer une séance
-        </button>
+        </Button>
 
         <button
           type="button"
