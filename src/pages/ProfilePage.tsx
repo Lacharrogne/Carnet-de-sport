@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 
 import { updateUserProfile, uploadUserAvatar } from '../services/authService'
+import Button from '../components/ui/Button'
 import {
   exportBodyWeightToCsv,
   exportWorkoutsToCsv,
@@ -297,20 +298,13 @@ function ProfileForm({
             ) : null}
 
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300 disabled:cursor-not-allowed disabled:opacity-60"
-              >
+              <Button type="submit" size="lg" disabled={isSaving}>
                 {isSaving ? 'Sauvegarde...' : 'Enregistrer le profil'}
-              </button>
+              </Button>
 
-              <Link
-                to="/challenges"
-                className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
-              >
+              <Button variant="secondary" size="lg" to="/challenges">
                 Voir mes défis
-              </Link>
+              </Button>
             </div>
           </div>
         </form>
@@ -330,23 +324,27 @@ function ProfileForm({
           </div>
 
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="lg"
+              fullWidth
               onClick={() => exportWorkoutsToCsv(workouts)}
               disabled={workouts.length === 0}
-              className="flex-1 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex-1"
             >
               ⬇️ Séances ({workouts.length})
-            </button>
+            </Button>
 
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="lg"
+              fullWidth
               onClick={() => exportBodyWeightToCsv(bodyWeightEntries)}
               disabled={bodyWeightEntries.length === 0}
-              className="flex-1 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+              className="flex-1"
             >
               ⬇️ Poids ({bodyWeightEntries.length})
-            </button>
+            </Button>
           </div>
         </div>
       </section>
