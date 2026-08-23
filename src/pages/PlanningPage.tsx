@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 
+import Button from '../components/ui/Button'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import { EXERCISE_NAMES } from '../data/exerciseLibrary'
 import type { PlannedWorkout } from '../types/plannedWorkout'
@@ -422,17 +423,13 @@ export default function PlanningPage({
                 onStrengthExercisesChange={setStrengthExercises}
               />
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300 disabled:cursor-not-allowed disabled:opacity-60"
-              >
+              <Button type="submit" size="lg" fullWidth disabled={isSubmitting}>
                 {isSubmitting
                   ? 'Sauvegarde en cours...'
                   : isEditing
                     ? 'Enregistrer les modifications'
                     : '+ Ajouter au planning'}
-              </button>
+              </Button>
             </div>
           </form>
 
@@ -874,13 +871,9 @@ function StrengthExercisesEditor({
             Ajoute ton premier exercice pour préparer la séance en détail.
           </p>
 
-          <button
-            type="button"
-            onClick={addExercise}
-            className="mt-6 rounded-full bg-azur-400 px-7 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-          >
+          <Button size="lg" onClick={addExercise} className="mt-6">
             + Ajouter mon premier exercice
-          </button>
+          </Button>
         </div>
       ) : (
         <div className="mt-6 space-y-5">

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import WorkoutCard from '../components/WorkoutCard'
+import Button from '../components/ui/Button'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import type { SportCategoryId, Workout } from '../types/workout'
 
@@ -87,13 +88,9 @@ export default function WorkoutsPage({
   return (
     <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <button
-          type="button"
-          onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
-        >
+        <Button variant="secondary" size="lg" onClick={onBack} className="mb-6">
           ← Retour au dashboard
-        </button>
+        </Button>
 
         <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
@@ -115,13 +112,9 @@ export default function WorkoutsPage({
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={onAddWorkoutClick}
-              className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-            >
+            <Button size="lg" onClick={onAddWorkoutClick}>
               + Ajouter une séance
-            </button>
+            </Button>
           </div>
         </header>
 
@@ -369,18 +362,14 @@ function EmptyState({
         {description}
       </p>
 
-      <button
-        type="button"
+      <Button
+        variant={secondary ? 'secondary' : 'primary'}
+        size="lg"
         onClick={onAction}
-        className={[
-          'mt-6 rounded-full px-6 py-3 text-sm font-black transition',
-          secondary
-            ? 'border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10'
-            : 'bg-azur-400 text-slate-950 hover:bg-azur-300',
-        ].join(' ')}
+        className="mt-6"
       >
         {actionLabel}
-      </button>
+      </Button>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
+import Button from '../components/ui/Button'
 import NextPlannedWorkoutCard from '../components/NextPlannedWorkoutCard'
 import WeeklyGoalCard from '../components/WeeklyGoalCard'
 import WorkoutCard from '../components/WorkoutCard'
@@ -175,20 +176,13 @@ function DashboardHero({
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              onClick={onAddWorkoutClick}
-              className="rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-            >
+            <Button size="lg" onClick={onAddWorkoutClick}>
               + Ajouter une séance
-            </button>
+            </Button>
 
-            <Link
-              to="/planning"
-              className="rounded-full border border-white/10 bg-white/5 px-6 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
-            >
+            <Button variant="secondary" size="lg" to="/planning">
               Voir le planning
-            </Link>
+            </Button>
           </div>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -269,12 +263,9 @@ function WeekFocusCard({
         )}
       </p>
 
-      <Link
-        to="/progress"
-        className="mt-5 inline-flex rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10"
-      >
+      <Button variant="secondary" to="/progress" className="mt-5">
         Voir ma progression
-      </Link>
+      </Button>
     </div>
   )
 }
@@ -306,12 +297,9 @@ function WeeklyActivityCard({
           </h2>
         </div>
 
-        <Link
-          to="/progress"
-          className="shrink-0 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
-        >
+        <Button variant="secondary" to="/progress" className="shrink-0">
           Voir la progression
-        </Link>
+        </Button>
       </div>
 
       <WeeklyBarChart
@@ -364,12 +352,9 @@ function RecentWorkoutsSection({
           </h2>
         </div>
 
-        <Link
-          to="/workouts"
-          className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-center text-sm font-black text-slate-100 transition hover:bg-white/10"
-        >
+        <Button variant="secondary" to="/workouts">
           Voir le carnet
-        </Link>
+        </Button>
       </div>
 
       {workouts.length > 0 ? (
@@ -586,13 +571,9 @@ function EmptyState({
         historique.
       </p>
 
-      <button
-        type="button"
-        onClick={onAddWorkoutClick}
-        className="mt-6 rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-      >
+      <Button size="lg" onClick={onAddWorkoutClick} className="mt-6">
         Créer ma première séance
-      </button>
+      </Button>
     </div>
   )
 }

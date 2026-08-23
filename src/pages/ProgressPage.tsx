@@ -30,6 +30,7 @@ import {
 import WeeklyBarChart, {
   type ChartPoint,
 } from '../components/charts/WeeklyBarChart'
+import Button from '../components/ui/Button'
 import TrendLineChart from '../components/charts/TrendLineChart'
 import type { HealthProfile } from '../types/health'
 import type { PlannedWorkout } from '../types/plannedWorkout'
@@ -329,13 +330,9 @@ export default function ProgressPage({
   return (
     <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <button
-          type="button"
-          onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
-        >
+        <Button variant="secondary" size="lg" onClick={onBack} className="mb-6">
           ← Retour au dashboard
-        </button>
+        </Button>
 
         <header className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-5 shadow-2xl shadow-black/25 sm:p-7 lg:p-8">
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />

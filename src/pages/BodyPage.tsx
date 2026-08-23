@@ -1,5 +1,6 @@
 import { useMemo, useState, type ChangeEvent } from 'react'
 
+import Button from '../components/ui/Button'
 import HealthyRecipeSection from '../components/HealthyRecipeSection'
 import TrendLineChart from '../components/charts/TrendLineChart'
 import BodyMeasurements from '../components/BodyMeasurements'
@@ -124,13 +125,9 @@ const mobilityWorkouts = workouts.filter((workout) => {
   return (
     <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1500px] px-4 py-8 sm:px-6 lg:px-8">
-        <button
-          type="button"
-          onClick={onBack}
-          className="mb-6 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/10"
-        >
+        <Button variant="secondary" size="lg" onClick={onBack} className="mb-6">
           ← Retour au dashboard
-        </button>
+        </Button>
 
         <header className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/30 sm:p-8 lg:p-10">
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/10 blur-3xl" />
@@ -659,13 +656,9 @@ function WeightTrackingSection({
               </label>
             </div>
 
-            <button
-              type="button"
-              onClick={handleAdd}
-              className="mt-4 w-full rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-            >
+            <Button size="lg" fullWidth onClick={handleAdd} className="mt-4">
               Enregistrer la pesée
-            </button>
+            </Button>
           </div>
 
           <label className="block rounded-3xl border border-white/10 bg-slate-950/60 p-5">

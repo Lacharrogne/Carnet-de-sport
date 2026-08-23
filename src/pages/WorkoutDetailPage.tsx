@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import Button from '../components/ui/Button'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import { estimateWorkoutCalories } from '../services/caloriesService'
 import { useBodyWeight } from '../context/bodyWeightContext'
@@ -101,13 +102,9 @@ export default function WorkoutDetailPage({
     <main className="min-h-screen overflow-x-hidden text-slate-50">
       <section className="mx-auto w-full max-w-[1380px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <button
-            type="button"
-            onClick={onBack}
-            className="rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-black text-slate-200 transition hover:bg-white/10"
-          >
+          <Button variant="secondary" size="lg" onClick={onBack}>
             ← Retour au carnet
-          </button>
+          </Button>
 
           <div className="flex flex-wrap gap-3">
             {onDuplicate ? (
