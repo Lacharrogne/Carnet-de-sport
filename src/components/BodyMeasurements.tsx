@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 
+import Button from './ui/Button'
 import TrendLineChart from './charts/TrendLineChart'
 import type { ChartPoint } from './charts/WeeklyBarChart'
 import {
@@ -124,13 +125,9 @@ export default function BodyMeasurements() {
         ))}
       </div>
 
-      <button
-        type="button"
-        onClick={handleSubmit}
-        className="mt-4 rounded-full bg-azur-400 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-azur-300"
-      >
+      <Button size="lg" onClick={handleSubmit} className="mt-4">
         Enregistrer la mensuration
-      </button>
+      </Button>
 
       {/* Graphe */}
       <div className="mt-8">

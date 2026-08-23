@@ -1,5 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
+import Button from './ui/Button'
+
 type ErrorBoundaryProps = {
   children: ReactNode
   /**
@@ -61,20 +63,16 @@ export default class ErrorBoundary extends Component<
           </p>
 
           <div className="mt-6 flex flex-wrap justify-center gap-3">
-            <button
-              type="button"
+            <Button
+              size="lg"
               onClick={() => window.location.reload()}
-              className="rounded-full bg-azur-500 px-6 py-3 font-black text-white transition hover:-translate-y-0.5 hover:bg-azur-600"
             >
               Recharger la page
-            </button>
+            </Button>
 
-            <a
-              href="/"
-              className="rounded-full border border-white/15 bg-white/[0.04] px-6 py-3 font-black text-slate-100 transition hover:-translate-y-0.5 hover:bg-white/[0.08]"
-            >
+            <Button variant="secondary" size="lg" to="/">
               Retour à l'accueil
-            </a>
+            </Button>
           </div>
         </section>
       </main>
