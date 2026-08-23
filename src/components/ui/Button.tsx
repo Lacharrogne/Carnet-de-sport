@@ -13,13 +13,14 @@ const BASE_CLASS =
   'inline-flex items-center justify-center gap-2 rounded-full text-center font-black transition duration-200 outline-none focus-visible:ring-4 focus-visible:ring-azur-400/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0'
 
 const VARIANT_CLASS: Record<ButtonVariant, string> = {
-  primary: 'bg-azur-400 text-slate-950 hover:bg-azur-300',
+  primary:
+    'bg-azur-400 text-slate-950 shadow-lg shadow-azur-500/20 hover:-translate-y-0.5 hover:bg-azur-300',
   secondary:
-    'border border-white/10 bg-white/5 text-slate-100 hover:bg-white/10',
-  soft: 'border border-azur-400/20 bg-azur-400/10 text-azur-200 hover:bg-azur-400/20',
+    'border border-white/10 bg-white/5 text-slate-100 hover:-translate-y-0.5 hover:bg-white/10',
+  soft: 'border border-azur-400/20 bg-azur-400/10 text-azur-200 hover:-translate-y-0.5 hover:bg-azur-400/20',
   ghost: 'text-slate-300 hover:bg-white/5 hover:text-white',
   danger:
-    'border border-red-400/20 bg-red-400/10 text-red-200 hover:bg-red-400/20',
+    'border border-red-400/20 bg-red-400/10 text-red-200 hover:-translate-y-0.5 hover:bg-red-400/20',
 }
 
 const SIZE_CLASS: Record<ButtonSize, string> = {
