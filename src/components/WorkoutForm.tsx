@@ -5,18 +5,26 @@ import { EXERCISE_NAMES } from '../data/exerciseLibrary'
 import type {
   SportCategoryId,
   StrengthExercise,
+  Workout,
   WorkoutDetails,
   WorkoutFeeling,
   WorkoutFormValues,
   WorkoutIntensity,
   WorkoutTrend,
 } from '../types/workout'
+import {
+  formatLastPerformance,
+  getLastPerformance,
+  getOverloadSuggestion,
+} from '../services/progressiveOverloadService'
 
 type WorkoutFormProps = {
   initialValues?: WorkoutFormValues
   submitLabel?: string
   onSubmit: (values: WorkoutFormValues) => void
   onCancel: () => void
+  /** Historique des séances, pour la surcharge progressive (dernière perf). */
+  workouts?: Workout[]
 }
 
 type DetailMode =
@@ -141,6 +149,7 @@ export default function WorkoutForm({
   submitLabel = 'Enregistrer la séance',
   onSubmit,
   onCancel,
+  workouts = [],
 }: WorkoutFormProps) {
   const today = new Date().toISOString().split('T')[0]
 
@@ -314,6 +323,7 @@ export default function WorkoutForm({
       <SportSpecificFields
         category={category}
         details={details}
+        workouts={workouts}
         onChange={updateDetail}
       />
 
@@ -386,6 +396,7 @@ export default function WorkoutForm({
 type SportSpecificFieldsProps = {
   category: SportCategoryId
   details: WorkoutDetails
+  workouts: Workout[]
   onChange: <Key extends keyof WorkoutDetails>(
     key: Key,
     value: WorkoutDetails[Key],
@@ -395,6 +406,7 @@ type SportSpecificFieldsProps = {
 function SportSpecificFields({
   category,
   details,
+  workouts,
   onChange,
 }: SportSpecificFieldsProps) {
   const detailMode = getDetailMode(category)
@@ -421,6 +433,7 @@ function SportSpecificFields({
           <StrengthExercisesEditor
             exercises={details.strengthExercises ?? []}
             onChange={(exercises) => onChange('strengthExercises', exercises)}
+            workouts={workouts}
           />
         </div>
       ) : null}
@@ -621,6 +634,7 @@ function SportSpecificFields({
 type StrengthExercisesEditorProps = {
   exercises: StrengthExercise[]
   onChange: (exercises: StrengthExercise[]) => void
+  workouts: Workout[]
 }
 
 type StrengthExerciseField = keyof Omit<StrengthExercise, 'id'>
@@ -637,6 +651,7 @@ const strengthExerciseFieldOrder: StrengthExerciseField[] = [
 function StrengthExercisesEditor({
   exercises,
   onChange,
+  workouts,
 }: StrengthExercisesEditorProps) {
   const fieldRefs = useRef<Record<string, HTMLInputElement | null>>({})
 
@@ -812,6 +827,36 @@ function StrengthExercisesEditor({
                   </button>
                 </div>
               </div>
+
+              {(() => {
+                const last = getLastPerformance(workouts, exercise.name)
+                if (!last) return null
+                return (
+                  <div className="mt-4 rounded-2xl border border-azur-400/20 bg-azur-400/10 px-4 py-3 text-sm">
+                    <span className="font-black text-azur-200">
+                      Dernière fois
+                    </span>{' '}
+                    <span className="text-slate-300">
+                      ({new Date(last.date).toLocaleDateString('fr-FR')})
+                    </span>{' '}
+                    <span className="font-bold text-white">
+                      {formatLastPerformance(last)}
+                    </span>
+                    {last.oneRepMax ? (
+                      <span className="text-slate-300">
+                        {' '}
+                        · 1RM ≈{' '}
+                        <span className="font-bold text-white">
+                          {last.oneRepMax} kg
+                        </span>
+                      </span>
+                    ) : null}
+                    <span className="mt-1 block font-black text-azur-300">
+                      {getOverloadSuggestion(last)}
+                    </span>
+                  </div>
+                )
+              })()}
 
               <div className="mt-6 grid gap-5 md:grid-cols-4">
                 <ExerciseTextField

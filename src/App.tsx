@@ -803,6 +803,7 @@ function AppShell() {
               path="/workouts/new"
               element={
                 <NewWorkoutRoute
+                  workouts={workouts}
                   onSubmit={(values) => {
                     void handleAddWorkout(values)
                   }}
@@ -922,6 +923,8 @@ function AppShell() {
       onUserUpdate={setUser}
       onWorkoutsImported={reloadWorkouts}
       onBack={() => navigate('/')}
+      workouts={workouts}
+      bodyWeightEntries={bodyWeightEntries}
     />
   }
 />
@@ -949,11 +952,12 @@ function AppShell() {
 }
 
 type NewWorkoutRouteProps = {
+  workouts: Workout[]
   onSubmit: (values: WorkoutFormValues) => void
   onCancel: () => void
 }
 
-function NewWorkoutRoute({ onSubmit, onCancel }: NewWorkoutRouteProps) {
+function NewWorkoutRoute({ workouts, onSubmit, onCancel }: NewWorkoutRouteProps) {
   const location = useLocation()
   const initialValues = (
     location.state as { initialValues?: WorkoutFormValues } | null
@@ -965,6 +969,7 @@ function NewWorkoutRoute({ onSubmit, onCancel }: NewWorkoutRouteProps) {
       submitLabel={initialValues ? 'Enregistrer la séance' : undefined}
       onSubmit={onSubmit}
       onCancel={onCancel}
+      workouts={workouts}
     />
   )
 }
@@ -1017,6 +1022,7 @@ function EditWorkoutRoute({
   return (
     <EditWorkoutPage
       workout={workout}
+      workouts={workouts}
       onSubmit={(values) => {
         void onSubmit(workout.id, values)
       }}

@@ -4,12 +4,20 @@ import type { User } from '@supabase/supabase-js'
 
 import { updateUserProfile, uploadUserAvatar } from '../services/authService'
 import StravaConnectionCard from '../components/StravaConnectionCard'
+import {
+  exportBodyWeightToCsv,
+  exportWorkoutsToCsv,
+} from '../services/exportService'
+import type { Workout } from '../types/workout'
+import type { BodyWeightEntry } from '../types/bodyWeight'
 
 type ProfilePageProps = {
   user: User | null
   onUserUpdate: (user: User) => void
   onWorkoutsImported?: () => void
   onBack: () => void
+  workouts?: Workout[]
+  bodyWeightEntries?: BodyWeightEntry[]
 }
 
 type UserMetadata = {
@@ -26,6 +34,8 @@ export default function ProfilePage({
   onUserUpdate,
   onWorkoutsImported,
   onBack,
+  workouts = [],
+  bodyWeightEntries = [],
 }: ProfilePageProps) {
   if (!user) {
     return (
@@ -59,6 +69,8 @@ export default function ProfilePage({
       onUserUpdate={onUserUpdate}
       onWorkoutsImported={onWorkoutsImported}
       onBack={onBack}
+      workouts={workouts}
+      bodyWeightEntries={bodyWeightEntries}
     />
   )
 }
@@ -68,11 +80,15 @@ function ProfileForm({
   onUserUpdate,
   onWorkoutsImported,
   onBack,
+  workouts,
+  bodyWeightEntries,
 }: {
   user: User
   onUserUpdate: (user: User) => void
   onWorkoutsImported?: () => void
   onBack: () => void
+  workouts: Workout[]
+  bodyWeightEntries: BodyWeightEntry[]
 }) {
   const initialDisplayName = getUserDisplayName(user)
   const initialAvatarUrl = getUserAvatarUrl(user)
@@ -307,6 +323,41 @@ function ProfileForm({
 
         <div className="mt-6">
           <StravaConnectionCard onImported={onWorkoutsImported} />
+        </div>
+
+        <div className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-azur-400/10 text-xl">
+              📥
+            </span>
+            <div>
+              <h2 className="text-xl font-black text-white">Mes données</h2>
+              <p className="text-sm text-slate-400">
+                Exporte tes séances et ton poids au format CSV (Excel,
+                LibreOffice).
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={() => exportWorkoutsToCsv(workouts)}
+              disabled={workouts.length === 0}
+              className="flex-1 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              ⬇️ Séances ({workouts.length})
+            </button>
+
+            <button
+              type="button"
+              onClick={() => exportBodyWeightToCsv(bodyWeightEntries)}
+              disabled={bodyWeightEntries.length === 0}
+              className="flex-1 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-black text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              ⬇️ Poids ({bodyWeightEntries.length})
+            </button>
+          </div>
         </div>
       </section>
     </main>

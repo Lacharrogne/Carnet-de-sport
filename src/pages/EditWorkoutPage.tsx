@@ -3,12 +3,14 @@ import type { Workout, WorkoutFormValues } from '../types/workout'
 
 type EditWorkoutPageProps = {
   workout: Workout
+  workouts?: Workout[]
   onSubmit: (values: WorkoutFormValues) => void | Promise<void>
   onCancel: () => void
 }
 
 export default function EditWorkoutPage({
   workout,
+  workouts = [],
   onSubmit,
   onCancel,
 }: EditWorkoutPageProps) {
@@ -57,6 +59,7 @@ export default function EditWorkoutPage({
             submitLabel="Modifier la séance"
             onSubmit={onSubmit}
             onCancel={onCancel}
+            workouts={workouts.filter((item) => item.id !== workout.id)}
           />
         </section>
       </section>
