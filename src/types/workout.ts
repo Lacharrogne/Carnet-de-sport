@@ -61,9 +61,9 @@ export type Workout = {
   improvementIdea: string
   trend: WorkoutTrend
   details?: WorkoutDetails
-  /** Provenance de la séance ('manual' par défaut, 'strava' si importée). */
+  /** Provenance de la séance ('manual' par défaut). */
   source?: string
-  /** Identifiant externe (ex. id d'activité Strava) pour le dédoublonnage. */
+  /** Identifiant externe éventuel, pour le dédoublonnage d'un import. */
   externalId?: string
 }
 

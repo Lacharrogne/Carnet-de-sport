@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import type { User } from '@supabase/supabase-js'
 
 import { updateUserProfile, uploadUserAvatar } from '../services/authService'
-import StravaConnectionCard from '../components/StravaConnectionCard'
 import {
   exportBodyWeightToCsv,
   exportWorkoutsToCsv,
@@ -14,7 +13,6 @@ import type { BodyWeightEntry } from '../types/bodyWeight'
 type ProfilePageProps = {
   user: User | null
   onUserUpdate: (user: User) => void
-  onWorkoutsImported?: () => void
   onBack: () => void
   workouts?: Workout[]
   bodyWeightEntries?: BodyWeightEntry[]
@@ -32,7 +30,6 @@ type UserMetadata = {
 export default function ProfilePage({
   user,
   onUserUpdate,
-  onWorkoutsImported,
   onBack,
   workouts = [],
   bodyWeightEntries = [],
@@ -67,7 +64,6 @@ export default function ProfilePage({
       key={user.id}
       user={user}
       onUserUpdate={onUserUpdate}
-      onWorkoutsImported={onWorkoutsImported}
       onBack={onBack}
       workouts={workouts}
       bodyWeightEntries={bodyWeightEntries}
@@ -78,14 +74,12 @@ export default function ProfilePage({
 function ProfileForm({
   user,
   onUserUpdate,
-  onWorkoutsImported,
   onBack,
   workouts,
   bodyWeightEntries,
 }: {
   user: User
   onUserUpdate: (user: User) => void
-  onWorkoutsImported?: () => void
   onBack: () => void
   workouts: Workout[]
   bodyWeightEntries: BodyWeightEntry[]
@@ -320,10 +314,6 @@ function ProfileForm({
             </div>
           </div>
         </form>
-
-        <div className="mt-6">
-          <StravaConnectionCard onImported={onWorkoutsImported} />
-        </div>
 
         <div className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 sm:p-8">
           <div className="flex items-center gap-3">
