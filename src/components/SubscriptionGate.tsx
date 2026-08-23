@@ -11,7 +11,11 @@ export default function SubscriptionGate() {
   return (
     <main className="flex min-h-[80vh] items-center justify-center px-5 text-slate-50">
       <section className="w-full max-w-lg rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center shadow-2xl shadow-black/30 sm:p-10">
-        <p className="text-5xl">⚡</p>
+        <img
+          src="/logo.png"
+          alt="Carnet de sport"
+          className="mx-auto h-16 w-16 object-contain"
+        />
 
         <h1 className="mt-5 font-display text-3xl font-black text-white sm:text-4xl">
           Ton essai est terminé.

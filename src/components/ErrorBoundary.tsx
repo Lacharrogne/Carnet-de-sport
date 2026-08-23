@@ -45,7 +45,11 @@ export default class ErrorBoundary extends Component<
     return (
       <main className="min-h-screen px-6 py-16 text-slate-50">
         <section className="mx-auto max-w-lg rounded-[2rem] border border-white/10 bg-white/[0.04] p-10 text-center">
-          <p className="text-5xl">⚡</p>
+          <img
+            src="/logo.png"
+            alt="Carnet de sport"
+            className="mx-auto h-16 w-16 object-contain"
+          />
 
           <h1 className="mt-5 font-display text-3xl font-black text-white">
             Oups, un petit accroc
