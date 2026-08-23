@@ -42,7 +42,7 @@ export const SPORT_CATEGORIES = [
   {
     id: 'hiit',
     label: 'HIIT / cardio',
-    emoji: '⚡',
+    emoji: '🔥',
   },
   {
     id: 'yoga',
