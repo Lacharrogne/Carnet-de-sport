@@ -38,7 +38,7 @@ const FOOTER_SECTIONS: { title: string; links: FooterLink[] }[] = [
 ]
 
 const TRUST_SIGNALS: { icon: string; label: string }[] = [
-  { icon: '💙', label: 'Fait avec soin' },
+  { icon: '❤️', label: 'Fait avec soin' },
   { icon: '🛡️', label: 'Sans publicité' },
   { icon: '✨', label: '14 jours d’essai gratuit' },
 ]
