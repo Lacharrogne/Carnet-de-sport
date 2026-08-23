@@ -2,6 +2,7 @@ import { useMemo, useState, type ChangeEvent } from 'react'
 
 import HealthyRecipeSection from '../components/HealthyRecipeSection'
 import TrendLineChart from '../components/charts/TrendLineChart'
+import BodyMeasurements from '../components/BodyMeasurements'
 import {
   getCalorieTarget,
   getTotalCalories,
@@ -270,6 +271,8 @@ const mobilityWorkouts = workouts.filter((workout) => {
           onAddEntry={onAddWeightEntry}
           onDeleteEntry={onDeleteWeightEntry}
         />
+
+        <BodyMeasurements />
 
         <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
