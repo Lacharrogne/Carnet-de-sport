@@ -19,6 +19,18 @@
   --color-azur-800: #1d4170;
   --color-azur-900: #1c395e;
   --color-azur-950: #13243e;
+
+  /* Rayons partagés de la suite « Les Carnets » (mêmes formes de cartes). */
+  --radius-card: 1.5rem;
+  --radius-xl: 2rem;
+  --radius-2xl: 2.5rem;
+
+  /* Ombres teintées (jamais noir pur), cohérentes avec Recettes/Budget. */
+  --shadow-soft: 0 1px 2px rgba(6, 12, 24, 0.35);
+  --shadow-card: 0 2px 4px rgba(6, 12, 24, 0.3),
+    0 14px 30px -14px rgba(6, 12, 24, 0.55);
+  --shadow-lift: 0 6px 12px rgba(6, 12, 24, 0.4),
+    0 24px 48px -18px rgba(6, 12, 24, 0.6);
 }
 
 * {
@@ -31,18 +43,19 @@ body {
   min-height: 100vh;
   font-family: var(--font-sans);
 
-  /* Fond sombre premium : bleu nuit profond + halos azur / indigo discrets,
-     pour donner de la profondeur sans écraser le contenu. */
+  /* Fond sombre premium : bleu nuit profond + halos azur discrets (un seul
+     accent, comme chaque carnet de la suite), pour donner de la profondeur
+     sans écraser le contenu. */
   background-color: #0a0f1a;
   background-image:
     radial-gradient(
       52rem 52rem at 8% -10%,
-      rgba(63, 140, 210, 0.18),
+      rgba(82, 150, 220, 0.2),
       transparent 60%
     ),
     radial-gradient(
       46rem 46rem at 106% 4%,
-      rgba(99, 102, 241, 0.14),
+      rgba(48, 120, 198, 0.16),
       transparent 58%
     ),
     radial-gradient(
