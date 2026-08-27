@@ -33,6 +33,7 @@ import ProgressPage from './pages/ProgressPage'
 import WorkoutDetailPage from './pages/WorkoutDetailPage'
 import WorkoutsPage from './pages/WorkoutsPage'
 import ProfilePage from './pages/ProfilePage'
+import ToolsPage from './pages/ToolsPage'
 
 import {
   getCurrentSession,
@@ -951,6 +952,11 @@ function AppShell() {
                   weeklyGoal={weeklyGoal}
                 />
               }
+            />
+
+            <Route
+              path="/tools"
+              element={<ToolsPage onBack={() => navigate('/')} />}
             />
 
             <Route path="*" element={<Navigate to="/" replace />} />

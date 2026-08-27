@@ -76,7 +76,10 @@ export default function AppNavigation({
   const [openDesktopMenu, setOpenDesktopMenu] = useState<MobileSection>(null)
 
   const isToolsActive =
-    location.pathname === '/planning' || location.pathname === '/progress'
+    location.pathname === '/tools' ||
+    location.pathname === '/planning' ||
+    location.pathname === '/templates' ||
+    location.pathname === '/progress'
 
   const isProfileActive =
     location.pathname === '/profile' ||
@@ -141,6 +144,7 @@ export default function AppNavigation({
               title="Outils du carnet"
               subtitle="Planning, progression et suivi"
               links={toolsLinks}
+              hubTo="/tools"
               isActive={isToolsActive}
               isOpen={openDesktopMenu === 'tools'}
               onOpen={() => setOpenDesktopMenu('tools')}
@@ -249,6 +253,7 @@ function DesktopDropdown({
   onOpen,
   onClose,
   onItemClick,
+  hubTo,
 }: {
   label: string
   title: string
@@ -259,32 +264,38 @@ function DesktopDropdown({
   onOpen: () => void
   onClose: () => void
   onItemClick: () => void
+  hubTo?: string
 }) {
+  const triggerClass = [
+    'inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black transition',
+    isActive || isOpen
+      ? 'bg-azur-400 text-slate-950 shadow-lg shadow-azur-400/10'
+      : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
+  ].join(' ')
+
+  const chevron = (
+    <span className={['text-xs transition', isOpen ? 'rotate-180' : ''].join(' ')}>
+      ⌄
+    </span>
+  )
+
   return (
     <div
       className="relative"
       onMouseEnter={onOpen}
       onMouseLeave={onClose}
     >
-      <button
-        type="button"
-        className={[
-          'inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black transition',
-          isActive || isOpen
-            ? 'bg-azur-400 text-slate-950 shadow-lg shadow-azur-400/10'
-            : 'text-slate-300 hover:bg-white/[0.06] hover:text-white',
-        ].join(' ')}
-      >
-        {label}
-        <span
-          className={[
-            'text-xs transition',
-            isOpen ? 'rotate-180' : '',
-          ].join(' ')}
-        >
-          ⌄
-        </span>
-      </button>
+      {hubTo ? (
+        <Link to={hubTo} onClick={onItemClick} className={triggerClass}>
+          {label}
+          {chevron}
+        </Link>
+      ) : (
+        <button type="button" className={triggerClass}>
+          {label}
+          {chevron}
+        </button>
+      )}
 
       <div className="absolute left-0 top-full h-4 w-full" />
 
@@ -304,7 +315,18 @@ function DesktopDropdown({
           {subtitle}
         </p>
 
-        <div className="mt-5 grid gap-3">
+        {hubTo ? (
+          <Link
+            to={hubTo}
+            onClick={onItemClick}
+            className="mt-4 flex items-center justify-between rounded-2xl bg-azur-400/10 px-4 py-3 text-sm font-black text-azur-200 transition hover:bg-azur-400/20"
+          >
+            Vue d’ensemble
+            <span aria-hidden="true">→</span>
+          </Link>
+        ) : null}
+
+        <div className="mt-3 grid gap-3">
           {links.map((link) => (
             <DropdownItem
               key={link.to}
@@ -594,6 +616,15 @@ function MobileMenu({
             isOpen={openSection === 'tools'}
             onToggle={() => toggleSection('tools')}
           >
+            <Link
+              to="/tools"
+              onClick={onClose}
+              className="flex items-center justify-between rounded-2xl bg-azur-400/10 px-4 py-3 text-sm font-black text-azur-200 transition hover:bg-azur-400/20"
+            >
+              Vue d’ensemble
+              <span aria-hidden="true">→</span>
+            </Link>
+
             {toolsLinks.map((link) => (
               <MobileSubLink
                 key={link.to}
