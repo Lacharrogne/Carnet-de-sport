@@ -119,7 +119,7 @@ export default function AppNavigation({
                 Carnet de sport
               </p>
 
-              <p className="truncate text-xs font-bold uppercase tracking-[0.2em] text-azur-300">
+              <p className="hidden truncate text-xs font-bold uppercase tracking-[0.2em] text-azur-300 sm:block">
                 Suivi sportif & motivation
               </p>
             </div>
