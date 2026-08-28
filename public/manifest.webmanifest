@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Carnet de sport",
   "short_name": "Sport",
   "description": "Ton carnet d'entraînement : séances, planning, progression, défis et motivation.",
@@ -12,16 +13,45 @@
   "categories": ["health", "fitness", "sports"],
   "icons": [
     {
-      "src": "/logo.png",
-      "sizes": "256x256",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouvelle séance",
+      "short_name": "Séance",
+      "url": "/workouts/new"
+    },
+    {
+      "name": "Planning",
+      "short_name": "Planning",
+      "url": "/planning"
+    },
+    {
+      "name": "Progression",
+      "short_name": "Progression",
+      "url": "/progress"
     }
   ]
 }
