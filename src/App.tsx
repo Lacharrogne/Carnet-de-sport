@@ -11,6 +11,7 @@ import {
 import type { User } from '@supabase/supabase-js'
 
 import AppNavigation from './components/AppNavigation'
+import InstallPrompt from './components/InstallPrompt'
 import DemoModeBanner from './components/DemoModeBanner'
 import ErrorBoundary from './components/ErrorBoundary'
 import Footer from './components/Footer'
@@ -964,6 +965,7 @@ function AppShell() {
           </ErrorBoundary>
 
           {location.pathname !== '/auth' && <Footer />}
+          {location.pathname !== '/auth' && <InstallPrompt />}
         </>
       )}
     </BodyWeightContext.Provider>
