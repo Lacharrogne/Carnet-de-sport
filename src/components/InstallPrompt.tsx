@@ -118,7 +118,7 @@ export default function InstallPrompt() {
   if (!visible) return null
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md sm:inset-x-auto sm:left-1/2 sm:w-[26rem] sm:-translate-x-1/2">
+    <div className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-50 mx-auto max-w-md sm:inset-x-auto sm:left-1/2 sm:w-[26rem] sm:-translate-x-1/2">
       <div className="rounded-2xl border border-white/10 bg-slate-900/95 p-4 shadow-2xl shadow-black/40 backdrop-blur">
         <div className="flex items-start gap-3">
           <img
