@@ -102,7 +102,7 @@ export default function AppNavigation({
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050816]/90 text-slate-50 shadow-2xl shadow-black/20 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-[#050816]/90 pt-[env(safe-area-inset-top)] text-slate-50 shadow-2xl shadow-black/20 backdrop-blur-xl">
         <nav className="mx-auto flex w-full max-w-[1380px] items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
           <Link
             to="/"
