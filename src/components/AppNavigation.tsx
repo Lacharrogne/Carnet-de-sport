@@ -556,7 +556,13 @@ function MobileMenu({
         onClick={onClose}
       />
 
-      <aside className="absolute right-0 top-0 h-screen w-full max-w-[430px] overflow-y-auto border-l border-white/10 px-5 py-5 text-slate-50 shadow-2xl shadow-black/50">
+      <aside className="absolute right-0 top-0 h-screen w-full max-w-[430px] overflow-y-auto border-l border-white/10 bg-[#0a0f1a] px-5 py-5 text-slate-50 shadow-2xl shadow-black/50">
+        {/* Fondu épinglé : le contenu défilé se fond dans le fond sombre au
+            lieu d'être coupé net en haut du panneau. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none sticky top-0 z-10 -mx-5 -mt-5 h-6 bg-gradient-to-b from-[#0a0f1a] to-transparent"
+        />
         <div className="flex items-center justify-between gap-4">
           <Link
             to="/"
