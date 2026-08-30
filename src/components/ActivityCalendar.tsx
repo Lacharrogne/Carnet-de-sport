@@ -78,7 +78,7 @@ export default function ActivityCalendar({ workouts }: ActivityCalendarProps) {
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[420px]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:min-w-[420px]">
             <StatCard label="Jours actifs" value={`${activeDays}/28`} />
             <StatCard label="Séances" value={String(totalSessions)} />
             <StatCard label="Minutes" value={String(totalDuration)} />

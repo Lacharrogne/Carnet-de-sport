@@ -133,7 +133,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
           <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/10 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 left-10 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
-          <div className="relative grid gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
+          <div className="relative grid grid-cols-1 gap-8 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
             <div>
               <p className="inline-flex rounded-full border border-azur-400/30 bg-azur-400/10 px-4 py-2 text-sm font-bold text-azur-300">
                 Mon corps
@@ -147,7 +147,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 Suis tes informations physiques, tes zones travaillées et ton objectif principal. Les données restent indicatives et ne remplacent pas un avis médical.
               </p>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <MiniStatCard
                   label="Objectif"
                   value={goalLabels[profile.goal]}
@@ -170,7 +170,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 Profil actuel
               </p>
 
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <HeroMetric label="Taille" value={`${profile.height} cm`} />
                 <HeroMetric label="Poids" value={`${profile.weight} kg`} />
                 <HeroMetric label="IMC" value={bmi.toString()} />
@@ -207,7 +207,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
             </div>
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-4">
             <EnergyCard
               label="Maintien (TDEE)"
               value={`${formatNumber(energy.maintenance)} kcal`}
@@ -271,7 +271,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
 
         <BodyMeasurements />
 
-        <section className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <section className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -368,7 +368,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 Ton profil de base.
               </h2>
 
-              <div className="mt-6 grid gap-5 sm:grid-cols-2">
+              <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <NumberField
                   label="Taille en cm"
                   value={profile.height}
@@ -446,7 +446,7 @@ const mobilityWorkouts = workouts.filter((workout) => {
                 Analyse corporelle
               </p>
 
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <InfoCard
                   title="IMC indicatif"
                   value={`${bmi} — ${bmiLabel}`}
@@ -577,7 +577,7 @@ function WeightTrackingSection({
         ) : null}
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[1.4fr_1fr]">
+      <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[1.4fr_1fr]">
         <div>
           {chartPoints.length >= 2 ? (
             <>
@@ -627,7 +627,7 @@ function WeightTrackingSection({
           <div className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">
             <p className="text-sm font-black text-white">Ajouter une pesée</p>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="space-y-2">
                 <span className="text-xs font-bold text-slate-400">Date</span>
                 <input

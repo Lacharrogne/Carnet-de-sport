@@ -33,7 +33,7 @@ export default function HealthyRecipeSection({
 
   return (
     <section className="mt-8 overflow-hidden rounded-[2rem] border border-orange-300/20 bg-gradient-to-br from-orange-400/10 via-white/[0.04] to-azur-400/10 p-6 shadow-2xl shadow-orange-400/10">
-      <div className="grid gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-center">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_0.75fr] lg:items-center">
         <div>
           <p className="inline-flex rounded-full border border-orange-300/25 bg-orange-400/10 px-4 py-2 text-sm font-black text-orange-200">
             {recipeApp.emoji} Nutrition
@@ -105,7 +105,7 @@ export default function HealthyRecipeSection({
             </div>
           </div>
 
-          <div className="mt-6 grid gap-3">
+          <div className="mt-6 grid grid-cols-1 gap-3">
             <EcosystemPoint
               icon="🥗"
               title="Manger plus équilibré"

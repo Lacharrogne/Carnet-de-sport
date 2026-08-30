@@ -126,7 +126,7 @@ export default function TemplatesPage({
             </div>
           </section>
         ) : (
-          <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
             {templates.map((template) => (
               <TemplateCard
                 key={template.id}

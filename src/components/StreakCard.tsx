@@ -94,7 +94,7 @@ export default function StreakCard({ workouts }: StreakCardProps) {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Link
             to="/workouts/new"
             className="flex items-center justify-center rounded-full bg-orange-400 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-orange-300"

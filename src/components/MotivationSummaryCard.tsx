@@ -54,7 +54,7 @@ export default function MotivationSummaryCard({
 
   return (
     <section className="rounded-[2rem] border border-azur-400/20 bg-gradient-to-br from-azur-400/15 via-white/[0.04] to-cyan-400/10 p-6 shadow-2xl shadow-azur-400/10">
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.7fr] lg:items-center">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_0.7fr] lg:items-center">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
             Résumé dopamine
@@ -69,7 +69,7 @@ export default function MotivationSummaryCard({
             rendre tes efforts visibles pour garder l’envie de bouger.
           </p>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div className="rounded-3xl border border-white/10 bg-slate-950/40 p-4">
               <p className="text-sm text-slate-400">Niveau</p>
 

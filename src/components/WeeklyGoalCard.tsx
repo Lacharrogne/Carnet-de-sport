@@ -66,7 +66,7 @@ export default function WeeklyGoalCard({
       <div className="absolute -right-20 -top-20 h-52 w-52 rounded-full bg-azur-400/10 blur-3xl" />
       <div className="absolute -bottom-24 -left-24 h-52 w-52 rounded-full bg-cyan-400/10 blur-3xl" />
 
-      <div className="relative grid gap-6 xl:grid-cols-[1.15fr_0.85fr] xl:items-stretch">
+      <div className="relative grid grid-cols-1 gap-6 xl:grid-cols-[1.15fr_0.85fr] xl:items-stretch">
         <div className="flex flex-col justify-between gap-7">
           <div>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
