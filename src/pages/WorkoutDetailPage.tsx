@@ -151,7 +151,7 @@ export default function WorkoutDetailPage({
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
-          <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
+          <div className="relative grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
             <div>
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-[1.5rem] border border-white/10 bg-white/10 text-3xl sm:h-20 sm:w-20 sm:text-4xl">
@@ -181,7 +181,7 @@ export default function WorkoutDetailPage({
               </div>
             </div>
 
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <TextPanel
                 title="Notes"
                 emptyText="Aucune note ajoutée pour cette séance."
@@ -200,7 +200,7 @@ export default function WorkoutDetailPage({
           </div>
         </section>
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-6">
             {strengthExercises.length > 0 ? (
               <StrengthExercisesSection exercises={strengthExercises} />
@@ -402,7 +402,7 @@ function WorkoutAnalysisSection({
         </p>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {analysisItems.map((item) => (
           <article
             key={item.title}
@@ -575,7 +575,7 @@ function OtherDetailsSection({ items }: { items: OtherDetailItem[] }) {
         Autres détails
       </p>
 
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {items.map((item) => (
           <div
             key={item.label}

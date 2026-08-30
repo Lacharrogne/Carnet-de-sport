@@ -70,7 +70,7 @@ export default function ChallengesPage({
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
-          <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
+          <div className="relative grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
             <div>
               <p className="inline-flex rounded-full border border-azur-400/30 bg-azur-400/10 px-4 py-2 text-sm font-bold text-azur-300">
                 Défis
@@ -85,7 +85,7 @@ export default function ChallengesPage({
                 claire séance après séance.
               </p>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <HeroStat
                   label="Défis débloqués"
                   value={`${unlockedChallenges.length}/${challenges.length}`}
@@ -183,7 +183,7 @@ export default function ChallengesPage({
               </p>
             </div>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {highlightedChallenges.map((challenge) => (
                 <ChallengeCard
                   key={challenge.id}
@@ -214,7 +214,7 @@ export default function ChallengesPage({
             </p>
           </div>
 
-          <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {[...unlockedChallenges, ...ongoingChallenges].map((challenge) => (
               <ChallengeCard key={challenge.id} challenge={challenge} />
             ))}

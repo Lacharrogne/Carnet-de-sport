@@ -91,7 +91,7 @@ export default function BodyMeasurements() {
       </div>
 
       {/* Saisie */}
-      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <label className="block">
           <span className="mb-1.5 block text-xs font-black uppercase tracking-wide text-slate-400">
             Date

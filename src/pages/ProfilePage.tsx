@@ -192,7 +192,7 @@ function ProfileForm({
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
-          <div className="relative grid gap-6 md:grid-cols-[1fr_300px] md:items-center">
+          <div className="relative grid grid-cols-1 gap-6 md:grid-cols-[1fr_300px] md:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                 Profil sportif
@@ -237,7 +237,7 @@ function ProfileForm({
           onSubmit={handleSubmit}
           className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 sm:p-8"
         >
-          <div className="grid gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <label className="block space-y-2">
               <span className="text-sm font-black text-slate-200">Pseudo</span>
 

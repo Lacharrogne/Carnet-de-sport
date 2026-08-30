@@ -130,7 +130,7 @@ export default function AuthPage({
           ← Retour à l’accueil
         </button>
 
-        <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-stretch">
           <section className="relative overflow-hidden rounded-[2rem] border border-azur-400/15 bg-gradient-to-br from-azur-400/10 via-white/[0.04] to-sky-400/10 p-6 shadow-2xl shadow-black/25 sm:p-8">
             <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
             <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
@@ -151,7 +151,7 @@ export default function AuthPage({
                 </p>
               </div>
 
-              <div className="grid gap-3">
+              <div className="grid grid-cols-1 gap-3">
                 <InfoLine icon="🏃" text="Tes séances restent enregistrées." />
                 <InfoLine icon="📅" text="Ton planning te suit partout." />
                 <InfoLine
@@ -207,7 +207,7 @@ export default function AuthPage({
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="mt-8 grid gap-5">
+            <form onSubmit={handleSubmit} className="mt-8 grid grid-cols-1 gap-5">
               {!isSignIn ? (
                 <label className="block space-y-2">
                   <span className="text-sm font-black text-slate-200">

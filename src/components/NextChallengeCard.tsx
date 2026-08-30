@@ -80,7 +80,7 @@ export default function NextChallengeCard({
 
   return (
     <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20">
-      <div className="grid gap-6 lg:grid-cols-[1fr_0.6fr] lg:items-center">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_0.6fr] lg:items-center">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-azur-300">
             Prochain défi

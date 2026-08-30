@@ -118,7 +118,7 @@ export default function WorkoutsPage({
           </div>
         </header>
 
-        <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             label="Séances affichées"
             value={String(filteredWorkouts.length)}
@@ -146,7 +146,7 @@ export default function WorkoutsPage({
         </section>
 
         <section className="mt-6 rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/20 sm:p-6">
-          <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_220px_220px_auto]">
+          <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_220px_220px_auto]">
             <label className="block">
               <span className="mb-2 block text-sm font-black text-slate-300">
                 Recherche
@@ -264,7 +264,7 @@ export default function WorkoutsPage({
                 </div>
               </div>
 
-              <div className="grid gap-5 lg:grid-cols-2 2xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 2xl:grid-cols-3">
                 {filteredWorkouts.map((workout) => (
                   <WorkoutCard
                     key={workout.id}

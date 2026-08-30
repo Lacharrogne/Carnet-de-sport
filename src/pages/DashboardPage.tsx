@@ -97,7 +97,7 @@ export default function DashboardPage({
           onAddWorkoutClick={onAddWorkoutClick}
         />
 
-        <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-6">
             <WeeklyGoalCard
               workouts={workouts}
@@ -159,7 +159,7 @@ function DashboardHero({
       <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
       <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
-      <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
+      <div className="relative grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
             Carnet de sport
@@ -185,7 +185,7 @@ function DashboardHero({
             </Button>
           </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
             <HeroStat
               label="Séances"
               value={totalWorkouts}
@@ -388,7 +388,7 @@ function QuickActions({
 }) {
   return (
     <Panel title="Actions rapides" accent="azur">
-      <div className="grid gap-3">
+      <div className="grid grid-cols-1 gap-3">
         <button
           type="button"
           onClick={onAddWorkoutClick}

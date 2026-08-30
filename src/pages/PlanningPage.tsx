@@ -222,7 +222,7 @@ export default function PlanningPage({
           <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-azur-400/10 blur-3xl" />
           <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-cyan-400/10 blur-3xl" />
 
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
+          <div className="relative grid grid-cols-1 gap-8 lg:grid-cols-[1fr_0.8fr] lg:items-center">
             <div>
               <p className="inline-flex rounded-full border border-azur-400/30 bg-azur-400/10 px-4 py-2 text-sm font-bold text-azur-300">
                 Planning
@@ -279,7 +279,7 @@ export default function PlanningPage({
           </div>
         </header>
 
-        <section className="mt-8 grid gap-4 md:grid-cols-4">
+        <section className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
           <StatCard
             label="Séances prévues"
             value={plannedWorkouts.length.toString()}
@@ -298,7 +298,7 @@ export default function PlanningPage({
           />
         </section>
 
-        <section className="mt-8 grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+        <section className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-[0.95fr_1.05fr]">
           <form
             onSubmit={handleSubmit}
             className={`rounded-[2rem] border p-6 transition ${
@@ -363,7 +363,7 @@ export default function PlanningPage({
                 </select>
               </label>
 
-              <div className="grid gap-5 sm:grid-cols-2">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                 <label className="block space-y-2">
                   <span className="text-sm font-bold text-slate-200">Date</span>
 
@@ -549,7 +549,7 @@ const detailMode = getSportDetailMode(category)
             onChange={onExercisesChange}
           />
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <TextField
               type="number"
               label="Distance en km"
@@ -592,7 +592,7 @@ const detailMode = getSportDetailMode(category)
             onChange={onExercisesChange}
           />
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <TextField
               type="number"
               label="Distance en km"
@@ -635,7 +635,7 @@ const detailMode = getSportDetailMode(category)
             onChange={onExercisesChange}
           />
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <TextField
               type="number"
               label="Distance en mètres"
@@ -695,7 +695,7 @@ const detailMode = getSportDetailMode(category)
             onChange={onExercisesChange}
           />
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <TextField
               type="number"
               label="Volume / dénivelé"
@@ -912,7 +912,7 @@ function StrengthExercisesEditor({
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-5 md:grid-cols-4">
+              <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-4">
                 <ExerciseTextField
                   label="Nom de l’exercice"
                   value={exercise.name}

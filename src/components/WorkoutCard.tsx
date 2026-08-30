@@ -187,7 +187,7 @@ export default function WorkoutCard({
         </div>
 
         {!isCompact && (workout.notes || workout.improvementIdea) ? (
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 grid grid-cols-1 gap-3">
             {workout.notes ? (
               <PreviewTextCard title="Notes">{workout.notes}</PreviewTextCard>
             ) : null}

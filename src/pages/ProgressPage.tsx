@@ -338,7 +338,7 @@ export default function ProgressPage({
           <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-azur-400/20 blur-3xl" />
           <div className="absolute -bottom-28 -left-24 h-72 w-72 rounded-full bg-sky-400/10 blur-3xl" />
 
-          <div className="relative grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
+          <div className="relative grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-[0.24em] text-azur-300">
                 Progression globale
@@ -353,7 +353,7 @@ export default function ProgressPage({
                 distances, ton volume d’entraînement et les badges débloqués.
               </p>
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+              <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
                 <HeroStat label="XP total" value={sportProfileXp.totalXp} />
 
                 <HeroStat label="Séances" value={totalWorkouts} />
@@ -401,10 +401,10 @@ export default function ProgressPage({
         </div>
 
         {tab === 'overview' && (
-          <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+          <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
             <div className="space-y-6">
               <Panel title="Comparaison de périodes">
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <ComparisonBlock
                     title="Cette semaine"
                     data={periodComparisons.week}
@@ -421,7 +421,7 @@ export default function ProgressPage({
               </Panel>
 
               <Panel title="Chiffres clés">
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                   <CompactStat
                     label="Durée moyenne"
                     value={formatDuration(averageDuration)}
@@ -727,7 +727,7 @@ export default function ProgressPage({
             )}
 
             <Panel title="Badges" accent="azur">
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {badges.map((badge) => (
                   <BadgeCard key={badge.title} badge={badge} />
                 ))}
@@ -735,7 +735,7 @@ export default function ProgressPage({
             </Panel>
 
             <Panel title="Détail de l’XP" accent="azur">
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 <XpDetailCard
                   label="Séances"
                   value={sportProfileXp.details.workoutXp}
@@ -1058,7 +1058,7 @@ function RecordSectionCard({ section }: { section: RecordSection }) {
         {section.icon} {section.title}
       </p>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {section.records.map((record) => (
           <RecordCard key={record.id} record={record} />
         ))}

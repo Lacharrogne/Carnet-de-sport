@@ -326,7 +326,7 @@ function DesktopDropdown({
           </Link>
         ) : null}
 
-        <div className="mt-3 grid gap-3">
+        <div className="mt-3 grid grid-cols-1 gap-3">
           {links.map((link) => (
             <DropdownItem
               key={link.to}
@@ -447,7 +447,7 @@ function DesktopProfileDropdown({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3">
+        <div className="mt-4 grid grid-cols-1 gap-3">
           {profileLinks.map((link) => (
             <DropdownItem
               key={link.to}
@@ -592,7 +592,7 @@ function MobileMenu({
           </button>
         </div>
 
-        <div className="mt-8 grid gap-3">
+        <div className="mt-8 grid grid-cols-1 gap-3">
           <MobileBigLink
             to="/"
             icon="🏠"
@@ -828,7 +828,7 @@ function MobileAccordion({
       </button>
 
       {isOpen ? (
-        <div className="mt-4 grid gap-3">
+        <div className="mt-4 grid grid-cols-1 gap-3">
           {children}
         </div>
       ) : null}

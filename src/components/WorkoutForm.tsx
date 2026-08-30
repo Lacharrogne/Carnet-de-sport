@@ -225,7 +225,7 @@ export default function WorkoutForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid gap-5 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <label className="space-y-2">
           <span className="text-sm font-bold text-slate-200">
             Nom de la séance
@@ -447,7 +447,7 @@ function SportSpecificFields({
             onChange={(value) => onChange('exercises', value)}
           />
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <NumberDetailField
               label={
                 category === 'marche' || category === 'randonnee'
@@ -492,7 +492,7 @@ function SportSpecificFields({
             onChange={(value) => onChange('exercises', value)}
           />
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <NumberDetailField
               label="Distance en km"
               value={details.distance}
@@ -533,7 +533,7 @@ function SportSpecificFields({
             onChange={(value) => onChange('exercises', value)}
           />
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <NumberDetailField
               label="Distance en mètres"
               value={details.distance}
@@ -592,7 +592,7 @@ function SportSpecificFields({
             onChange={(value) => onChange('exercises', value)}
           />
 
-          <div className="grid gap-5 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             <NumberDetailField
               label="Volume / dénivelé"
               value={details.elevation}
@@ -858,7 +858,7 @@ function StrengthExercisesEditor({
                 )
               })()}
 
-              <div className="mt-6 grid gap-5 md:grid-cols-4">
+              <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-4">
                 <ExerciseTextField
                   label="Nom de l’exercice"
                   value={exercise.name}
