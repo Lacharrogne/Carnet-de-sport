@@ -58,8 +58,6 @@ function mapWorkoutToInsert(workout: Workout, userId: string): WorkoutRow {
     improvement: workout.improvementIdea,
     is_record: workout.trend === 'record',
     details: workout.details ?? {},
-    source: workout.source ?? 'manual',
-    external_id: workout.externalId ?? null,
   }
 }
 
