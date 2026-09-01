@@ -1,4 +1,10 @@
-import { useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type KeyboardEvent,
+} from 'react'
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import { EXERCISE_NAMES } from '../data/exerciseLibrary'
@@ -144,6 +150,64 @@ function getInitialDetails(initialValues?: WorkoutFormValues): WorkoutDetails {
   return details
 }
 
+/**
+ * Brouillon d'une NOUVELLE séance, sauvegardé au fil de la saisie.
+ *
+ * Sur mobile, quitter l'app (pour consulter une note, par ex.) puis y revenir
+ * recharge souvent la page → l'état React du formulaire est perdu. On persiste
+ * donc la saisie en cours dans le téléphone pour la restaurer au retour.
+ */
+const WORKOUT_DRAFT_KEY = 'sport-nouvelle-seance-draft'
+
+type WorkoutDraft = {
+  title: string
+  category: SportCategoryId
+  date: string
+  duration: string
+  intensity: WorkoutIntensity
+  feeling: WorkoutFeeling
+  trend: WorkoutTrend
+  notes: string
+  improvementIdea: string
+  details: WorkoutDetails
+}
+
+function loadWorkoutDraft(): WorkoutDraft | null {
+  try {
+    const raw = localStorage.getItem(WORKOUT_DRAFT_KEY)
+    return raw ? (JSON.parse(raw) as WorkoutDraft) : null
+  } catch {
+    return null
+  }
+}
+
+function saveWorkoutDraft(draft: WorkoutDraft) {
+  try {
+    localStorage.setItem(WORKOUT_DRAFT_KEY, JSON.stringify(draft))
+  } catch {
+    /* stockage indisponible : on ignore */
+  }
+}
+
+function clearWorkoutDraft() {
+  try {
+    localStorage.removeItem(WORKOUT_DRAFT_KEY)
+  } catch {
+    /* ignore */
+  }
+}
+
+function draftHasContent(draft: WorkoutDraft | null): boolean {
+  if (!draft) return false
+  return Boolean(
+    draft.title.trim() ||
+      draft.duration.trim() ||
+      draft.notes.trim() ||
+      draft.improvementIdea.trim() ||
+      (draft.details && Object.keys(draft.details).length > 0),
+  )
+}
+
 export default function WorkoutForm({
   initialValues,
   submitLabel = 'Enregistrer la séance',
@@ -153,30 +217,98 @@ export default function WorkoutForm({
 }: WorkoutFormProps) {
   const today = new Date().toISOString().split('T')[0]
 
-  const [title, setTitle] = useState(initialValues?.title ?? '')
-  const [category, setCategory] = useState<SportCategoryId>(
-    initialValues?.category ?? 'musculation',
+  // Brouillon uniquement pour une nouvelle séance (pas en édition).
+  const isNewWorkout = !initialValues
+  const [draft] = useState<WorkoutDraft | null>(() =>
+    isNewWorkout ? loadWorkoutDraft() : null,
   )
-  const [date, setDate] = useState(initialValues?.date ?? today)
+
+  const [title, setTitle] = useState(
+    initialValues?.title ?? draft?.title ?? '',
+  )
+  const [category, setCategory] = useState<SportCategoryId>(
+    initialValues?.category ?? draft?.category ?? 'musculation',
+  )
+  const [date, setDate] = useState(
+    initialValues?.date ?? draft?.date ?? today,
+  )
   const [duration, setDuration] = useState(
-    initialValues?.duration ? String(initialValues.duration) : '',
+    initialValues?.duration
+      ? String(initialValues.duration)
+      : draft?.duration ?? '',
   )
   const [intensity, setIntensity] = useState<WorkoutIntensity>(
-    initialValues?.intensity ?? 'Moyenne',
+    initialValues?.intensity ?? draft?.intensity ?? 'Moyenne',
   )
   const [feeling, setFeeling] = useState<WorkoutFeeling>(
-    initialValues?.feeling ?? 'Bon',
+    initialValues?.feeling ?? draft?.feeling ?? 'Bon',
   )
   const [trend, setTrend] = useState<WorkoutTrend>(
-    initialValues?.trend ?? 'first',
+    initialValues?.trend ?? draft?.trend ?? 'first',
   )
-  const [notes, setNotes] = useState(initialValues?.notes ?? '')
+  const [notes, setNotes] = useState(
+    initialValues?.notes ?? draft?.notes ?? '',
+  )
   const [improvementIdea, setImprovementIdea] = useState(
-    initialValues?.improvementIdea ?? '',
+    initialValues?.improvementIdea ?? draft?.improvementIdea ?? '',
   )
-  const [details, setDetails] = useState<WorkoutDetails>(() =>
-    getInitialDetails(initialValues),
+  const [details, setDetails] = useState<WorkoutDetails>(
+    () => draft?.details ?? getInitialDetails(initialValues),
   )
+
+  const [showDraftNotice, setShowDraftNotice] = useState(() =>
+    draftHasContent(draft),
+  )
+
+  // Sauvegarde continue du brouillon (nouvelle séance uniquement), pour
+  // survivre à un rechargement de la page quand on quitte puis revient.
+  useEffect(() => {
+    if (!isNewWorkout) return
+
+    const current: WorkoutDraft = {
+      title,
+      category,
+      date,
+      duration,
+      intensity,
+      feeling,
+      trend,
+      notes,
+      improvementIdea,
+      details,
+    }
+
+    if (draftHasContent(current)) {
+      saveWorkoutDraft(current)
+    }
+  }, [
+    isNewWorkout,
+    title,
+    category,
+    date,
+    duration,
+    intensity,
+    feeling,
+    trend,
+    notes,
+    improvementIdea,
+    details,
+  ])
+
+  const handleDiscardDraft = () => {
+    clearWorkoutDraft()
+    setShowDraftNotice(false)
+    setTitle('')
+    setCategory('musculation')
+    setDate(today)
+    setDuration('')
+    setIntensity('Moyenne')
+    setFeeling('Bon')
+    setTrend('first')
+    setNotes('')
+    setImprovementIdea('')
+    setDetails({})
+  }
 
   const updateDetail = <Key extends keyof WorkoutDetails>(
     key: Key,
@@ -221,10 +353,31 @@ export default function WorkoutForm({
       trend,
       details: cleanWorkoutDetails(category, details),
     })
+
+    // Séance enregistrée : on efface le brouillon.
+    if (isNewWorkout) {
+      clearWorkoutDraft()
+    }
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {showDraftNotice && (
+        <div className="flex flex-col gap-2 rounded-2xl border border-azur-500/30 bg-azur-500/10 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-semibold text-azur-100">
+            ✍️ On a récupéré ta saisie en cours, tu peux continuer.
+          </p>
+
+          <button
+            type="button"
+            onClick={handleDiscardDraft}
+            className="shrink-0 self-start rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold text-slate-200 ring-1 ring-white/15 transition hover:bg-white/20 sm:self-auto"
+          >
+            Repartir de zéro
+          </button>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         <label className="space-y-2">
           <span className="text-sm font-bold text-slate-200">
