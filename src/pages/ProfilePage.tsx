@@ -4,6 +4,7 @@ import type { User } from '@supabase/supabase-js'
 
 import { updateUserProfile, uploadUserAvatar } from '../services/authService'
 import Button from '../components/ui/Button'
+import { useDialogs } from '../context/dialogContext'
 import {
   exportBodyWeightToCsv,
   exportWorkoutsToCsv,
@@ -89,6 +90,7 @@ function ProfileForm({
   const initialAvatarUrl = getUserAvatarUrl(user)
   const initialAvatarPath = getUserAvatarPath(user)
 
+  const { alert: showAlert } = useDialogs()
   const [displayName, setDisplayName] = useState(initialDisplayName)
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl)
   const [avatarPath, setAvatarPath] = useState(initialAvatarPath)
@@ -108,7 +110,7 @@ function ProfileForm({
     }
 
     if (!file.type.startsWith('image/')) {
-      window.alert('Choisis une vraie image.')
+      void showAlert({ message:'Choisis une vraie image.' })
       return
     }
 
@@ -131,7 +133,7 @@ function ProfileForm({
     const cleanedDisplayName = displayName.trim()
 
     if (!cleanedDisplayName) {
-      window.alert('Ajoute un pseudo pour ton profil.')
+      void showAlert({ message:'Ajoute un pseudo pour ton profil.' })
       return
     }
 
@@ -171,7 +173,7 @@ function ProfileForm({
           ? error.message
           : "Le profil n'a pas pu être sauvegardé."
 
-      window.alert(message)
+      void showAlert({ message })
     } finally {
       setIsSaving(false)
     }

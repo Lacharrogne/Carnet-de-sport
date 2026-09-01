@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import Button from '../components/ui/Button'
+import { useDialogs } from '../context/dialogContext'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import { estimateWorkoutCalories } from '../services/caloriesService'
 import { useBodyWeight } from '../context/bodyWeightContext'
@@ -68,15 +69,20 @@ export default function WorkoutDetailPage({
   onDuplicate,
   onSaveTemplate,
 }: WorkoutDetailPageProps) {
-  const handleSaveTemplate = () => {
+  const { prompt } = useDialogs()
+
+  const handleSaveTemplate = async () => {
     if (!onSaveTemplate) {
       return
     }
 
-    const name = window.prompt(
-      'Nom du modèle à créer à partir de cette séance :',
-      workout.title,
-    )
+    const name = await prompt({
+      title: 'Enregistrer comme modèle',
+      message: 'Donne un nom à ce modèle de séance pour le réutiliser plus tard.',
+      defaultValue: workout.title,
+      placeholder: 'Ex : Push, Jambes, Sortie longue…',
+      confirmLabel: 'Créer le modèle',
+    })
 
     if (name && name.trim()) {
       onSaveTemplate(name.trim(), workout)

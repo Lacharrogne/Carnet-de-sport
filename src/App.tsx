@@ -12,6 +12,8 @@ import type { User } from '@supabase/supabase-js'
 
 import AppNavigation from './components/AppNavigation'
 import InstallPrompt from './components/InstallPrompt'
+import DialogProvider from './components/ui/DialogProvider'
+import { useDialogs } from './context/dialogContext'
 import DemoModeBanner from './components/DemoModeBanner'
 import ErrorBoundary from './components/ErrorBoundary'
 import Footer from './components/Footer'
@@ -90,7 +92,9 @@ import type { WorkoutTemplate } from './types/workoutTemplate'
 function App() {
   return (
     <BrowserRouter>
-      <AppShell />
+      <DialogProvider>
+        <AppShell />
+      </DialogProvider>
     </BrowserRouter>
   )
 }
@@ -98,6 +102,7 @@ function App() {
 function AppShell() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { confirm, alert: showAlert } = useDialogs()
 
   useLayoutEffect(() => {
     window.scrollTo({
@@ -328,9 +333,7 @@ function AppShell() {
     } catch (error) {
       console.error(errorMessage, error)
 
-      window.alert(
-        "La modification n'a pas pu être enregistrée. Vérifie ta connexion et réessaie dans un instant.",
-      )
+      void showAlert({ message: "La modification n'a pas pu être enregistrée. Vérifie ta connexion et réessaie dans un instant." })
 
       return false
     }
@@ -352,9 +355,7 @@ function AppShell() {
     } catch (error) {
       console.error(errorMessage, error)
 
-      window.alert(
-        "La modification du planning n'a pas pu être enregistrée. Vérifie ta connexion et réessaie.",
-      )
+      void showAlert({ message: "La modification du planning n'a pas pu être enregistrée. Vérifie ta connexion et réessaie." })
 
       return false
     }
@@ -412,9 +413,12 @@ function AppShell() {
       return false
     }
 
-    const confirmed = window.confirm(
-      `Supprimer la séance "${workoutToDelete.title}" ?`,
-    )
+    const confirmed = await confirm({
+      title: 'Supprimer la séance',
+      message: `Voulez-vous vraiment supprimer « ${workoutToDelete.title} » ? Cette action est définitive.`,
+      confirmLabel: 'Supprimer',
+      tone: 'danger',
+    })
 
     if (!confirmed) {
       return false
@@ -465,9 +469,12 @@ function AppShell() {
       return
     }
 
-    const confirmed = window.confirm(
-      `Supprimer la séance prévue "${plannedWorkoutToDelete.title}" ?`,
-    )
+    const confirmed = await confirm({
+      title: 'Supprimer la séance prévue',
+      message: `Voulez-vous vraiment retirer « ${plannedWorkoutToDelete.title} » de ton planning ?`,
+      confirmLabel: 'Supprimer',
+      tone: 'danger',
+    })
 
     if (!confirmed) {
       return
@@ -486,9 +493,11 @@ function AppShell() {
   const handleCompletePlannedWorkout = async (
     plannedWorkout: PlannedWorkout,
   ) => {
-    const confirmed = window.confirm(
-      `Marquer la séance "${plannedWorkout.title}" comme réalisée ?`,
-    )
+    const confirmed = await confirm({
+      title: 'Marquer comme réalisée',
+      message: `Ajouter « ${plannedWorkout.title} » à tes séances réalisées ?`,
+      confirmLabel: 'Marquer réalisée',
+    })
 
     if (!confirmed) {
       return
@@ -539,9 +548,7 @@ function AppShell() {
         error,
       )
 
-      window.alert(
-        "La séance prévue n'a pas pu être validée. Vérifie ta connexion et réessaie.",
-      )
+      void showAlert({ message: "La séance prévue n'a pas pu être validée. Vérifie ta connexion et réessaie." })
     }
   }
 
@@ -580,9 +587,7 @@ function AppShell() {
     } catch (error) {
       console.error('Erreur lors de l’enregistrement de la pesée :', error)
 
-      window.alert(
-        "La pesée n'a pas pu être enregistrée. Vérifie ta connexion et réessaie.",
-      )
+      void showAlert({ message: "La pesée n'a pas pu être enregistrée. Vérifie ta connexion et réessaie." })
     }
   }
 
@@ -600,9 +605,7 @@ function AppShell() {
     } catch (error) {
       console.error('Erreur lors de la suppression de la pesée :', error)
 
-      window.alert(
-        "La pesée n'a pas pu être supprimée. Vérifie ta connexion et réessaie.",
-      )
+      void showAlert({ message: "La pesée n'a pas pu être supprimée. Vérifie ta connexion et réessaie." })
     }
   }
 
@@ -657,9 +660,7 @@ function AppShell() {
     } catch (error) {
       console.error('Erreur lors de l’enregistrement du modèle :', error)
 
-      window.alert(
-        "Le modèle n'a pas pu être enregistré. Vérifie ta connexion et réessaie.",
-      )
+      void showAlert({ message: "Le modèle n'a pas pu être enregistré. Vérifie ta connexion et réessaie." })
     }
   }
 
@@ -677,9 +678,7 @@ function AppShell() {
     } catch (error) {
       console.error('Erreur lors de la suppression du modèle :', error)
 
-      window.alert(
-        "Le modèle n'a pas pu être supprimé. Vérifie ta connexion et réessaie.",
-      )
+      void showAlert({ message: "Le modèle n'a pas pu être supprimé. Vérifie ta connexion et réessaie." })
     }
   }
 

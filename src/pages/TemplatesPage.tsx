@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import WorkoutForm from '../components/WorkoutForm'
 import Button from '../components/ui/Button'
+import { useDialogs } from '../context/dialogContext'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import type { WorkoutFormValues } from '../types/workout'
 import type { WorkoutTemplate } from '../types/workoutTemplate'
@@ -151,6 +152,7 @@ function TemplateCard({
   onStart: () => void
   onDelete: () => void
 }) {
+  const { confirm } = useDialogs()
   const category = SPORT_CATEGORIES.find((item) => item.id === template.category)
   const payload = template.payload
   const exercises = payload.details?.strengthExercises ?? []
@@ -167,8 +169,15 @@ function TemplateCard({
     meta.push(`${payload.details.distance} km`)
   }
 
-  const handleDelete = () => {
-    if (window.confirm(`Supprimer le modèle « ${template.name} » ?`)) {
+  const handleDelete = async () => {
+    const confirmed = await confirm({
+      title: 'Supprimer le modèle',
+      message: `Voulez-vous vraiment supprimer le modèle « ${template.name} » ?`,
+      confirmLabel: 'Supprimer',
+      tone: 'danger',
+    })
+
+    if (confirmed) {
       onDelete()
     }
   }

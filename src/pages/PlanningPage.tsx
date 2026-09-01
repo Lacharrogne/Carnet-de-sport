@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 
 import Button from '../components/ui/Button'
+import { useDialogs } from '../context/dialogContext'
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import { EXERCISE_NAMES } from '../data/exerciseLibrary'
 import type { PlannedWorkout } from '../types/plannedWorkout'
@@ -60,6 +61,7 @@ export default function PlanningPage({
 }: PlanningPageProps) {
   const today = getTodayDateKey()
 
+  const { alert: showAlert } = useDialogs()
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState<SportCategoryId>('musculation')
   const [date, setDate] = useState(today)
@@ -165,17 +167,17 @@ export default function PlanningPage({
     const cleanedObjective = objective.trim()
 
     if (!cleanedTitle) {
-      window.alert('Donne un nom à ta séance prévue.')
+      void showAlert({ message:'Donne un nom à ta séance prévue.' })
       return
     }
 
     if (!date) {
-      window.alert('Choisis une date pour ta séance prévue.')
+      void showAlert({ message:'Choisis une date pour ta séance prévue.' })
       return
     }
 
     if (!duration || Number.isNaN(cleanedDuration) || cleanedDuration <= 0) {
-      window.alert('Ajoute une durée valide.')
+      void showAlert({ message:'Ajoute une durée valide.' })
       return
     }
 
