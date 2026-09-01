@@ -8,6 +8,7 @@ import {
 
 import { SPORT_CATEGORIES } from '../data/sportOptions'
 import { EXERCISE_NAMES } from '../data/exerciseLibrary'
+import { useDialogs } from '../context/dialogContext'
 import type {
   SportCategoryId,
   StrengthExercise,
@@ -215,6 +216,7 @@ export default function WorkoutForm({
   onCancel,
   workouts = [],
 }: WorkoutFormProps) {
+  const { alert: showAlert } = useDialogs()
   const today = new Date().toISOString().split('T')[0]
 
   // Brouillon uniquement pour une nouvelle séance (pas en édition).
@@ -332,12 +334,12 @@ export default function WorkoutForm({
     const cleanedDuration = Number(duration)
 
     if (!cleanedTitle) {
-      alert('Donne un nom à ta séance.')
+      void showAlert({ message: 'Donne un nom à ta séance.' })
       return
     }
 
     if (!duration || cleanedDuration <= 0) {
-      alert('Ajoute une durée valide.')
+      void showAlert({ message: 'Ajoute une durée valide.' })
       return
     }
 
