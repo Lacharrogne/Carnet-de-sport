@@ -93,60 +93,56 @@ export async function saveRemoteWorkout(workout: Workout, userId: string) {
   }
 }
 
+/** Supprime une seule séance (suppression ciblée, sans toucher aux autres). */
+export async function deleteRemoteWorkout(workoutId: string, userId: string) {
+  const { error } = await supabase
+    .from('workouts')
+    .delete()
+    .eq('user_id', userId)
+    .eq('id', workoutId)
+
+  if (error) {
+    logSupabaseError('Erreur suppression séance Supabase :', error)
+    throw error
+  }
+}
+
+/**
+ * Synchronise l'ensemble des séances de l'utilisateur avec Supabase.
+ *
+ * Stratégie « sûre » : on met d'abord à jour/insère (upsert) les séances
+ * voulues, PUIS on supprime uniquement celles qui ont disparu. Ainsi, si
+ * quelque chose échoue, on n'a jamais effacé les données avant de les réécrire
+ * (contrairement à l'ancien « tout supprimer puis tout réinsérer »).
+ */
 export async function saveRemoteWorkouts(
   workouts: Workout[],
   userId: string,
 ) {
-  console.group('🔵 DEBUG - saveRemoteWorkouts')
-
-  console.log('1) User ID reçu :', userId)
-  console.log('2) Séances reçues côté React :', workouts)
-
   const rows = workouts.map((workout) => mapWorkoutToInsert(workout, userId))
 
-  console.log('3) Rows envoyées à Supabase :', rows)
+  // 1) Upsert des séances voulues (jamais de perte de données).
+  if (rows.length > 0) {
+    const { error: upsertError } = await supabase
+      .from('workouts')
+      .upsert(rows, { onConflict: 'id' })
 
-  console.log('4) Suppression des anciennes séances Supabase...')
+    if (upsertError) {
+      logSupabaseError('Erreur enregistrement séances Supabase :', upsertError)
+      throw upsertError
+    }
+  }
 
-  const { error: deleteError } = await supabase
-    .from('workouts')
-    .delete()
-    .eq('user_id', userId)
+  // 2) Suppression des seules séances qui ne sont plus présentes.
+  const keptIds = rows.map((row) => row.id)
+  const cleanup = supabase.from('workouts').delete().eq('user_id', userId)
+  const { error: deleteError } =
+    keptIds.length > 0
+      ? await cleanup.not('id', 'in', `(${keptIds.join(',')})`)
+      : await cleanup
 
   if (deleteError) {
-    console.error('❌ Erreur suppression séances Supabase :', deleteError)
-    console.groupEnd()
+    logSupabaseError('Erreur nettoyage séances Supabase :', deleteError)
     throw deleteError
   }
-
-  console.log('✅ Suppression OK')
-
-  if (rows.length === 0) {
-    console.log('Aucune séance à insérer.')
-    console.groupEnd()
-    return
-  }
-
-  console.log('5) Insertion des nouvelles séances Supabase...')
-
-  const { data, error: insertError } = await supabase
-    .from('workouts')
-    .insert(rows)
-    .select('*')
-
-  if (insertError) {
-    console.error('❌ Erreur insertion séances Supabase :', insertError)
-    console.error('Code :', insertError.code)
-    console.error('Message :', insertError.message)
-    console.error('Details :', insertError.details)
-    console.error('Hint :', insertError.hint)
-    console.error('Rows qui ont provoqué l’erreur :', rows)
-    console.groupEnd()
-    throw insertError
-  }
-
-  console.log('✅ Insertion OK')
-  console.log('6) Données retournées par Supabase :', data)
-
-  console.groupEnd()
 }

@@ -65,6 +65,27 @@ export async function getRemotePlannedWorkouts(userId: string) {
   )
 }
 
+/** Supprime une seule séance prévue (suppression ciblée). */
+export async function deleteRemotePlannedWorkout(
+  plannedWorkoutId: string,
+  userId: string,
+) {
+  const { error } = await supabase
+    .from('planned_workouts')
+    .delete()
+    .eq('user_id', userId)
+    .eq('id', plannedWorkoutId)
+
+  if (error) {
+    throw error
+  }
+}
+
+/**
+ * Synchronise le planning avec Supabase de façon sûre : upsert d'abord, puis
+ * suppression des seules séances prévues qui ont disparu (jamais de « tout
+ * effacer avant de réécrire »).
+ */
 export async function saveRemotePlannedWorkouts(
   plannedWorkouts: PlannedWorkout[],
   userId: string,
@@ -73,24 +94,27 @@ export async function saveRemotePlannedWorkouts(
     mapPlannedWorkoutToInsert(plannedWorkout, userId),
   )
 
-  const { error: deleteError } = await supabase
+  if (rows.length > 0) {
+    const { error: upsertError } = await supabase
+      .from('planned_workouts')
+      .upsert(rows, { onConflict: 'id' })
+
+    if (upsertError) {
+      throw upsertError
+    }
+  }
+
+  const keptIds = rows.map((row) => row.id)
+  const cleanup = supabase
     .from('planned_workouts')
     .delete()
     .eq('user_id', userId)
+  const { error: deleteError } =
+    keptIds.length > 0
+      ? await cleanup.not('id', 'in', `(${keptIds.join(',')})`)
+      : await cleanup
 
   if (deleteError) {
     throw deleteError
-  }
-
-  if (rows.length === 0) {
-    return
-  }
-
-  const { error: insertError } = await supabase
-    .from('planned_workouts')
-    .insert(rows)
-
-  if (insertError) {
-    throw insertError
   }
 }
