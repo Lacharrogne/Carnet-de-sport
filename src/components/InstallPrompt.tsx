@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
 
+import {
+  INSTALL_AVAILABILITY_EVENT,
+  clearDeferredPrompt,
+  getDeferredPrompt,
+  type BeforeInstallPromptEvent,
+} from '../lib/installPrompt'
+
 function DownloadIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -38,11 +45,6 @@ function XIcon({ className }: { className?: string }) {
  * - Masquée si déjà installée (mode standalone) ou déjà refusée une fois.
  */
 
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
-}
-
 const DISMISS_KEY = 'installPromptDismissed'
 
 function isStandalone(): boolean {
@@ -69,12 +71,24 @@ export default function InstallPrompt() {
       /* localStorage indisponible : on continue sans mémoire */
     }
 
-    const onPrompt = (event: Event) => {
-      event.preventDefault()
-      setDeferred(event as BeforeInstallPromptEvent)
+    // L'événement a pu être capté avant le montage (surtout sur PC) : on lit
+    // d'abord ce qui a déjà été mémorisé au chargement.
+    const existing = getDeferredPrompt()
+    if (existing) {
+      setDeferred(existing)
       setVisible(true)
     }
-    window.addEventListener('beforeinstallprompt', onPrompt)
+
+    // Puis on réagit aux changements de disponibilité (capté après coup, ou
+    // remis à zéro après installation).
+    const onAvailability = () => {
+      const current = getDeferredPrompt()
+      setDeferred(current)
+      if (current) {
+        setVisible(true)
+      }
+    }
+    window.addEventListener(INSTALL_AVAILABILITY_EVENT, onAvailability)
 
     if (isIos()) setVisible(true)
 
@@ -89,7 +103,7 @@ export default function InstallPrompt() {
     window.addEventListener('appinstalled', onInstalled)
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', onPrompt)
+      window.removeEventListener(INSTALL_AVAILABILITY_EVENT, onAvailability)
       window.removeEventListener('appinstalled', onInstalled)
     }
   }, [])
@@ -111,6 +125,7 @@ export default function InstallPrompt() {
     if (!deferred) return
     await deferred.prompt()
     await deferred.userChoice
+    clearDeferredPrompt()
     setDeferred(null)
     setVisible(false)
   }
