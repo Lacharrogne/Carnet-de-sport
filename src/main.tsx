@@ -1,6 +1,7 @@
 // Capte `beforeinstallprompt` dès le chargement (avant le rendu React), sinon
 // l'événement est raté et l'installation n'est jamais proposée (surtout sur PC).
 import './lib/installPrompt'
+import './lib/errorReporting'
 import './lib/measurementsSync'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'

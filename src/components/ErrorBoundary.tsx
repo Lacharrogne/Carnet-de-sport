@@ -1,5 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
+import { reportError } from '../lib/errorReporting'
+
 import Button from './ui/Button'
 
 type ErrorBoundaryProps = {
@@ -37,6 +39,9 @@ export default class ErrorBoundary extends Component<
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('Erreur de rendu interceptée :', error, info)
+    // Remonte l'erreur au compte technique : sans cela, un plantage chez
+    // un utilisateur resterait invisible.
+    reportError(error, 'Erreur de rendu')
   }
 
   render() {
