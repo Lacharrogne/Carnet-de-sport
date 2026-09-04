@@ -7,8 +7,11 @@ import {
   isSubscriptionActive,
   type SubscriptionRow,
 } from '../services/subscriptionService'
-
-const DAY_MS = 24 * 60 * 60 * 1000
+import {
+  decideEntitlement,
+  readLastKnownPremium,
+  rememberPremium,
+} from '../lib/entitlementDecision'
 
 export type EntitlementStatus = 'premium' | 'trialing' | 'expired'
 
@@ -35,6 +38,8 @@ export function useEntitlement(user: User | null): Entitlement {
 
   const [now, setNow] = useState(() => Date.now())
   const [subscription, setSubscription] = useState<SubscriptionRow | null>(null)
+  const [loadFailed, setLoadFailed] = useState(false)
+  const [lastKnownPremium, setLastKnownPremium] = useState(false)
   const [loading, setLoading] = useState(() => Boolean(userId))
 
   useEffect(() => {
@@ -49,15 +54,28 @@ export function useEntitlement(user: User | null): Entitlement {
       if (!userId) {
         if (!ignore) {
           setSubscription(null)
+          setLoadFailed(false)
+          setLastKnownPremium(false)
           setLoading(false)
         }
         return
       }
 
-      const row = await getSubscription(userId)
+      const result = await getSubscription(userId)
 
       if (!ignore) {
-        setSubscription(row)
+        if (result.ok) {
+          const premium = isSubscriptionActive(result.row)
+          rememberPremium(userId, premium)
+          setLastKnownPremium(premium)
+          setSubscription(result.row)
+          setLoadFailed(false)
+        } else {
+          // Lecture impossible : on ne conclut pas « non abonné ».
+          setLastKnownPremium(readLastKnownPremium(userId))
+          setSubscription(null)
+          setLoadFailed(true)
+        }
         setLoading(false)
       }
     }
@@ -69,36 +87,15 @@ export function useEntitlement(user: User | null): Entitlement {
     }
   }, [userId])
 
-  const isPremium = isSubscriptionActive(subscription)
+  const decision = decideEntitlement({
+    subscriptionActive: isSubscriptionActive(subscription),
+    loadFailed,
+    lastKnownPremium,
+    accountCreatedAt: user?.created_at ? new Date(user.created_at) : null,
+    now,
+    enforceTrial: ENFORCE_TRIAL,
+    trialDurationDays: TRIAL_DURATION_DAYS,
+  })
 
-  const createdAt = user?.created_at ? new Date(user.created_at) : null
-  const trialEndsAt = createdAt
-    ? new Date(createdAt.getTime() + TRIAL_DURATION_DAYS * DAY_MS)
-    : null
-
-  const msLeft = trialEndsAt
-    ? trialEndsAt.getTime() - now
-    : TRIAL_DURATION_DAYS * DAY_MS
-
-  // Dès qu'on est abonné, l'essai est considéré terminé (il ne « reste » plus).
-  const isTrialing = !isPremium && msLeft > 0
-  const daysLeft = isPremium ? 0 : Math.max(0, Math.ceil(msLeft / DAY_MS))
-
-  const status: EntitlementStatus = isPremium
-    ? 'premium'
-    : isTrialing
-      ? 'trialing'
-      : 'expired'
-
-  const hasAccess = !ENFORCE_TRIAL || isPremium || isTrialing
-
-  return {
-    status,
-    isPremium,
-    hasAccess,
-    daysLeft,
-    trialEndsAt,
-    loading,
-    subscription,
-  }
+  return { ...decision, loading, subscription }
 }
