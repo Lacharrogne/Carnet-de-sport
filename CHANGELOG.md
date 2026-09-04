@@ -12,6 +12,14 @@ Ordre antéchronologique (le plus récent en haut).
 
 ## 2026-09-04
 
+### `.env` ajouté au .gitignore
+
+- **Ce qui change** : `.env`, `.env.*` (sauf `.env.example`) sont désormais
+  ignorés par git.
+- **Pourquoi** : le `.gitignore` couvrait `*.local`, donc `.env.local`, mais un
+  simple fichier `.env` créé à la racine aurait pu être committé — avec le
+  risque de publier des clés.
+
 ### Démarrage allégé : les pages se chargent à la demande
 
 - **Ce qui change** : les treize pages ne sont plus embarquées dans un seul
