@@ -12,6 +12,21 @@ Ordre antéchronologique (le plus récent en haut).
 
 ## 2026-09-04
 
+### Démarrage allégé : les pages se chargent à la demande
+
+- **Ce qui change** : les treize pages ne sont plus embarquées dans un seul
+  fichier — chacune est téléchargée au moment où l'on s'y rend. Le JavaScript
+  chargé à l'ouverture passe de **693 Ko à 477 Ko (−31 %)**, réparti en 24
+  morceaux. Un court squelette (`PageLoader`) occupe l'espace pendant le
+  chargement d'une page.
+- **Pourquoi** : c'était le carnet le plus lourd à démarrer, alors que c'est
+  celui qu'on ouvre à la salle, souvent en 4G médiocre. Les deux autres carnets
+  procédaient déjà ainsi.
+- **À savoir** : les 477 Ko restants sont essentiellement le code des
+  bibliothèques (React, react-router, `@supabase/supabase-js`), nécessaires dès
+  le démarrage pour l'authentification — il n'y a plus de gain facile de ce
+  côté. Les données de démonstration, elles, ne pèsent que 7 Ko au total.
+
 ### Un abonné payant ne peut plus être bloqué par une panne de lecture
 
 - **Ce qui change** : `getSubscription()` distingue désormais **« lecture

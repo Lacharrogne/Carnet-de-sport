@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import {
+  Suspense,
+  lazy,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from 'react'
 import {
   BrowserRouter,
   Navigate,
@@ -24,19 +31,23 @@ import { useEntitlement } from './hooks/useEntitlement'
 import { ENFORCE_TRIAL } from './config/subscription'
 import { WORKOUTS } from './data/workouts'
 
-import AuthPage from './pages/AuthPage'
-import BodyPage from './pages/BodyPage'
-import TemplatesPage from './pages/TemplatesPage'
-import ChallengesPage from './pages/ChallengesPage'
-import DashboardPage from './pages/DashboardPage'
-import EditWorkoutPage from './pages/EditWorkoutPage'
-import NewWorkoutPage from './pages/NewWorkoutPage'
-import PlanningPage from './pages/PlanningPage'
-import ProgressPage from './pages/ProgressPage'
-import WorkoutDetailPage from './pages/WorkoutDetailPage'
-import WorkoutsPage from './pages/WorkoutsPage'
-import ProfilePage from './pages/ProfilePage'
-import ToolsPage from './pages/ToolsPage'
+import PageLoader from './components/PageLoader'
+
+// Pages chargées à la demande : chacune part dans son propre fichier, pour que
+// l'ouverture de l'app ne télécharge plus les treize pages d'un seul bloc.
+const AuthPage = lazy(() => import('./pages/AuthPage'))
+const BodyPage = lazy(() => import('./pages/BodyPage'))
+const TemplatesPage = lazy(() => import('./pages/TemplatesPage'))
+const ChallengesPage = lazy(() => import('./pages/ChallengesPage'))
+const DashboardPage = lazy(() => import('./pages/DashboardPage'))
+const EditWorkoutPage = lazy(() => import('./pages/EditWorkoutPage'))
+const NewWorkoutPage = lazy(() => import('./pages/NewWorkoutPage'))
+const PlanningPage = lazy(() => import('./pages/PlanningPage'))
+const ProgressPage = lazy(() => import('./pages/ProgressPage'))
+const WorkoutDetailPage = lazy(() => import('./pages/WorkoutDetailPage'))
+const WorkoutsPage = lazy(() => import('./pages/WorkoutsPage'))
+const ProfilePage = lazy(() => import('./pages/ProfilePage'))
+const ToolsPage = lazy(() => import('./pages/ToolsPage'))
 
 import {
   getCurrentSession,
@@ -777,6 +788,7 @@ function AppShell() {
             )}
 
           <ErrorBoundary resetKey={location.pathname}>
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route
               path="/"
@@ -961,6 +973,7 @@ function AppShell() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          </Suspense>
           </ErrorBoundary>
 
           {location.pathname !== '/auth' && <Footer />}
