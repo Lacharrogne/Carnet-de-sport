@@ -12,6 +12,27 @@ Ordre antéchronologique (le plus récent en haut).
 
 ## 2026-09-04
 
+### Premiers tests automatisés
+
+- **Ce qui change** : mise en place de Vitest et **14 tests** sur les calculs
+  qui guident l'entraînement — le 1RM estimé (formule d'Epley) et l'estimation
+  des calories (MET × intensité × poids × durée). La CI les exécute à chaque PR.
+- **Pourquoi** : ce carnet concentre la logique la plus calculatoire de
+  l'écosystème et n'avait aucun test. Un 1RM erroné suggérerait des charges
+  inadaptées, avec un vrai risque de blessure.
+- **À savoir** : les tests sur les calories vérifient des **comportements**
+  (proportionnalité à la durée, ordre des intensités, refus de produire un
+  chiffre quand le poids est inconnu) plutôt que des valeurs figées — le barème
+  MET peut évoluer sans casser la suite.
+
+### `.env` ajouté au .gitignore
+
+- **Ce qui change** : `.env`, `.env.*` (sauf `.env.example`) sont désormais
+  ignorés par git.
+- **Pourquoi** : le `.gitignore` couvrait `*.local`, donc `.env.local`, mais un
+  simple fichier `.env` créé à la racine aurait pu être committé — avec le
+  risque de publier des clés.
+
 ### Démarrage allégé : les pages se chargent à la demande
 
 - **Ce qui change** : les treize pages ne sont plus embarquées dans un seul
