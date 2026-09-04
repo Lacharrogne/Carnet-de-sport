@@ -58,29 +58,36 @@ function isIos(): boolean {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent)
 }
 
+/**
+ * Peut-on encore proposer l'installation ? (application non installée et
+ * proposition pas déjà refusée). Lu à l'initialisation des états, plutôt que
+ * posé depuis un effet — l'événement arrive souvent avant le montage.
+ */
+function canPrompt(): boolean {
+  if (typeof window === 'undefined') return false
+  if (isStandalone()) return false
+  try {
+    if (localStorage.getItem(DISMISS_KEY)) return false
+  } catch {
+    /* localStorage indisponible : on continue sans mémoire */
+  }
+  return true
+}
+
 export default function InstallPrompt() {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null)
-  const [visible, setVisible] = useState(false)
+  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(() =>
+    canPrompt() ? getDeferredPrompt() : null,
+  )
+  const [visible, setVisible] = useState(
+    () => canPrompt() && (getDeferredPrompt() !== null || isIos()),
+  )
   const [showIosHelp, setShowIosHelp] = useState(false)
 
   useEffect(() => {
-    if (isStandalone()) return
-    try {
-      if (localStorage.getItem(DISMISS_KEY)) return
-    } catch {
-      /* localStorage indisponible : on continue sans mémoire */
-    }
+    if (!canPrompt()) return
 
-    // L'événement a pu être capté avant le montage (surtout sur PC) : on lit
-    // d'abord ce qui a déjà été mémorisé au chargement.
-    const existing = getDeferredPrompt()
-    if (existing) {
-      setDeferred(existing)
-      setVisible(true)
-    }
-
-    // Puis on réagit aux changements de disponibilité (capté après coup, ou
-    // remis à zéro après installation).
+    // On réagit aux changements de disponibilité (événement capté après le
+    // montage, ou remis à zéro après installation).
     const onAvailability = () => {
       const current = getDeferredPrompt()
       setDeferred(current)
@@ -89,8 +96,6 @@ export default function InstallPrompt() {
       }
     }
     window.addEventListener(INSTALL_AVAILABILITY_EVENT, onAvailability)
-
-    if (isIos()) setVisible(true)
 
     const onInstalled = () => {
       setVisible(false)
