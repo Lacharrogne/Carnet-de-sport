@@ -11,6 +11,11 @@ import {
 import type { BodyWeightEntry } from '../types/bodyWeight'
 import type { ActivityLevel, FitnessGoal, HealthProfile } from '../types/health'
 import type { Workout } from '../types/workout'
+import {
+  formatDecimal,
+  parseDecimal,
+  sanitizeDecimalInput,
+} from '../lib/numberInput'
 
 type BodyPageProps = {
   workouts: Workout[]
@@ -373,7 +378,6 @@ const mobilityWorkouts = workouts.filter((workout) => {
                   label="Taille en cm"
                   value={profile.height}
                   min={1}
-                  step={1}
                   onChange={(value) => updateProfileField('height', value)}
                 />
 
@@ -381,7 +385,6 @@ const mobilityWorkouts = workouts.filter((workout) => {
                   label="Poids en kg"
                   value={profile.weight}
                   min={1}
-                  step={0.1}
                   onChange={(value) => updateProfileField('weight', value)}
                 />
 
@@ -389,7 +392,6 @@ const mobilityWorkouts = workouts.filter((workout) => {
                   label="Âge"
                   value={profile.age}
                   min={1}
-                  step={1}
                   onChange={(value) => updateProfileField('age', value)}
                 />
 
@@ -644,13 +646,13 @@ function WeightTrackingSection({
                   Poids (kg)
                 </span>
                 <input
-                  type="number"
+                  type="text"
                   inputMode="decimal"
-                  step={0.1}
-                  min={1}
                   value={weightInput}
                   placeholder="Ex : 72,3"
-                  onChange={(event) => setWeightInput(event.target.value)}
+                  onChange={(event) =>
+                    setWeightInput(sanitizeDecimalInput(event.target.value))
+                  }
                   className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-azur-400/60"
                 />
               </label>
@@ -665,10 +667,8 @@ function WeightTrackingSection({
             <span className="text-sm font-black text-white">Poids cible</span>
             <div className="mt-3 flex items-center gap-3">
               <input
-                type="number"
+                type="text"
                 inputMode="decimal"
-                step={0.1}
-                min={0}
                 value={goalWeight > 0 ? String(goalWeight) : ''}
                 placeholder="Ex : 68"
                 onChange={(event) => {
@@ -990,7 +990,6 @@ type NumberFieldProps = {
   label: string
   value: number
   min?: number
-  step?: number
   onChange: (value: number) => void
 }
 
@@ -998,11 +997,10 @@ function NumberField({
   label,
   value,
   min = 1,
-  step = 1,
   onChange,
 }: NumberFieldProps) {
   const [fieldState, setFieldState] = useState(() => ({
-    inputValue: String(value),
+    inputValue: formatDecimal(value),
     syncedValue: value,
   }))
 
@@ -1021,23 +1019,19 @@ function NumberField({
       return
     }
 
-    const parsedValue = Number(nextValue)
+    const parsedValue = parseDecimal(nextValue)
 
-    if (!Number.isNaN(parsedValue)) {
+    if (parsedValue !== undefined) {
       onChange(parsedValue)
     }
   }
 
   const handleBlur = () => {
-    const parsedValue = Number(inputValue)
+    const parsedValue = parseDecimal(inputValue)
 
-    if (
-      inputValue.trim() === '' ||
-      Number.isNaN(parsedValue) ||
-      parsedValue < min
-    ) {
+    if (parsedValue === undefined || parsedValue < min) {
       setFieldState({
-        inputValue: String(min),
+        inputValue: formatDecimal(min),
         syncedValue: min,
       })
 
@@ -1046,7 +1040,7 @@ function NumberField({
     }
 
     setFieldState({
-      inputValue: String(parsedValue),
+      inputValue: formatDecimal(parsedValue),
       syncedValue: parsedValue,
     })
 
@@ -1060,9 +1054,8 @@ function NumberField({
       </span>
 
       <input
-        type="number"
-        min={min}
-        step={step}
+        type="text"
+        inputMode="decimal"
         value={inputValue}
         onChange={handleChange}
         onBlur={handleBlur}
