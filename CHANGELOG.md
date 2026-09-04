@@ -12,6 +12,23 @@ Ordre antéchronologique (le plus récent en haut).
 
 ## 2026-09-04
 
+### Les mensurations suivent enfin votre compte
+
+- **Ce qui change** : sur la page « Corps », les mensurations sont désormais
+  rattachées au compte, comme l'était déjà le poids. Saisies sur le téléphone,
+  elles apparaissent sur l'ordinateur ; changer d'appareil ne les efface plus.
+  L'affichage reste instantané : on écrit d'abord localement, la
+  synchronisation suit.
+- **Pourquoi** : dans la même interface, le poids suivait l'utilisateur et les
+  mensurations non — une incohérence invisible, donc particulièrement
+  déroutante.
+- **À savoir** : à la première connexion, un historique déjà présent sur
+  l'appareil est **poussé vers le compte** (rien n'est perdu) ; si le compte en
+  a déjà un, c'est lui qui fait foi. Synchronisation date par date. Vider
+  toutes les mesures d'une date équivaut à supprimer l'entrée (la base refuse
+  une ligne vide). Si la lecture du compte échoue, on ne pousse rien.
+  Nécessite la migration `0019` (dépôt vitrine).
+
 ### Lint nettoyé et rendu bloquant
 
 - **Ce qui change** : l'erreur de lint est traitée : la bannière d'installation lit son état initial au lieu de le poser depuis un effet. Le lint passe de « informatif » à **bloquant** en CI :

@@ -29,7 +29,19 @@ export const MEASUREMENT_FIELDS: {
 ]
 
 const STORAGE_KEY = 'cs-body-measurements'
-const CHANGE_EVENT = 'cs-body-measurements-change'
+/** Émis à chaque écriture ; écouté par `lib/measurementsSync.ts`. */
+export const MEASUREMENTS_CHANGE_EVENT = 'cs-body-measurements-change'
+const CHANGE_EVENT = MEASUREMENTS_CHANGE_EVENT
+
+/** Liste actuellement stockée sur l'appareil. */
+export function readMeasurements(): BodyMeasurementEntry[] {
+  return read()
+}
+
+/** Remplace la liste locale (utilisée quand la version du compte arrive). */
+export function replaceLocalMeasurements(entries: BodyMeasurementEntry[]): void {
+  write(entries)
+}
 
 function read(): BodyMeasurementEntry[] {
   if (typeof window === 'undefined') return []
