@@ -12,6 +12,23 @@ Ordre antéchronologique (le plus récent en haut).
 
 ## 2026-09-04
 
+### La virgule est enfin acceptée dans les champs chiffrés
+
+- **Ce qui change** : distance, dénivelé, poids, mensurations et durée
+  acceptent désormais la **virgule** — celle du pavé numérique d'un clavier
+  français. La durée comprend en plus l'écriture d'un chronomètre : `27:58`
+  vaut 27 min 58 s, en complément de `28` et `27,5`.
+- **Pourquoi** : saisir « 4,31 » km était **impossible**. Le navigateur
+  refusait la valeur avec un message déroutant (« les deux valeurs valides les
+  plus proches sont 4 et 5 »), parce qu'un champ `type="number"` n'accepte que
+  le point comme séparateur décimal, quelle que soit la langue. Plusieurs
+  champs n'acceptaient même aucune décimale.
+- **À savoir** : ces champs passent en `type="text"` avec `inputMode="decimal"`
+  — le clavier numérique reste donc affiché sur mobile. Attention à la
+  distinction : `27:58` (deux-points) vaut 27 min 58 s, tandis que `27,58`
+  (virgule) vaut 27,58 minutes, soit 27 min 35 s. Le conseil sous le champ le
+  rappelle. La conversion est couverte par 21 tests, dont la régression exacte.
+
 ### Les erreurs rencontrées ne disparaissent plus dans le vide
 
 - **Ce qui change** : les erreurs non rattrapées (plantage de rendu, promesse

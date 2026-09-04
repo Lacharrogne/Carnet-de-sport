@@ -12,6 +12,11 @@ import type {
 } from '../types/workout'
 
 import { getSportDetailMode } from '../utils/sportDetails'
+import {
+  parseDuration,
+  sanitizeDecimalInput,
+  sanitizeDurationInput,
+} from '../lib/numberInput'
 
 type PlanningPageProps = {
   plannedWorkouts: PlannedWorkout[]
@@ -163,7 +168,8 @@ export default function PlanningPage({
     event.preventDefault()
 
     const cleanedTitle = title.trim()
-    const cleanedDuration = Number(duration)
+    // Accepte « 45 », « 27:58 » et « 27,5 » (voir lib/numberInput).
+    const cleanedDuration = parseDuration(duration)
     const cleanedObjective = objective.trim()
 
     if (!cleanedTitle) {
@@ -176,7 +182,7 @@ export default function PlanningPage({
       return
     }
 
-    if (!duration || Number.isNaN(cleanedDuration) || cleanedDuration <= 0) {
+    if (cleanedDuration === undefined || cleanedDuration <= 0) {
       void showAlert({ message:'Ajoute une durée valide.' })
       return
     }
@@ -383,11 +389,13 @@ export default function PlanningPage({
                   </span>
 
                   <input
-                    type="number"
-                    min="1"
+                    type="text"
+                    inputMode="decimal"
                     value={duration}
-                    onChange={(event) => setDuration(event.target.value)}
-                    placeholder="Ex : 45"
+                    onChange={(event) =>
+                      setDuration(sanitizeDurationInput(event.target.value))
+                    }
+                    placeholder="Ex : 45, 27:58 ou 27,5"
                     className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
                   />
                 </label>
@@ -1208,10 +1216,19 @@ function TextField({
       <span className="text-sm font-bold text-slate-200">{label}</span>
 
       <input
-        type={type}
-        min={type === 'number' ? '0' : undefined}
+        type="text"
+        // Pas de `type="number"` : il refuse la virgule, que produit pourtant
+        // le pavé numérique d'un clavier français. `inputMode` conserve le
+        // clavier numérique sur mobile.
+        inputMode={type === 'number' ? 'decimal' : undefined}
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        onChange={(event) =>
+          onChange(
+            type === 'number'
+              ? sanitizeDecimalInput(event.target.value)
+              : event.target.value,
+          )
+        }
         placeholder={placeholder}
         className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
       />

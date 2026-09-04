@@ -24,6 +24,13 @@ import {
   getLastPerformance,
   getOverloadSuggestion,
 } from '../services/progressiveOverloadService'
+import {
+  formatDecimal,
+  parseDecimal,
+  parseDuration,
+  sanitizeDecimalInput,
+  sanitizeDurationInput,
+} from '../lib/numberInput'
 
 type WorkoutFormProps = {
   initialValues?: WorkoutFormValues
@@ -236,7 +243,7 @@ export default function WorkoutForm({
   )
   const [duration, setDuration] = useState(
     initialValues?.duration
-      ? String(initialValues.duration)
+      ? formatDecimal(initialValues.duration)
       : draft?.duration ?? '',
   )
   const [intensity, setIntensity] = useState<WorkoutIntensity>(
@@ -331,15 +338,19 @@ export default function WorkoutForm({
     event.preventDefault()
 
     const cleanedTitle = title.trim()
-    const cleanedDuration = Number(duration)
+    // Accepte « 28 », « 27:58 » et « 27,5 » (voir lib/numberInput).
+    const cleanedDuration = parseDuration(duration)
 
     if (!cleanedTitle) {
       void showAlert({ message: 'Donne un nom à ta séance.' })
       return
     }
 
-    if (!duration || cleanedDuration <= 0) {
-      void showAlert({ message: 'Ajoute une durée valide.' })
+    if (cleanedDuration === undefined || cleanedDuration <= 0) {
+      void showAlert({
+        message:
+          'Ajoute une durée valide — par exemple 45, 27:58 ou 27,5 minutes.',
+      })
       return
     }
 
@@ -429,11 +440,13 @@ export default function WorkoutForm({
           </span>
 
           <input
-            type="number"
-            min="1"
+            type="text"
+            inputMode="decimal"
             value={duration}
-            onChange={(event) => setDuration(event.target.value)}
-            placeholder="Ex : 45"
+            onChange={(event) =>
+              setDuration(sanitizeDurationInput(event.target.value))
+            }
+            placeholder="Ex : 45, 27:58 ou 27,5"
             className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
           />
         </label>
@@ -1228,18 +1241,31 @@ function NumberDetailField({
   placeholder,
   onChange,
 }: NumberDetailFieldProps) {
+  // Le texte tapé est conservé tel quel : sans cela, une saisie en cours
+  // comme « 4, » serait réécrite en « 4 » et la virgule disparaîtrait.
+  const [draft, setDraft] = useState(() => formatDecimal(value))
+
+  // Réalignement quand la valeur change à l'extérieur (remise à zéro du
+  // formulaire, changement de sport). Ajustement pendant le rendu — le patron
+  // recommandé par React, plutôt qu'un effet qui déclencherait un second rendu.
+  const [lastValue, setLastValue] = useState(value)
+  if (value !== lastValue) {
+    setLastValue(value)
+    setDraft(formatDecimal(value))
+  }
+
   return (
     <label className="space-y-2">
       <span className="text-sm font-bold text-slate-200">{label}</span>
 
       <input
-        type="number"
-        min="0"
-        value={value ?? ''}
+        type="text"
+        inputMode="decimal"
+        value={draft}
         onChange={(event) => {
-          const newValue = event.target.value
-
-          onChange(newValue === '' ? undefined : Number(newValue))
+          const next = sanitizeDecimalInput(event.target.value)
+          setDraft(next)
+          onChange(parseDecimal(next))
         }}
         placeholder={placeholder}
         className="w-full rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-azur-400/60"
